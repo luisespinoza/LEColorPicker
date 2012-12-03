@@ -1,0 +1,22 @@
+# Mac OS X
+*.DS_Store
+
+# Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspective
+*.perspectivev3
+*.xcuserstate
+project.xcworkspace/
+xcuserdata/
+
+# Python modules
+MANIFEST
+dist/
+build/
+.idea/
+
+# Backup files
+*.swp
+*~.nib
