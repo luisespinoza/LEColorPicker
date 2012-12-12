@@ -1,7 +1,7 @@
 LEColorPicker
 =============
 
-A Cocoa-Touch system for getting a color scheme in function of an image, like iTunes 11 does. It is designed as a general purpose objects set, in wich  LEColorPicker is the interface for your client code.
+A Cocoa-Touch system for getting a color scheme in function of an image, like iTunes 11 does. It is designed as a general purpose class set, in wich  LEColorPicker is the interface for your client code.
 
 ![LEColorPicker_Lena](https://raw.github.com/luisespinoza/LEColorPicker/master/Screenshot_Lena.png)
 ![LEColorPicker_Lena](https://raw.github.com/luisespinoza/LEColorPicker/master/Screenshot_Mona.png)
