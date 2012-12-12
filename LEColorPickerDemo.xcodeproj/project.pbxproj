@@ -19,6 +19,16 @@
 		A0883539167814CC006D6F0F /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A0883538167814CC006D6F0F /* ViewController.m */; };
 		A088353C167814CC006D6F0F /* ViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = A088353A167814CC006D6F0F /* ViewController_iPhone.xib */; };
 		A088353F167814CC006D6F0F /* ViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = A088353D167814CC006D6F0F /* ViewController_iPad.xib */; };
+		A088354C1678158B006D6F0F /* LEColorPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = A08835471678158B006D6F0F /* LEColorPicker.m */; };
+		A088354D1678158B006D6F0F /* UIColor+LEColorPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = A08835491678158B006D6F0F /* UIColor+LEColorPicker.m */; };
+		A088354E1678158B006D6F0F /* UIImage+LEColorPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = A088354B1678158B006D6F0F /* UIImage+LEColorPicker.m */; };
+		A088355616781592006D6F0F /* AlbertEinstein.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355016781592006D6F0F /* AlbertEinstein.png */; };
+		A088355716781592006D6F0F /* ChileEarthquake2010.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355116781592006D6F0F /* ChileEarthquake2010.png */; };
+		A088355816781592006D6F0F /* earth.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355216781592006D6F0F /* earth.png */; };
+		A088355916781592006D6F0F /* lenaColor.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355316781592006D6F0F /* lenaColor.png */; };
+		A088355A16781592006D6F0F /* MonaLisa.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355416781592006D6F0F /* MonaLisa.png */; };
+		A088355B16781592006D6F0F /* TheScream.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355516781592006D6F0F /* TheScream.png */; };
+		A0883560167815CC006D6F0F /* ATPagingView.m in Sources */ = {isa = PBXBuildFile; fileRef = A088355F167815CC006D6F0F /* ATPagingView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +49,20 @@
 		A0883538167814CC006D6F0F /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		A088353B167814CC006D6F0F /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController_iPhone.xib; sourceTree = "<group>"; };
 		A088353E167814CC006D6F0F /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController_iPad.xib; sourceTree = "<group>"; };
+		A08835461678158B006D6F0F /* LEColorPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LEColorPicker.h; sourceTree = "<group>"; };
+		A08835471678158B006D6F0F /* LEColorPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LEColorPicker.m; sourceTree = "<group>"; };
+		A08835481678158B006D6F0F /* UIColor+LEColorPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+LEColorPicker.h"; sourceTree = "<group>"; };
+		A08835491678158B006D6F0F /* UIColor+LEColorPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+LEColorPicker.m"; sourceTree = "<group>"; };
+		A088354A1678158B006D6F0F /* UIImage+LEColorPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+LEColorPicker.h"; sourceTree = "<group>"; };
+		A088354B1678158B006D6F0F /* UIImage+LEColorPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+LEColorPicker.m"; sourceTree = "<group>"; };
+		A088355016781592006D6F0F /* AlbertEinstein.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AlbertEinstein.png; sourceTree = "<group>"; };
+		A088355116781592006D6F0F /* ChileEarthquake2010.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ChileEarthquake2010.png; sourceTree = "<group>"; };
+		A088355216781592006D6F0F /* earth.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = earth.png; sourceTree = "<group>"; };
+		A088355316781592006D6F0F /* lenaColor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lenaColor.png; sourceTree = "<group>"; };
+		A088355416781592006D6F0F /* MonaLisa.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MonaLisa.png; sourceTree = "<group>"; };
+		A088355516781592006D6F0F /* TheScream.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TheScream.png; sourceTree = "<group>"; };
+		A088355E167815CC006D6F0F /* ATPagingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ATPagingView.h; sourceTree = "<group>"; };
+		A088355F167815CC006D6F0F /* ATPagingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ATPagingView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +82,9 @@
 		A0883510167814CC006D6F0F = {
 			isa = PBXGroup;
 			children = (
+				A088355C167815CC006D6F0F /* Externals */,
+				A088354F16781592006D6F0F /* Resources */,
+				A08835451678158B006D6F0F /* LEColorPicker */,
 				A0883525167814CC006D6F0F /* LEColorPickerDemo */,
 				A088351E167814CC006D6F0F /* Frameworks */,
 				A088351C167814CC006D6F0F /* Products */,
@@ -108,6 +135,49 @@
 				A0883535167814CC006D6F0F /* Default-568h@2x.png */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		A08835451678158B006D6F0F /* LEColorPicker */ = {
+			isa = PBXGroup;
+			children = (
+				A08835461678158B006D6F0F /* LEColorPicker.h */,
+				A08835471678158B006D6F0F /* LEColorPicker.m */,
+				A08835481678158B006D6F0F /* UIColor+LEColorPicker.h */,
+				A08835491678158B006D6F0F /* UIColor+LEColorPicker.m */,
+				A088354A1678158B006D6F0F /* UIImage+LEColorPicker.h */,
+				A088354B1678158B006D6F0F /* UIImage+LEColorPicker.m */,
+			);
+			path = LEColorPicker;
+			sourceTree = "<group>";
+		};
+		A088354F16781592006D6F0F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A088355016781592006D6F0F /* AlbertEinstein.png */,
+				A088355116781592006D6F0F /* ChileEarthquake2010.png */,
+				A088355216781592006D6F0F /* earth.png */,
+				A088355316781592006D6F0F /* lenaColor.png */,
+				A088355416781592006D6F0F /* MonaLisa.png */,
+				A088355516781592006D6F0F /* TheScream.png */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		A088355C167815CC006D6F0F /* Externals */ = {
+			isa = PBXGroup;
+			children = (
+				A088355D167815CC006D6F0F /* ATPagingView */,
+			);
+			path = Externals;
+			sourceTree = "<group>";
+		};
+		A088355D167815CC006D6F0F /* ATPagingView */ = {
+			isa = PBXGroup;
+			children = (
+				A088355E167815CC006D6F0F /* ATPagingView.h */,
+				A088355F167815CC006D6F0F /* ATPagingView.m */,
+			);
+			path = ATPagingView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -167,6 +237,12 @@
 				A0883536167814CC006D6F0F /* Default-568h@2x.png in Resources */,
 				A088353C167814CC006D6F0F /* ViewController_iPhone.xib in Resources */,
 				A088353F167814CC006D6F0F /* ViewController_iPad.xib in Resources */,
+				A088355616781592006D6F0F /* AlbertEinstein.png in Resources */,
+				A088355716781592006D6F0F /* ChileEarthquake2010.png in Resources */,
+				A088355816781592006D6F0F /* earth.png in Resources */,
+				A088355916781592006D6F0F /* lenaColor.png in Resources */,
+				A088355A16781592006D6F0F /* MonaLisa.png in Resources */,
+				A088355B16781592006D6F0F /* TheScream.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -180,6 +256,10 @@
 				A088352C167814CC006D6F0F /* main.m in Sources */,
 				A0883530167814CC006D6F0F /* AppDelegate.m in Sources */,
 				A0883539167814CC006D6F0F /* ViewController.m in Sources */,
+				A088354C1678158B006D6F0F /* LEColorPicker.m in Sources */,
+				A088354D1678158B006D6F0F /* UIColor+LEColorPicker.m in Sources */,
+				A088354E1678158B006D6F0F /* UIImage+LEColorPicker.m in Sources */,
+				A0883560167815CC006D6F0F /* ATPagingView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
