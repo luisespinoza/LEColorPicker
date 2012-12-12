@@ -1,0 +1,17 @@
+//
+//  UIColor+LEColorPicker.h
+//  LEColorPicker
+//
+//  Created by Luis Enrique Espinoza Severino on 03-12-12.
+//  Copyright (c) 2012 LuisEspinoza. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface UIColor (LEColorPicker)
+
++ (float) yComponentFromColor:(UIColor*)color;
++ (float) uComponentFromColor:(UIColor*)color;
++ (float) vComponentFromColor:(UIColor*)color;
++ (float) YUVSpaceDistanceToColor:(UIColor*)toColor fromColor:(UIColor*)fromColor;
+@end
