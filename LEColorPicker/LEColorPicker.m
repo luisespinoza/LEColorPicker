@@ -10,6 +10,12 @@
 #import "UIImage+LEColorPicker.h"
 #import "UIColor+LEColorPicker.h"
 
+#define LECOLORPICKER_DEFAULT_SCALED_SIZE                               36      //px
+#define LECOLORPICKER_DEFAULT_DOMINANTS_TRESHOLD                        0.1     //Distance in YUV Space
+#define LECOLORPICKER_DEFAULT_NUM_OF_DOMINANTS                          3
+#define LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE                          0.75
+#define LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE                     0.125
+
 @implementation LEColorPicker
 
 + (NSDictionary *)dictionaryWithColorsPickedFromImage:(UIImage *)image
@@ -21,12 +27,13 @@
     NSMutableDictionary *colorsDictionary = [[NSMutableDictionary alloc] init];
     
     //Number of pixels reduction
-    UIImage *scaledImage =  [LEColorPicker imageWithImage:image scaledToSize:CGSizeMake(36, 36)];
+    UIImage *scaledImage =  [LEColorPicker imageWithImage:image scaledToSize:CGSizeMake(LECOLORPICKER_DEFAULT_SCALED_SIZE,
+                                                                                        LECOLORPICKER_DEFAULT_SCALED_SIZE)];
     
     //Get the three more dominants colors
     NSArray *colorSchemeArray =[UIImage dominantsColorsFromImage:scaledImage
-                                                       threshold:0.1
-                                                  numberOfColors:3];
+                                                       threshold:LECOLORPICKER_DEFAULT_DOMINANTS_TRESHOLD
+                                                  numberOfColors:LECOLORPICKER_DEFAULT_NUM_OF_DOMINANTS];
  
         if ([colorSchemeArray count]>=1 ) {
             backgroundColor = [colorSchemeArray objectAtIndex:0];
@@ -95,7 +102,7 @@
     float foregroundColorBrightness = [UIColor yComponentFromColor:foregroundColor];
     float brightnessDifference = fabsf(backgroundColorBrightness-foregroundColorBrightness);
     
-    if (brightnessDifference>=0.125) {
+    if (brightnessDifference>=LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE) {
         float backgroundRed = 0.0;
         float backgroundGreen = 0.0;
         float backgroundBlue = 0.0;
@@ -125,7 +132,7 @@
         float colorDifference = (MAX(backgroundRed,foregroundRed)-MIN(backgroundRed, foregroundRed)) +
         (MAX(backgroundGreen,foregroundGreen)-MIN(backgroundGreen, foregroundGreen)) +
         (MAX(backgroundBlue,foregroundBlue)-MIN(backgroundBlue, foregroundBlue));
-        if (colorDifference>1) {
+        if (colorDifference>LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE) {
             return YES;
         }
     }

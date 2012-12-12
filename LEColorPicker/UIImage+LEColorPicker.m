@@ -31,7 +31,7 @@
                                                andY:0
                                               count:(NSUInteger)count];
         } else {
-            pixelArray = [self filterColor:dominantColor fromPixelArray:pixelArray threshold:0.5];
+            pixelArray = [self filterColor:dominantColor fromPixelArray:pixelArray threshold:0.3];
         }
         //NSLog(@"PixelArray = \n %@",[pixelArray description]);
         
