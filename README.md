@@ -33,6 +33,8 @@ LEColorPicker class provides a class method that receives an UIImage as input an
 	...
 	
 
+## About the sample images
+All images are public domain. If you want to add your own testing images, drag the image to the Resources folder of the project, in Xcode. Don't use names with "Default" or will be filtered.
 
 ## License
 
