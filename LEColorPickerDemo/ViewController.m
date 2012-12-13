@@ -83,11 +83,21 @@
 - (void)configureOutPutView:(UIImage*)image
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        //HERE LECOLORPICKER IS USED!
         NSDictionary *colorsPickedDictionary = [LEColorPicker dictionaryWithColorsPickedFromImage:image];
+        
         dispatch_async(dispatch_get_main_queue(), ^{
+        //HERE THE COLOR CHANGE IS ANIMATED
+            [UIView beginAnimations:@"ColorChange" context:nil];
+            [UIView setAnimationCurve: UIViewAnimationCurveEaseInOut];
+            [UIView setAnimationDuration:0.5];
+            //HERE THE COLOR IS CHANGED
             _outputView.backgroundColor = [colorsPickedDictionary objectForKey:@"BackgroundColor"];
             _titleTextField.textColor = [colorsPickedDictionary objectForKey:@"PrimaryTextColor"];
             _bodyTextField.textColor = [colorsPickedDictionary objectForKey:@"SecondaryTextColor"];
+            
+            [UIView commitAnimations];
         });
     });
 }
