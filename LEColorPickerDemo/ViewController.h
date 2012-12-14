@@ -11,8 +11,8 @@
 
 @interface ViewController : UIViewController<ATPagingViewDelegate>
 {
+    IBOutlet UIActivityIndicatorView *_activityIndicator;
     IBOutlet ATPagingView *_pagingView;
-    
     IBOutlet UITextView *_titleTextField;
     IBOutlet UITextView *_bodyTextField;
     IBOutlet UIView *_outputView;

@@ -23,6 +23,7 @@
     UIColor *backgroundColor;
     UIColor *primaryTextColor;
     UIColor *secondayTextColor;
+    NSDate *startDate = [NSDate date];
     
     NSMutableDictionary *colorsDictionary = [[NSMutableDictionary alloc] init];
     
@@ -84,6 +85,10 @@
             }
         }
     
+    NSDate *endDate = [NSDate date];
+    NSTimeInterval timeDifference = [endDate timeIntervalSinceDate:startDate];
+    double timePassed_ms = timeDifference * -1000.0;
+    NSLog(@"Computation time: %f", timePassed_ms);
     return colorsDictionary;
 }
 

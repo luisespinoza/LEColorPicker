@@ -82,12 +82,16 @@
 #pragma mark - LEColorPicker Example Usage
 - (void)configureOutPutView:(UIImage*)image
 {
+    [_activityIndicator startAnimating];
+    _activityIndicator.hidden = NO;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         //HERE LECOLORPICKER IS USED!
         NSDictionary *colorsPickedDictionary = [LEColorPicker dictionaryWithColorsPickedFromImage:image];
         
         dispatch_async(dispatch_get_main_queue(), ^{
+            [_activityIndicator stopAnimating];
+            _activityIndicator.hidden = YES;
         //HERE THE COLOR CHANGE IS ANIMATED
             [UIView beginAnimations:@"ColorChange" context:nil];
             [UIView setAnimationCurve: UIViewAnimationCurveEaseInOut];
