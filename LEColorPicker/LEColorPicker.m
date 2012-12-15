@@ -18,6 +18,17 @@
 
 @implementation LEColorPicker
 
++ (void)pickColorFromImage:(UIImage *)image
+                onComplete:(void (^)(NSDictionary *colorsPickedDictionary))completeBlock
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSDictionary *colorsPickedDictionary = [LEColorPicker dictionaryWithColorsPickedFromImage:image];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completeBlock(colorsPickedDictionary);
+        });
+    });
+}
+
 + (NSDictionary *)dictionaryWithColorsPickedFromImage:(UIImage *)image
 {
     UIColor *backgroundColor;
@@ -35,55 +46,55 @@
     NSArray *colorSchemeArray =[UIImage dominantsColorsFromImage:scaledImage
                                                        threshold:LECOLORPICKER_DEFAULT_DOMINANTS_TRESHOLD
                                                   numberOfColors:LECOLORPICKER_DEFAULT_NUM_OF_DOMINANTS];
- 
-        if ([colorSchemeArray count]>=1 ) {
-            backgroundColor = [colorSchemeArray objectAtIndex:0];
-            [colorsDictionary setObject:backgroundColor forKey:@"BackgroundColor"];
-        }
-        
-        if ([colorSchemeArray count]>=2 ) {
-            primaryTextColor = [colorSchemeArray objectAtIndex:1];
-            if ([LEColorPicker isSufficienteContrastBetweenBackground:backgroundColor
-                                                         andForground:primaryTextColor]) {
-                [colorsDictionary setObject:primaryTextColor forKey:@"PrimaryTextColor"];
-            } else {
-                NSLog(@"No enough contrast!");
-                if ([UIColor yComponentFromColor:backgroundColor] < 0.5) {
-                    [colorsDictionary setObject:[UIColor whiteColor] forKey:@"PrimaryTextColor"];
-                } else {
-                    [colorsDictionary setObject:[UIColor blackColor] forKey:@"PrimaryTextColor"];
-                }
-            }
+    
+    if ([colorSchemeArray count]>=1 ) {
+        backgroundColor = [colorSchemeArray objectAtIndex:0];
+        [colorsDictionary setObject:backgroundColor forKey:@"BackgroundColor"];
+    }
+    
+    if ([colorSchemeArray count]>=2 ) {
+        primaryTextColor = [colorSchemeArray objectAtIndex:1];
+        if ([LEColorPicker isSufficienteContrastBetweenBackground:backgroundColor
+                                                     andForground:primaryTextColor]) {
+            [colorsDictionary setObject:primaryTextColor forKey:@"PrimaryTextColor"];
         } else {
-            NSLog(@"No dominant!");
+            NSLog(@"No enough contrast!");
             if ([UIColor yComponentFromColor:backgroundColor] < 0.5) {
                 [colorsDictionary setObject:[UIColor whiteColor] forKey:@"PrimaryTextColor"];
             } else {
                 [colorsDictionary setObject:[UIColor blackColor] forKey:@"PrimaryTextColor"];
             }
         }
-    
-        if ([colorSchemeArray count]>=3 ) {
-            secondayTextColor = [colorSchemeArray objectAtIndex:2];
-            if ([LEColorPicker isSufficienteContrastBetweenBackground:backgroundColor
-                                                   andForground:secondayTextColor]) {
-                [colorsDictionary setObject:secondayTextColor forKey:@"SecondaryTextColor"];
-            } else {
-                NSLog(@"No enough contrast!");
-                if ([UIColor yComponentFromColor:backgroundColor] < 0.5) {
-                    [colorsDictionary setObject:[UIColor whiteColor] forKey:@"SecondaryTextColor"];
-                } else {
-                    [colorsDictionary setObject:[UIColor blackColor] forKey:@"SecondaryTextColor"];
-                }
-            }
+    } else {
+        NSLog(@"No dominant!");
+        if ([UIColor yComponentFromColor:backgroundColor] < 0.5) {
+            [colorsDictionary setObject:[UIColor whiteColor] forKey:@"PrimaryTextColor"];
         } else {
-            NSLog(@"No dominant!");
+            [colorsDictionary setObject:[UIColor blackColor] forKey:@"PrimaryTextColor"];
+        }
+    }
+    
+    if ([colorSchemeArray count]>=3 ) {
+        secondayTextColor = [colorSchemeArray objectAtIndex:2];
+        if ([LEColorPicker isSufficienteContrastBetweenBackground:backgroundColor
+                                                     andForground:secondayTextColor]) {
+            [colorsDictionary setObject:secondayTextColor forKey:@"SecondaryTextColor"];
+        } else {
+            NSLog(@"No enough contrast!");
             if ([UIColor yComponentFromColor:backgroundColor] < 0.5) {
                 [colorsDictionary setObject:[UIColor whiteColor] forKey:@"SecondaryTextColor"];
             } else {
                 [colorsDictionary setObject:[UIColor blackColor] forKey:@"SecondaryTextColor"];
             }
         }
+    } else {
+        NSLog(@"No dominant!");
+        if ([UIColor yComponentFromColor:backgroundColor] < 0.5) {
+            [colorsDictionary setObject:[UIColor whiteColor] forKey:@"SecondaryTextColor"];
+        } else {
+            [colorsDictionary setObject:[UIColor blackColor] forKey:@"SecondaryTextColor"];
+        }
+    }
     
     NSDate *endDate = [NSDate date];
     NSTimeInterval timeDifference = [endDate timeIntervalSinceDate:startDate];
