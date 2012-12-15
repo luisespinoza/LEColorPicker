@@ -8,10 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UIColor (LEColorPicker)
+@interface UIColor (YUVSpace)
 
 + (float) yComponentFromColor:(UIColor*)color;
 + (float) uComponentFromColor:(UIColor*)color;
 + (float) vComponentFromColor:(UIColor*)color;
 + (float) YUVSpaceDistanceToColor:(UIColor*)toColor fromColor:(UIColor*)fromColor;
 @end
+

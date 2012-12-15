@@ -9,7 +9,7 @@
 #import "UIColor+LEColorPicker.h"
 #import <float.h>
 
-@implementation UIColor (LEColorPicker)
+@implementation UIColor (YUVSpace)
 
 + (float)yComponentFromColor:(UIColor *)color
 {
