@@ -8,7 +8,7 @@
 
 #import "LEColorPicker.h"
 #import "UIImage+LEColorPicker.h"
-#import "UIColor+LEColorPicker.h"
+#import "UIColor+YUVSpace.h"
 
 #define LECOLORPICKER_DEFAULT_SCALED_SIZE                               36      //px
 #define LECOLORPICKER_DEFAULT_DOMINANTS_TRESHOLD                        0.1     //Distance in YUV Space

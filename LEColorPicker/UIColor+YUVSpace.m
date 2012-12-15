@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 LuisEspinoza. All rights reserved.
 //
 
-#import "UIColor+LEColorPicker.h"
+#import "UIColor+YUVSpace.h"
 #import <float.h>
 
 @implementation UIColor (YUVSpace)

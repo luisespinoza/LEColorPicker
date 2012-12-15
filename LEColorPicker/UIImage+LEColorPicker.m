@@ -7,7 +7,7 @@
 //
 
 #import "UIImage+LEColorPicker.h"
-#import "UIColor+LEColorPicker.h"
+#import "UIColor+YUVSpace.h"
 
 @implementation UIImage (LEColorPicker)
 
