@@ -16,20 +16,17 @@ THIS PROJECT USE ARC!!!
 * Drag the 'LEColorPickerDemo/LEColorPicker' folder into your project, and you are done.
 
 ## Usage
-LEColorPicker class provides a class method that receives an UIImage as input and returns a NSDictionary with the three computed colors. The computation take some time, that is why you have to use it inside a dispatch_async block. Notice that you have to dispatch to the main queue the block for using the computed colors.
+LEColorPicker class provides a class method that receives an UIImage as input and completition block that is executed when the image processing is done. The completion block recieves a NSDictionary with the three computed colors. The computation take some time, that is why we provide this split phase method.
 
 
 
 	#import "LEColorPicker.h"
 	...
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSDictionary *colorsPickedDictionary = [LEColorPicker dictionaryWithColorsPickedFromImage:image];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            _outputView.backgroundColor = [colorsPickedDictionary objectForKey:@"BackgroundColor"];
-            _titleTextField.textColor = [colorsPickedDictionary objectForKey:@"PrimaryTextColor"];
-            _bodyTextField.textColor = [colorsPickedDictionary objectForKey:@"SecondaryTextColor"];
-        });
-    });
+    [LEColorPicker pickColorFromImage:image onComplete:^(NSDictionary *colorsPickedDictionary) {
+        _outputView.backgroundColor = [colorsPickedDictionary objectForKey:@"BackgroundColor"];
+        _titleTextField.textColor = [colorsPickedDictionary objectForKey:@"PrimaryTextColor"];
+        _bodyTextField.textColor = [colorsPickedDictionary objectForKey:@"SecondaryTextColor"];
+    }];
 	...
 	
 
