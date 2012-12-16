@@ -61,21 +61,19 @@
     NSMutableArray *auxPixelArray = [[NSMutableArray alloc] initWithArray:pixelArray];
     if ([pixelArray count]) {
         for (i=0; i<[pixelArray count]; i++) {
-            @autoreleasepool {
-                UIColor *aColor = [pixelArray objectAtIndex:i];
-                NSMutableArray *aArray = [[NSMutableArray alloc] init];
-                for (j=0; j<[auxPixelArray count]; j++) {
-                    @autoreleasepool {
-                        UIColor *otherColor = [auxPixelArray objectAtIndex:j];
-                        float distance = [UIColor YUVSpaceSquareDistanceToColor:aColor fromColor:otherColor];
-                        if (distance<(threshold*threshold)) {
-                            [aArray addObject:otherColor];
-                        }
+            UIColor *aColor = [pixelArray objectAtIndex:i];
+            NSMutableArray *aArray = [[NSMutableArray alloc] init];
+            for (j=0; j<[auxPixelArray count]; j++) {
+                @autoreleasepool {
+                    UIColor *otherColor = [auxPixelArray objectAtIndex:j];
+                    float distance = [UIColor YUVSpaceSquareDistanceToColor:aColor fromColor:otherColor];
+                    if (distance<(threshold*threshold)) {
+                        [aArray addObject:otherColor];
                     }
                 }
-                [auxPixelArray removeObjectsInArray:aArray];
-                [finalArray addObject:aArray];
             }
+            [auxPixelArray removeObjectsInArray:aArray];
+            [finalArray addObject:aArray];
         }
     }
     return finalArray;
