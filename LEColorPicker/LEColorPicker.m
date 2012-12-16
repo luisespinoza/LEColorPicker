@@ -33,7 +33,7 @@
 {
     UIColor *backgroundColor;
     UIColor *primaryTextColor;
-    UIColor *secondayTextColor;
+    UIColor *secondaryTextColor;
     NSDate *startDate = [NSDate date];
     
     NSMutableDictionary *colorsDictionary = [[NSMutableDictionary alloc] init];
@@ -49,11 +49,13 @@
     
     if ([colorSchemeArray count]>=1 ) {
         backgroundColor = [colorSchemeArray objectAtIndex:0];
+        NSLog(@"First dominant color : %@",[backgroundColor description]);
         [colorsDictionary setObject:backgroundColor forKey:@"BackgroundColor"];
     }
     
     if ([colorSchemeArray count]>=2 ) {
         primaryTextColor = [colorSchemeArray objectAtIndex:1];
+        NSLog(@"Second dominant color : %@",[primaryTextColor description]);
         if ([LEColorPicker isSufficienteContrastBetweenBackground:backgroundColor
                                                      andForground:primaryTextColor]) {
             [colorsDictionary setObject:primaryTextColor forKey:@"PrimaryTextColor"];
@@ -75,10 +77,11 @@
     }
     
     if ([colorSchemeArray count]>=3 ) {
-        secondayTextColor = [colorSchemeArray objectAtIndex:2];
+        secondaryTextColor = [colorSchemeArray objectAtIndex:2];
+        NSLog(@"Third dominant color : %@",[secondaryTextColor description]);
         if ([LEColorPicker isSufficienteContrastBetweenBackground:backgroundColor
-                                                     andForground:secondayTextColor]) {
-            [colorsDictionary setObject:secondayTextColor forKey:@"SecondaryTextColor"];
+                                                     andForground:secondaryTextColor]) {
+            [colorsDictionary setObject:secondaryTextColor forKey:@"SecondaryTextColor"];
         } else {
             NSLog(@"No enough contrast!");
             if ([UIColor yComponentFromColor:backgroundColor] < 0.5) {

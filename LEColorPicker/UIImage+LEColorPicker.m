@@ -24,27 +24,29 @@
     CGFloat count = image.size.width * image.size.height;
     
     for (NSUInteger i=0; i<numberOfColors; i++) {
-        //Pick most dominant color
-        if (i==0) {
-            pixelArray = [UIImage getRGBAsFromImage:image
-                                                atX:0
-                                               andY:0
-                                              count:(NSUInteger)count];
-        } else {
-            pixelArray = [self filterColor:dominantColor fromPixelArray:pixelArray threshold:0.3];
-        }
-        //NSLog(@"PixelArray = \n %@",[pixelArray description]);
-        
-        buckets = [UIImage gather:pixelArray forThreshold:threshold];
-        //NSLog(@"Buckets = \n %@",[buckets description]);
-        
-        sortedBuckets = [UIImage sortedBucketsFromArray:buckets
-                                                 forKey:@"@count"
-                                              ascending:NO];
-        //NSLog(@"SortedBuckets = \n %@",[sortedBuckets description]);
-        if ([sortedBuckets count]) {
-            dominantColor = [[sortedBuckets objectAtIndex:0] objectAtIndex:0];
-            [returnArray addObject:dominantColor];
+        @autoreleasepool {
+            //Pick most dominant color
+            if (i==0) {
+                pixelArray = [UIImage getRGBAsFromImage:image
+                                                    atX:0
+                                                   andY:0
+                                                  count:(NSUInteger)count];
+            } else {
+                pixelArray = [self filterColor:dominantColor fromPixelArray:pixelArray threshold:0.3];
+            }
+            //NSLog(@"PixelArray = \n %@",[pixelArray description]);
+            
+            buckets = [UIImage gather:pixelArray forThreshold:threshold];
+            //NSLog(@"Buckets = \n %@",[buckets description]);
+            
+            sortedBuckets = [UIImage sortedBucketsFromArray:buckets
+                                                     forKey:@"@count"
+                                                  ascending:NO];
+            //NSLog(@"SortedBuckets = \n %@",[sortedBuckets description]);
+            if ([sortedBuckets count]) {
+                dominantColor = [[sortedBuckets objectAtIndex:0] objectAtIndex:0];
+                [returnArray addObject:dominantColor];
+            }
         }
     }
     
@@ -59,17 +61,21 @@
     NSMutableArray *auxPixelArray = [[NSMutableArray alloc] initWithArray:pixelArray];
     if ([pixelArray count]) {
         for (i=0; i<[pixelArray count]; i++) {
-            UIColor *aColor = [pixelArray objectAtIndex:i];
-            NSMutableArray *aArray = [[NSMutableArray alloc] init];
-            for (j=0; j<[auxPixelArray count]; j++) {
-                UIColor *otherColor = [auxPixelArray objectAtIndex:j];
-                float distance = [UIColor YUVSpaceDistanceToColor:aColor fromColor:otherColor];
-                if (distance<threshold) {
-                    [aArray addObject:otherColor];
+            @autoreleasepool {
+                UIColor *aColor = [pixelArray objectAtIndex:i];
+                NSMutableArray *aArray = [[NSMutableArray alloc] init];
+                for (j=0; j<[auxPixelArray count]; j++) {
+                    @autoreleasepool {
+                        UIColor *otherColor = [auxPixelArray objectAtIndex:j];
+                        float distance = [UIColor YUVSpaceSquareDistanceToColor:aColor fromColor:otherColor];
+                        if (distance<(threshold*threshold)) {
+                            [aArray addObject:otherColor];
+                        }
+                    }
                 }
+                [auxPixelArray removeObjectsInArray:aArray];
+                [finalArray addObject:aArray];
             }
-            [auxPixelArray removeObjectsInArray:aArray];
-            [finalArray addObject:aArray];
         }
     }
     return finalArray;
@@ -91,10 +97,12 @@
     NSMutableArray *filteredArray = [[NSMutableArray alloc] init];
     if ([pixelArray count]) {
         for (i=0; i<[pixelArray count]; i++) {
-            UIColor *aColor = [pixelArray objectAtIndex:i];
-            float distance = [UIColor YUVSpaceDistanceToColor:aColor fromColor:color];
-            if (distance>threshold) {
-                [filteredArray addObject:aColor];
+            @autoreleasepool {
+                UIColor *aColor = [pixelArray objectAtIndex:i];
+                float distance = [UIColor YUVSpaceSquareDistanceToColor:aColor fromColor:color];
+                if (distance>(threshold*threshold)) {
+                    [filteredArray addObject:aColor];
+                }
             }
         }
     }
@@ -127,14 +135,16 @@
     int byteIndex = (bytesPerRow * yy) + xx * bytesPerPixel;
     for (int ii = 0 ; ii < count ; ++ii)
     {
-        CGFloat red   = (rawData[byteIndex]     * 1.0) / 255.0;
-        CGFloat green = (rawData[byteIndex + 1] * 1.0) / 255.0;
-        CGFloat blue  = (rawData[byteIndex + 2] * 1.0) / 255.0;
-        CGFloat alpha = (rawData[byteIndex + 3] * 1.0) / 255.0;
-        byteIndex += 4;
-        
-        UIColor *acolor = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
-        [result addObject:acolor];
+        @autoreleasepool {
+            CGFloat red   = (rawData[byteIndex]     * 1.0) / 255.0;
+            CGFloat green = (rawData[byteIndex + 1] * 1.0) / 255.0;
+            CGFloat blue  = (rawData[byteIndex + 2] * 1.0) / 255.0;
+            CGFloat alpha = (rawData[byteIndex + 3] * 1.0) / 255.0;
+            byteIndex += 4;
+            
+            UIColor *acolor = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+            [result addObject:acolor];
+        }
     }
     
     free(rawData);

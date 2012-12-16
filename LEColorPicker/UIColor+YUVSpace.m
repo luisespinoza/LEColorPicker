@@ -106,6 +106,25 @@
     return distance;
 }
 
++ (float)YUVSpaceSquareDistanceToColor:(UIColor *)toColor fromColor:(UIColor *)fromColor
+{
+    float YToColor = [UIColor yComponentFromColor:toColor];
+    float UToColor = [UIColor uComponentFromColor:toColor];
+    float VToColor = [UIColor vComponentFromColor:toColor];
+    
+    float YFromColor = [UIColor yComponentFromColor:fromColor];
+    float UFromColor = [UIColor uComponentFromColor:fromColor];
+    float VFromColor = [UIColor vComponentFromColor:fromColor];
+    
+    float deltaY = YToColor - YFromColor;
+    float deltaU = UToColor - UFromColor;
+    float deltaV = VToColor - VFromColor;
+    
+    float distance = deltaY*deltaY + deltaU*deltaU + deltaV*deltaV;
+    
+    return distance;
+}
+
 
 
 @end
