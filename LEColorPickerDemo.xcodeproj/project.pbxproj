@@ -27,6 +27,7 @@
 		A088355A16781592006D6F0F /* MonaLisa.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355416781592006D6F0F /* MonaLisa.png */; };
 		A088355B16781592006D6F0F /* TheScream.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355516781592006D6F0F /* TheScream.png */; };
 		A0883560167815CC006D6F0F /* ATPagingView.m in Sources */ = {isa = PBXBuildFile; fileRef = A088355F167815CC006D6F0F /* ATPagingView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		A098E958167D54700022B8A2 /* LEColorPickerAbstract.m in Sources */ = {isa = PBXBuildFile; fileRef = A098E957167D54700022B8A2 /* LEColorPickerAbstract.m */; };
 		A0F8F05716797898007DBA2B /* AirplaneVortex.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F05616797898007DBA2B /* AirplaneVortex.png */; };
 		A0F8F059167978C5007DBA2B /* VitruvianMan.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F058167978C5007DBA2B /* VitruvianMan.png */; };
 /* End PBXBuildFile section */
@@ -61,6 +62,8 @@
 		A088355516781592006D6F0F /* TheScream.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TheScream.png; sourceTree = "<group>"; };
 		A088355E167815CC006D6F0F /* ATPagingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ATPagingView.h; sourceTree = "<group>"; };
 		A088355F167815CC006D6F0F /* ATPagingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ATPagingView.m; sourceTree = "<group>"; };
+		A098E956167D54700022B8A2 /* LEColorPickerAbstract.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LEColorPickerAbstract.h; sourceTree = "<group>"; };
+		A098E957167D54700022B8A2 /* LEColorPickerAbstract.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LEColorPickerAbstract.m; sourceTree = "<group>"; };
 		A0F8F05616797898007DBA2B /* AirplaneVortex.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AirplaneVortex.png; sourceTree = "<group>"; };
 		A0F8F058167978C5007DBA2B /* VitruvianMan.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = VitruvianMan.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -146,6 +149,8 @@
 				A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */,
 				A088354A1678158B006D6F0F /* UIImage+LEColorPicker.h */,
 				A088354B1678158B006D6F0F /* UIImage+LEColorPicker.m */,
+				A098E956167D54700022B8A2 /* LEColorPickerAbstract.h */,
+				A098E957167D54700022B8A2 /* LEColorPickerAbstract.m */,
 			);
 			path = LEColorPicker;
 			sourceTree = "<group>";
@@ -260,6 +265,7 @@
 				A088354E1678158B006D6F0F /* UIImage+LEColorPicker.m in Sources */,
 				A0883560167815CC006D6F0F /* ATPagingView.m in Sources */,
 				A0080D2B167C15BB00F45CE3 /* UIColor+YUVSpace.m in Sources */,
+				A098E958167D54700022B8A2 /* LEColorPickerAbstract.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
