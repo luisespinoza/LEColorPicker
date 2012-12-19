@@ -10,7 +10,7 @@
 
 @implementation LEColorPickerAbstract
 
--   (void)pickColorFromImage:(UIImage *)image
+-   (void)pickColorsFromImage:(UIImage *)image
                 onComplete:(void (^)(NSDictionary *colorsPickedDictionary))completeBlock
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -53,16 +53,19 @@
 
 - (UIImage*)transformImage:(UIImage*)image
 {
+    NSLog(@"Parent transformImage");
     return nil;
 }
 
 - (NSArray*)quantizeImage:(UIImage*)image numberOfColors:(NSUInteger)numOfColors
 {
+    NSLog(@"Parent quantizeImage");
     return nil;
 }
 
 - (NSDictionary*)testAndRepairColors:(NSArray*)colorsArray
 {
+    NSLog(@"Parent testAndRepairColors");
     return nil;
 }
 @end

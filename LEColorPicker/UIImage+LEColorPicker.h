@@ -19,4 +19,7 @@
                          andY:(int)yy
                         count:(int)count;
 
++ (UIImage *)imageWithImage:(UIImage *)image
+               scaledToSize:(CGSize)newSize;
+
 @end
