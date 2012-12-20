@@ -48,6 +48,6 @@ This software is licensed under the MIT license.
 ## Thanks to
 Andrey Tarantsov for [ATPagingView](https://github.com/andreyvit/SoloComponents-iOS).
 
-User Olie from StackOverflow, [for his function to get a RGBA pixel array from a UIImage](http://goo.gl/PEUhq).
+User Olie from StackOverflow, [for his function to get a RGBA pixel array from an UIImage](http://goo.gl/PEUhq).
 
 User Seth Thompson from StackOverflow for his [Mathematica code for pick the colors like iTunes 11](http://goo.gl/sJ2DH).
