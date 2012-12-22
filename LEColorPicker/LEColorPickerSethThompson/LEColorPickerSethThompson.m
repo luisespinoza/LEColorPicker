@@ -13,27 +13,55 @@
 #define LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE                  36
 #define LECOLORPICKER_DEFAULT_DOMINANTS_TRESHOLD                        0.1     //Distance in YUV Space
 #define LECOLORPICKER_DEFAULT_NUM_OF_DOMINANTS                          3
-#define LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE                          0.75
+#define LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE                          0.5
 #define LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE                     0.125
 
 @implementation LEColorPickerSethThompson
-
-
 #pragma mark - Template methods
-- (UIImage*)transformImage:(UIImage*)image
+
+- (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage *)image
+{
+    UIImage *scaledImage = [self scaleImage:image];
+    //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
+    UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE/2, 2)];
+    //[UIImagePNGRepresentation(croppedImage) writeToFile:@"/Users/Luis/croppedImage.png" atomically:YES];
+    
+    NSArray *pixelArray = [UIImage getRGBAsFromImage:croppedImage
+                                                 atX:0
+                                                andY:0
+                                               count:(LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE*2)];
+    NSArray *backgroundArray = [self quantizePixelArray:pixelArray
+                                      distanceThreshold:LECOLORPICKER_DEFAULT_DOMINANTS_TRESHOLD
+                                       numberOfQuantums:1];
+    
+    NSMutableArray *colorsMutableArray = [[NSMutableArray alloc] init];
+    [colorsMutableArray addObject:[backgroundArray objectAtIndex:0]];
+    
+    pixelArray = [UIImage getRGBAsFromImage:scaledImage
+                                        atX:0
+                                       andY:0
+                                      count:(LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE*LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE)];
+    
+    
+    NSArray *filteredPixelArray = [self filterColor:[backgroundArray objectAtIndex:0]
+                                     fromPixelArray:pixelArray threshold:0.3];
+    
+    NSArray *textColors = [self quantizePixelArray:filteredPixelArray
+                                 distanceThreshold:LECOLORPICKER_DEFAULT_DOMINANTS_TRESHOLD
+                                  numberOfQuantums:2];
+    
+    [colorsMutableArray addObjectsFromArray:textColors];
+    
+    return [self testAndRepairColors:colorsMutableArray];
+}
+
+#pragma mark Internal methods
+- (UIImage*)scaleImage:(UIImage*)image
 {
     UIImage *scaledImage =  [UIImage imageWithImage:image
                                        scaledToSize:CGSizeMake(LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE,
                                                                LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE)];
     return scaledImage;
-}
-
-- (NSArray*)quantizeImage:(UIImage*)image numberOfColors:(NSUInteger)numOfColors
-{
-    NSArray *dominantsArray =[self dominantsColorsFromImage:image
-                                                  threshold:LECOLORPICKER_DEFAULT_DOMINANTS_TRESHOLD
-                                             numberOfColors:LECOLORPICKER_DEFAULT_NUM_OF_DOMINANTS];
-    return dominantsArray;
 }
 
 - (NSDictionary*)testAndRepairColors:(NSArray*)colorsArray
@@ -54,7 +82,7 @@
         primaryTextColor = [colorsArray objectAtIndex:1];
         NSLog(@"Second dominant color : %@",[primaryTextColor description]);
         if ([self isSufficienteContrastBetweenBackground:backgroundColor
-                                                     andForground:primaryTextColor]) {
+                                            andForground:primaryTextColor]) {
             [colorsDictionary setObject:primaryTextColor forKey:@"PrimaryTextColor"];
         } else {
             NSLog(@"No enough contrast!");
@@ -77,7 +105,7 @@
         secondaryTextColor = [colorsArray objectAtIndex:2];
         NSLog(@"Third dominant color : %@",[secondaryTextColor description]);
         if ([self isSufficienteContrastBetweenBackground:backgroundColor
-                                                     andForground:secondaryTextColor]) {
+                                            andForground:secondaryTextColor]) {
             [colorsDictionary setObject:secondaryTextColor forKey:@"SecondaryTextColor"];
         } else {
             NSLog(@"No enough contrast!");
@@ -99,34 +127,25 @@
     return colorsDictionary;
 }
 
-#pragma mark Internal methods
-
-- (NSArray *)dominantsColorsFromImage:(UIImage *)image
-                            threshold:(float)threshold
-                       numberOfColors:(NSUInteger)numberOfColors
+- (NSArray*)quantizePixelArray:(NSArray*)pixelArray
+             distanceThreshold:(float)distanceThreshold
+              numberOfQuantums:(NSUInteger)numberOfQuantuns
 {
-    NSArray *pixelArray;
     NSArray *buckets;
     NSArray *sortedBuckets;
     UIColor *dominantColor;
     
     NSMutableArray *returnArray = [[NSMutableArray alloc] init];
-    CGFloat count = image.size.width * image.size.height;
     
-    for (NSUInteger i=0; i<numberOfColors; i++) {
+    for (NSUInteger i=0; i<numberOfQuantuns; i++) {
         @autoreleasepool {
             //Pick most dominant color
-            if (i==0) {
-                pixelArray = [UIImage getRGBAsFromImage:image
-                                                    atX:0
-                                                   andY:0
-                                                  count:(NSUInteger)count];
-            } else {
+            if (i!=0){
                 pixelArray = [self filterColor:dominantColor fromPixelArray:pixelArray threshold:0.3];
             }
             //NSLog(@"PixelArray = \n %@",[pixelArray description]);
             
-            buckets = [self gather:pixelArray forThreshold:threshold];
+            buckets = [self gather:pixelArray forThreshold:distanceThreshold];
             //NSLog(@"Buckets = \n %@",[buckets description]);
             
             sortedBuckets = [self sortedBucketsFromArray:buckets
@@ -142,8 +161,6 @@
     
     return returnArray;
 }
-
-
 
 - (NSArray *)gather:(NSArray*)pixelArray forThreshold:(float)threshold
 {
