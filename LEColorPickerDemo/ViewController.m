@@ -20,7 +20,7 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     
-    _leColorPicker = [[LEColorPickerSethThompson alloc] init];
+    _leColorPicker = [LEColorPicker colorPicker];
     
     [self populateImagesNamesArray];
     

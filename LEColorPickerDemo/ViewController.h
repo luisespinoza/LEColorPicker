@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "ATPagingView.h"
-#import "LEColorPickerSethThompson.h"
+#import "LEColorPicker.h"
 
 @interface ViewController : UIViewController<ATPagingViewDelegate>
 {
@@ -19,6 +19,6 @@
     IBOutlet UIView *_outputView;
     
     NSMutableArray *_imagesNamesArray;
-    LEColorPickerSethThompson *_leColorPicker;
+    LEColorPicker *_leColorPicker;
 }
 @end
