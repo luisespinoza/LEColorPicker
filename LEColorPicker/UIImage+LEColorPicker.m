@@ -150,4 +150,29 @@
     return result;
 }
 
++ (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize {
+    //UIGraphicsBeginImageContext(newSize);
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
+    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
+//http://stackoverflow.com/questions/158914/cropping-a-uiimage
+- (UIImage *)crop:(CGRect)rect {
+    
+    rect = CGRectMake(rect.origin.x*self.scale,
+                      rect.origin.y*self.scale,
+                      rect.size.width*self.scale,
+                      rect.size.height*self.scale);
+    
+    CGImageRef imageRef = CGImageCreateWithImageInRect([self CGImage], rect);
+    UIImage *result = [UIImage imageWithCGImage:imageRef
+                                          scale:self.scale
+                                    orientation:self.imageOrientation];
+    CGImageRelease(imageRef);
+    return result;
+}
+
 @end
