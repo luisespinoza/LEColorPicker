@@ -58,3 +58,8 @@ Andrey Tarantsov for [ATPagingView](https://github.com/andreyvit/SoloComponents-
 User Olie from StackOverflow, [for his function to get a RGBA pixel array from an UIImage](http://goo.gl/PEUhq).
 
 User Seth Thompson from StackOverflow for his [Mathematica code for pick the colors like iTunes 11](http://goo.gl/sJ2DH).
+
+## Contact
+Mail [luis.espinoza.severino@gmail.com](mailto:luis.espinoza.severino@gmail.com)
+
+Twitter [@luis_espinoza](https://twitter.com/luis_espinoza)
