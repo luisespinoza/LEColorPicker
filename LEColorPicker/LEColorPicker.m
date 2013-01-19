@@ -8,7 +8,7 @@
 
 #import "LEColorPicker.h"
 
-#define LECOLORPICKER_CONCRETE                  @"LEColorPickerGPU"
+#define LECOLORPICKER_CONCRETE                  @"LEColorPickerSethThompson"
 
 @implementation LEColorPicker
 

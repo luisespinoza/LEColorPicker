@@ -13,10 +13,27 @@
 
 - (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage *)image
 {
-    GPUImageFilter *filter = [[GPUImageHistogramFilter alloc] initWithHistogramType:kGPUImageHistogramRGB];
-    UIImage *filteredImage = [filter imageByFilteringImage:image];
+    GPUImageHistogramFilter *filter = [[GPUImageHistogramFilter alloc] initWithHistogramType:kGPUImageHistogramLuminance];
     
-    [UIImagePNGRepresentation(filteredImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
+    GPUImageGammaFilter *gammaFilter = [[GPUImageGammaFilter alloc] init];
+    //[videoCamera addTarget:gammaFilter];
+    [gammaFilter addTarget:filter];
+    
+    GPUImageHistogramGenerator *histogramGraph = [[GPUImageHistogramGenerator alloc] init];
+    
+    [histogramGraph forceProcessingAtSize:CGSizeMake(image.size.width, image.size.height)];
+    [filter addTarget:histogramGraph];
+    
+    GPUImageAlphaBlendFilter *blendFilter = [[GPUImageAlphaBlendFilter alloc] init];
+    blendFilter.mix = 0.75;
+    [blendFilter forceProcessingAtSize:CGSizeMake(image.size.width, image.size.height)];
+    
+    //[videoCamera addTarget:blendFilter];
+    [histogramGraph addTarget:blendFilter];
+    
+    UIImage *filteredImage = [histogramGraph imageByFilteringImage:image];
+    
+    //[UIImagePNGRepresentation(filteredImage) writeToFile:@"/Users/Luis/histogram.png" atomically:YES];
     
     return nil;
 }
