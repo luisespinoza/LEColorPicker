@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "LEColorPickerAbstract.h"
+#import "LEColorPicker.h"
 
-@interface LEColorPickerSethThompson : LEColorPickerAbstract
+@interface LEColorPickerSethThompson : LEColorPicker
 
 @end
