@@ -8,9 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
-@interface LEColorPicker : NSObject
+#define LECOLORPICKER_CLASS                  @"LEColorPickerSethThompson"
 
-+ (LEColorPicker*)colorPicker;
+@interface LEColorPicker : NSObject
 
 /**
  This class methods is allow the client to generate three colors from a specific UIImage.
@@ -18,7 +18,7 @@
  @returns A NSDictionary with three UIColors, the keys are: "BackgroundColor", "PrimaryTextColor", and
  "SecondaryTextColor".
  */
-- (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage*)image;
++ (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage*)image;
 
 /**
  This class methods is allow the client to generate three colors from a specific UIImage. The complete
@@ -31,6 +31,6 @@
  @param image Input image, wich will be used to generate the three colors.
  @param completeBlock Execution block for when the task is complete.
  */
-- (void)pickColorsFromImage:(UIImage*)image
++ (void)pickColorsFromImage:(UIImage*)image
                  onComplete:(void (^)(NSDictionary *colorsPickedDictionary))completeBlock;
 @end

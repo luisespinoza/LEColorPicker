@@ -19,6 +19,5 @@
     IBOutlet UIView *_outputView;
     
     NSMutableArray *_imagesNamesArray;
-    LEColorPicker *_leColorPicker;
 }
 @end

@@ -19,7 +19,7 @@
 @implementation LEColorPickerSethThompson
 #pragma mark - Template methods
 
-- (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage *)image
++ (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage *)image
 {
     UIImage *scaledImage = [self scaleImage:image];
     //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
@@ -56,7 +56,7 @@
 }
 
 #pragma mark Internal methods
-- (UIImage*)scaleImage:(UIImage*)image
++ (UIImage*)scaleImage:(UIImage*)image
 {
     UIImage *scaledImage =  [UIImage imageWithImage:image
                                        scaledToSize:CGSizeMake(LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE,
@@ -64,7 +64,7 @@
     return scaledImage;
 }
 
-- (NSDictionary*)testAndRepairColors:(NSArray*)colorsArray
++ (NSDictionary*)testAndRepairColors:(NSArray*)colorsArray
 {
     UIColor *backgroundColor;
     UIColor *primaryTextColor;
@@ -127,7 +127,7 @@
     return colorsDictionary;
 }
 
-- (NSArray*)quantizePixelArray:(NSArray*)pixelArray
++ (NSArray*)quantizePixelArray:(NSArray*)pixelArray
              distanceThreshold:(float)distanceThreshold
               numberOfQuantums:(NSUInteger)numberOfQuantuns
 {
@@ -162,7 +162,7 @@
     return returnArray;
 }
 
-- (NSArray *)gather:(NSArray*)pixelArray forThreshold:(float)threshold
++ (NSArray *)gather:(NSArray*)pixelArray forThreshold:(float)threshold
 {
     NSUInteger i = 0;
     NSUInteger j = 0;
@@ -188,7 +188,7 @@
     return finalArray;
 }
 
-- (NSArray*)sortedBucketsFromArray:(NSArray*)array forKey:(NSString*)key ascending:(BOOL)ascending
++ (NSArray*)sortedBucketsFromArray:(NSArray*)array forKey:(NSString*)key ascending:(BOOL)ascending
 {
     NSSortDescriptor *sd = [NSSortDescriptor sortDescriptorWithKey:key
                                                          ascending:ascending];
@@ -198,7 +198,7 @@
     return sortedArray;
 }
 
-- (NSArray*)filterColor:(UIColor*)color fromPixelArray:(NSArray*)pixelArray threshold:(float)threshold
++ (NSArray*)filterColor:(UIColor*)color fromPixelArray:(NSArray*)pixelArray threshold:(float)threshold
 {
     NSUInteger i = 0;
     NSMutableArray *filteredArray = [[NSMutableArray alloc] init];
@@ -216,7 +216,7 @@
     return (NSArray*)filteredArray;
 }
 
-- (BOOL)isSufficienteContrastBetweenBackground:(UIColor*)backgroundColor andForground:(UIColor*)foregroundColor
++ (BOOL)isSufficienteContrastBetweenBackground:(UIColor*)backgroundColor andForground:(UIColor*)foregroundColor
 {
     float backgroundColorBrightness = [UIColor yComponentFromColor:backgroundColor];
     float foregroundColorBrightness = [UIColor yComponentFromColor:foregroundColor];

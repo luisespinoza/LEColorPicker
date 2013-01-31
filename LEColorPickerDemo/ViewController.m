@@ -20,8 +20,6 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     
-    _leColorPicker = [LEColorPicker colorPicker];
-    
     [self populateImagesNamesArray];
     
     [self configurePagingView];
@@ -88,7 +86,7 @@
     [_activityIndicator startAnimating];
     _activityIndicator.hidden = NO;
     
-    [_leColorPicker pickColorsFromImage:image onComplete:^(NSDictionary *colorsPickedDictionary) {
+    [LEColorPicker pickColorsFromImage:image onComplete:^(NSDictionary *colorsPickedDictionary) {
         [_activityIndicator stopAnimating];
         _activityIndicator.hidden = YES;
         //HERE THE COLOR CHANGE IS ANIMATED
