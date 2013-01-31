@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A0080D2B167C15BB00F45CE3 /* UIColor+YUVSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */; };
+		A024CC0516BA0F5F00D6B568 /* LEColorPickerGPU.m in Sources */ = {isa = PBXBuildFile; fileRef = A024CC0416BA0F5F00D6B568 /* LEColorPickerGPU.m */; };
 		A0883520167814CC006D6F0F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A088351F167814CC006D6F0F /* UIKit.framework */; };
 		A0883522167814CC006D6F0F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0883521167814CC006D6F0F /* Foundation.framework */; };
 		A0883524167814CC006D6F0F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0883523167814CC006D6F0F /* CoreGraphics.framework */; };
@@ -35,6 +36,8 @@
 /* Begin PBXFileReference section */
 		A0080D29167C15BB00F45CE3 /* UIColor+YUVSpace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+YUVSpace.h"; sourceTree = "<group>"; };
 		A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+YUVSpace.m"; sourceTree = "<group>"; };
+		A024CC0316BA0F5F00D6B568 /* LEColorPickerGPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LEColorPickerGPU.h; sourceTree = "<group>"; };
+		A024CC0416BA0F5F00D6B568 /* LEColorPickerGPU.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LEColorPickerGPU.m; sourceTree = "<group>"; };
 		A088351B167814CC006D6F0F /* LEColorPickerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LEColorPickerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A088351F167814CC006D6F0F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		A0883521167814CC006D6F0F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -82,6 +85,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A024CC0116BA0E8800D6B568 /* LEColorPickerGPU */ = {
+			isa = PBXGroup;
+			children = (
+				A024CC0316BA0F5F00D6B568 /* LEColorPickerGPU.h */,
+				A024CC0416BA0F5F00D6B568 /* LEColorPickerGPU.m */,
+			);
+			path = LEColorPickerGPU;
+			sourceTree = "<group>";
+		};
 		A0883510167814CC006D6F0F = {
 			isa = PBXGroup;
 			children = (
@@ -143,6 +155,7 @@
 		A08835451678158B006D6F0F /* LEColorPicker */ = {
 			isa = PBXGroup;
 			children = (
+				A024CC0116BA0E8800D6B568 /* LEColorPickerGPU */,
 				A0AC902A16800A7F006B72FA /* LEColorPickerSethThompson */,
 				A08835461678158B006D6F0F /* LEColorPicker.h */,
 				A08835471678158B006D6F0F /* LEColorPicker.m */,
@@ -274,6 +287,7 @@
 				A0883560167815CC006D6F0F /* ATPagingView.m in Sources */,
 				A0080D2B167C15BB00F45CE3 /* UIColor+YUVSpace.m in Sources */,
 				A0AC902E16800A92006B72FA /* LEColorPickerSethThompson.m in Sources */,
+				A024CC0516BA0F5F00D6B568 /* LEColorPickerGPU.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
