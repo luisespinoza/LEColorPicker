@@ -21,7 +21,9 @@
 
 + (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage *)image
 {
-    UIImage *scaledImage = [self scaleImage:image];
+    UIImage *scaledImage = [self scaleImage:image
+                                      width:LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE
+                                     height:LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE];
     //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
     UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE/2, 2)];
     //[UIImagePNGRepresentation(croppedImage) writeToFile:@"/Users/Luis/croppedImage.png" atomically:YES];
@@ -56,14 +58,6 @@
 }
 
 #pragma mark Internal methods
-+ (UIImage*)scaleImage:(UIImage*)image
-{
-    UIImage *scaledImage =  [UIImage imageWithImage:image
-                                       scaledToSize:CGSizeMake(LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE,
-                                                               LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE)];
-    return scaledImage;
-}
-
 + (NSDictionary*)testAndRepairColors:(NSArray*)colorsArray
 {
     UIColor *backgroundColor;

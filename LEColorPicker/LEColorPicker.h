@@ -33,4 +33,6 @@
  */
 + (void)pickColorsFromImage:(UIImage*)image
                  onComplete:(void (^)(NSDictionary *colorsPickedDictionary))completeBlock;
+
++ (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height;
 @end
