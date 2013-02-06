@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		A0080D2B167C15BB00F45CE3 /* UIColor+YUVSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */; };
 		A024CC0516BA0F5F00D6B568 /* LEColorPickerGPU.m in Sources */ = {isa = PBXBuildFile; fileRef = A024CC0416BA0F5F00D6B568 /* LEColorPickerGPU.m */; };
+		A0279B7A16C1F632001E82BD /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0279B7916C1F632001E82BD /* OpenGLES.framework */; };
 		A0883520167814CC006D6F0F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A088351F167814CC006D6F0F /* UIKit.framework */; };
 		A0883522167814CC006D6F0F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0883521167814CC006D6F0F /* Foundation.framework */; };
 		A0883524167814CC006D6F0F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0883523167814CC006D6F0F /* CoreGraphics.framework */; };
@@ -38,6 +39,7 @@
 		A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+YUVSpace.m"; sourceTree = "<group>"; };
 		A024CC0316BA0F5F00D6B568 /* LEColorPickerGPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LEColorPickerGPU.h; sourceTree = "<group>"; };
 		A024CC0416BA0F5F00D6B568 /* LEColorPickerGPU.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LEColorPickerGPU.m; sourceTree = "<group>"; };
+		A0279B7916C1F632001E82BD /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		A088351B167814CC006D6F0F /* LEColorPickerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LEColorPickerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A088351F167814CC006D6F0F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		A0883521167814CC006D6F0F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -76,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0279B7A16C1F632001E82BD /* OpenGLES.framework in Frameworks */,
 				A0883520167814CC006D6F0F /* UIKit.framework in Frameworks */,
 				A0883522167814CC006D6F0F /* Foundation.framework in Frameworks */,
 				A0883524167814CC006D6F0F /* CoreGraphics.framework in Frameworks */,
@@ -117,6 +120,7 @@
 		A088351E167814CC006D6F0F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A0279B7916C1F632001E82BD /* OpenGLES.framework */,
 				A088351F167814CC006D6F0F /* UIKit.framework */,
 				A0883521167814CC006D6F0F /* Foundation.framework */,
 				A0883523167814CC006D6F0F /* CoreGraphics.framework */,

@@ -8,6 +8,8 @@
 
 #import "LEColorPickerGPU.h"
 #import "UIImage+LEColorPicker.h"
+#import <OpenGLES/ES2/gl.h>
+#import <OpenGLES/ES2/glext.h>
 
 
 #define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   36
@@ -29,6 +31,12 @@
                                                 andY:0
                                                count:(LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2)];
     
+    
+    //glcontext?
+    EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    if (!context) {
+        return nil;
+    }
     
     
     return nil;
