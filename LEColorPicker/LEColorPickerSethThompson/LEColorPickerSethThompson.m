@@ -28,7 +28,7 @@
     UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE/2, 2)];
     //[UIImagePNGRepresentation(croppedImage) writeToFile:@"/Users/Luis/croppedImage.png" atomically:YES];
     
-    NSArray *pixelArray = [UIImage getRGBAsFromImage:croppedImage
+    NSArray *pixelArray = [UIImage arrayOfColorPixelsFromImage:croppedImage
                                                  atX:0
                                                 andY:0
                                                count:(LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE*2)];
@@ -39,7 +39,7 @@
     NSMutableArray *colorsMutableArray = [[NSMutableArray alloc] init];
     [colorsMutableArray addObject:[backgroundArray objectAtIndex:0]];
     
-    pixelArray = [UIImage getRGBAsFromImage:scaledImage
+    pixelArray = [UIImage arrayOfColorPixelsFromImage:scaledImage
                                         atX:0
                                        andY:0
                                       count:(LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE*LECOLORPICKER_SETHTHOMPSON_DEFAULT_SCALED_SIZE)];

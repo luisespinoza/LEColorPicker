@@ -14,7 +14,7 @@
                            threshold:(float)threshold
                       numberOfColors:(NSUInteger)numberOfColors;
 
-+ (NSArray*)getRGBAsFromImage:(UIImage*)image
++ (NSArray*)arrayOfColorPixelsFromImage:(UIImage*)image
                           atX:(int)xx
                          andY:(int)yy
                         count:(int)count;
@@ -24,3 +24,4 @@
 
 - (UIImage *)crop:(CGRect)rect;
 @end
+
