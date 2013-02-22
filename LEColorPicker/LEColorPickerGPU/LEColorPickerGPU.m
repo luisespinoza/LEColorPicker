@@ -15,7 +15,7 @@
 
 #define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   36
 
-void arrayOfColorVertexesFromImage(UIImage *image, int xx, int yy, int count, CGFloat resultArray[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3])
+void arrayOfColorVertexesFromImage(UIImage *image, NSUInteger xx, NSUInteger yy, NSUInteger count, CGFloat resultArray[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3])
 {
     // First get the image into your data buffer
     CGImageRef imageRef = [image CGImage];
@@ -52,6 +52,13 @@ void arrayOfColorVertexesFromImage(UIImage *image, int xx, int yy, int count, CG
     free(rawData);
 }
 
+void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3])
+{
+    for (NSUInteger i=0; i<LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2; i++) {
+        printf("Vertex number:%d R:%f G:%f B:%f \n",i,vertex[i][0],vertex[i][1],vertex[i][2]);
+    }
+}
+
 @implementation LEColorPickerGPU
 
 + (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage *)image
@@ -70,6 +77,7 @@ void arrayOfColorVertexesFromImage(UIImage *image, int xx, int yy, int count, CG
     
     CGFloat vertexArray[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3];
     arrayOfColorVertexesFromImage(croppedImage, 0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2, vertexArray);
+    //printVertexArray(vertexArray);
     
     //Create context
      EAGLContext *_context;

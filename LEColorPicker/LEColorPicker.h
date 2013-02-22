@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#define LECOLORPICKER_CLASS                  @"LEColorPickerSethThompson"
+#define LECOLORPICKER_CLASS                  @"LEColorPickerGPU"
 
 @interface LEColorPicker : NSObject
 
