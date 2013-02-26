@@ -17,7 +17,7 @@
 
 void arrayOfColorVertexesFromImage(UIImage *image, NSUInteger xx, NSUInteger yy, NSUInteger count, CGFloat resultArray[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3])
 {
-    // First get the image into your data buffer
+    // First put image into your data buffer
     CGImageRef imageRef = [image CGImage];
     NSUInteger width = CGImageGetWidth(imageRef);
     NSUInteger height = CGImageGetHeight(imageRef);
@@ -52,6 +52,26 @@ void arrayOfColorVertexesFromImage(UIImage *image, NSUInteger xx, NSUInteger yy,
     free(rawData);
 }
 
+CGFloat randomFloat(float smallNumber, float bigNumber) {
+    float diff = bigNumber - smallNumber;
+    return (((CGFloat) (arc4random() % ((unsigned)RAND_MAX + 1)) / RAND_MAX) * diff) + smallNumber;
+}
+
+void populateArrayOfRandomColors(NSUInteger count, CGFloat resultArray[256][3])
+{
+    for (int ii = 0 ; ii < count ; ++ii)
+    {
+        CGFloat red   = randomFloat(0, 1);
+        CGFloat green = randomFloat(0, 1);
+        CGFloat blue  = randomFloat(0, 1);
+        //CGFloat alpha = randomFloat(0, 1);;
+        
+        resultArray[ii][0] = red;
+        resultArray[ii][1] = green;
+        resultArray[ii][2] = blue;
+    }
+}
+
 void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3])
 {
     for (NSUInteger i=0; i<LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2; i++) {
@@ -59,14 +79,17 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3]
     }
 }
 
+void printColorArray(CGFloat colorArray[256][3])
+{
+    for (NSUInteger i=0; i<256; i++) {
+        printf("Color number:%d R:%f G:%f B:%f \n",i,colorArray[i][0],colorArray[i][1],colorArray[i][2]);
+    }
+}
+
 @implementation LEColorPickerGPU
 
 + (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage *)image
 {
-   
-    
-    CAEAGLLayer *_eaglLayer;
-    
     //First scale a generate pixel array
     UIImage *scaledImage = [self scaleImage:image
                                       width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
@@ -77,10 +100,15 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3]
     
     CGFloat vertexArray[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3];
     arrayOfColorVertexesFromImage(croppedImage, 0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2, vertexArray);
-    //printVertexArray(vertexArray);
+    printVertexArray(vertexArray);
+    
+    CGFloat colorPaletteArray[256][3];
+    populateArrayOfRandomColors(256, colorPaletteArray);
+    printColorArray(colorPaletteArray);
     
     //Create context
-     EAGLContext *_context;
+    CAEAGLLayer *_eaglLayer;
+    EAGLContext *_context;
     _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     if (!_context) {
         return nil;
@@ -108,6 +136,6 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3]
     return nil;
 }
 
-
+                         
 
 @end
