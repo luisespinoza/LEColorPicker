@@ -7,7 +7,16 @@
 //
 
 #import "LEColorPicker.h"
+#import <GLKit/GLKit.h>
 
 @interface LEColorPickerGPU : LEColorPicker
+{
+    GLuint _vertexArray;
+    GLuint _vertexBuffer;
+    GLuint _program;
+}
+
+@property (strong, nonatomic) EAGLContext *context;
+
 
 @end
