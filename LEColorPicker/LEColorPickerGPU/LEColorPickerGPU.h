@@ -14,6 +14,7 @@
     GLuint _vertexArray;
     GLuint _vertexBuffer;
     GLuint _program;
+    UIImage *_currentImage;
 }
 
 @property (strong, nonatomic) EAGLContext *context;

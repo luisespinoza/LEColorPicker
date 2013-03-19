@@ -34,7 +34,7 @@
     return nil;
 }
 
-+ (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
+- (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
 {
     UIImage *scaledImage =  [UIImage imageWithImage:image scaledToSize:CGSizeMake(width,height)];
     return scaledImage;

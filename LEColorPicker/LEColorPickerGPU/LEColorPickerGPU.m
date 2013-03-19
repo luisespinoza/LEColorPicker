@@ -14,8 +14,33 @@
 
 
 #define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   36
+#define LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH           3*(LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE)
 
-void arrayOfColorVertexesFromImage(UIImage *image, NSUInteger xx, NSUInteger yy, NSUInteger count, CGFloat resultArray[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3])
+#pragma mark - C Code
+
+GLfloat yComponentFromColor(GLfloat red, GLfloat green, GLfloat blue)
+{
+    GLfloat y = 0.299*red + 0.587*green+ 0.114*blue;
+    return y;
+}
+
+GLfloat uComponentFromColor(GLfloat red, GLfloat green, GLfloat blue)
+{
+    GLfloat u = (-0.14713)*red + (-0.28886)*green + (0.436)*blue;
+    return u;
+}
+
+GLfloat vComponentFromColor(GLfloat red, GLfloat green, GLfloat blue)
+{
+    
+    GLfloat v = 0.615*red + (-0.51499)*green + (-0.10001)*blue;
+    return v;
+}
+
+void arrayOfColorVertexesFromImage(UIImage *image,
+                                   NSUInteger xx,
+                                   NSUInteger yy,
+                                   CGFloat resultArray[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH])
 {
     // First put image into your data buffer
     CGImageRef imageRef = [image CGImage];
@@ -36,110 +61,116 @@ void arrayOfColorVertexesFromImage(UIImage *image, NSUInteger xx, NSUInteger yy,
     
     // Now your rawData contains the image data in the RGBA8888 pixel format.
     int byteIndex = (bytesPerRow * yy) + xx * bytesPerPixel;
-    for (int ii = 0 ; ii < count ; ++ii)
+    for (int i = 0 ; i < LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH ; i+=3)
     {
-        CGFloat red   = (rawData[byteIndex]     * 1.0) / 255.0;
-        CGFloat green = (rawData[byteIndex + 1] * 1.0) / 255.0;
-        CGFloat blue  = (rawData[byteIndex + 2] * 1.0) / 255.0;
+        GLfloat red   = (rawData[byteIndex]     * 1.0) / 255.0;
+        GLfloat green = (rawData[byteIndex + 1] * 1.0) / 255.0;
+        GLfloat blue  = (rawData[byteIndex + 2] * 1.0) / 255.0;
         //CGFloat alpha = (rawData[byteIndex + 3] * 1.0) / 255.0;
         byteIndex += 4;
         
-        resultArray[ii][0] = red;
-        resultArray[ii][1] = green;
-        resultArray[ii][2] = blue;
+        resultArray[i]      = yComponentFromColor(red, blue, green);
+        resultArray[i+1]    = uComponentFromColor(red, blue, green);
+        resultArray[i+2]    = vComponentFromColor(red, blue, green);
     }
     
     free(rawData);
 }
 
-CGFloat randomFloat(float smallNumber, float bigNumber) {
-    float diff = bigNumber - smallNumber;
-    return (((CGFloat) (arc4random() % ((unsigned)RAND_MAX + 1)) / RAND_MAX) * diff) + smallNumber;
-}
+//GLfloat randomFloat(float upperLimit, float lowerLimit) {
+//    float diff = upperLimit - lowerLimit;
+//    return (((GLfloat) (arc4random() % ((unsigned)RAND_MAX + 1)) / RAND_MAX) * diff) + lowerLimit;
+//}
 
-void populateArrayOfRandomColors(NSUInteger count, CGFloat resultArray[256][3])
+//void populateArrayOfRandomColors(NSUInteger count, CGFloat resultArray[256][3])
+//{
+//    for (int ii = 0 ; ii < count ; ++ii)
+//    {
+//        CGFloat red   = randomFloat(0, 1);
+//        CGFloat green = randomFloat(0, 1);
+//        CGFloat blue  = randomFloat(0, 1);
+//        //CGFloat alpha = randomFloat(0, 1);;
+//
+//        resultArray[ii][0] = red;
+//        resultArray[ii][1] = green;
+//        resultArray[ii][2] = blue;
+//    }
+//}
+
+void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH])
 {
-    for (int ii = 0 ; ii < count ; ++ii)
-    {
-        CGFloat red   = randomFloat(0, 1);
-        CGFloat green = randomFloat(0, 1);
-        CGFloat blue  = randomFloat(0, 1);
-        //CGFloat alpha = randomFloat(0, 1);;
-        
-        resultArray[ii][0] = red;
-        resultArray[ii][1] = green;
-        resultArray[ii][2] = blue;
+    for (NSUInteger i=0; i<LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2; i+=3) {
+        printf("Vertex number:%d R:%f G:%f B:%f \n",i,vertex[i],vertex[i+1],vertex[i+2]);
     }
 }
 
-void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3])
-{
-    for (NSUInteger i=0; i<LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2; i++) {
-        printf("Vertex number:%d R:%f G:%f B:%f \n",i,vertex[i][0],vertex[i][1],vertex[i][2]);
-    }
-}
+//void printColorArray(CGFloat colorArray[256][3])
+//{
+//    for (NSUInteger i=0; i<256; i++) {
+//        printf("Color number:%d R:%f G:%f B:%f \n",i,colorArray[i][0],colorArray[i][1],colorArray[i][2]);
+//    }
+//}
 
-void printColorArray(CGFloat colorArray[256][3])
-{
-    for (NSUInteger i=0; i<256; i++) {
-        printf("Color number:%d R:%f G:%f B:%f \n",i,colorArray[i][0],colorArray[i][1],colorArray[i][2]);
-    }
-}
+#pragma mark - Obj-C code
 
 @implementation LEColorPickerGPU
 
-+ (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage *)image
+- (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage *)image
 {
     //First scale a generate pixel array
-    UIImage *scaledImage = [self scaleImage:image
-                                      width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                     height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+    UIImage *scaledImage = [LEColorPicker scaleImage:image
+                                               width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                              height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
     //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
     UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2, 2)];
     //[UIImagePNGRepresentation(croppedImage) writeToFile:@"/Users/Luis/croppedImage.png" atomically:YES];
     
     //vertexArray = training vectors
-    CGFloat vertexArray[LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2][3];
-    arrayOfColorVertexesFromImage(croppedImage, 0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2, vertexArray);
+    GLfloat vertexArray[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH];
+    arrayOfColorVertexesFromImage(croppedImage, 0, 0, vertexArray);
     printVertexArray(vertexArray);
     
-    
-    CGFloat codebookArray[256][3];
-    populateArrayOfRandomColors(256, codebookArray);
-    printColorArray(codebookArray);
-    
     //Create opengl es texture
+    [self setupGL];
     
-    
-    //Create context
-    CAEAGLLayer *_eaglLayer;
-    EAGLContext *_context;
-    _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-    if (!_context) {
-        return nil;
-    }
-    
-    //Render buffer
-    //Create new render buffer object
-    GLuint _colorRenderBuffer;
-    glGenRenderbuffers(1, &_colorRenderBuffer);
-    //Bind it to GL_RENDERBUFFER
-    glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderBuffer);
-    //Allocate renderbuffer storage
-    [_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:_eaglLayer];
-    
-    //Frame buffer
-    GLuint framebuffer;
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    //This function attach the previous render buffer to the new frame buffer.
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                              GL_RENDERBUFFER, _colorRenderBuffer);
     
     //Create Vertex array or Vertex Data
     
     return nil;
 }
+
+#pragma mark - OpenGL Methods
+- (void)setupGL
+{/*
+    [EAGLContext setCurrentContext:self.context];
+    
+    GLfloat triangle[18] = {     // Data layout for each line below is:
+        // positionX, positionY, positionZ,     normalX, normalY, normalZ,
+        0.0f, 0.0f, -0.0f,        0.0f, 0.0f, 1.0f,
+        0.5f, 0.0f, -0.0f,         0.0f, 0.0f, 1.0f,
+        0.0f, 0.5f, 0.0f,         0.0f, 0.0f, 1.0f,};
+    
+    
+    [self loadShaders];
+    
+    glEnable(GL_DEPTH_TEST);
+    
+    glGenVertexArraysOES(1, &_vertexArray);
+    glBindVertexArrayOES(_vertexArray);
+    
+    glGenBuffers(1, &_vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
+    
+    glEnableVertexAttribArray(GLKVertexAttribPosition);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(0));
+    glEnableVertexAttribArray(GLKVertexAttribNormal);
+    glVertexAttribPointer(GLKVertexAttribNormal, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(12));
+    
+    glBindVertexArrayOES(0);
+  */
+}
+
 
 #pragma mark -  OpenGL ES 2 shader compilation
 
@@ -197,8 +228,8 @@ void printColorArray(CGFloat colorArray[256][3])
     }
     
     // Get uniform locations.
-    uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX] = glGetUniformLocation(_program, "modelViewProjectionMatrix");
-    uniforms[UNIFORM_NORMAL_MATRIX] = glGetUniformLocation(_program, "normalMatrix");
+    //uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX] = glGetUniformLocation(_program, "modelViewProjectionMatrix");
+    //uniforms[UNIFORM_NORMAL_MATRIX] = glGetUniformLocation(_program, "normalMatrix");
     
     // Release vertex and fragment shaders.
     if (vertShader) {
@@ -293,5 +324,8 @@ void printColorArray(CGFloat colorArray[256][3])
     return YES;
 }
 
-
+- (void)prepareLightShader
+{
+    
+}
 @end
