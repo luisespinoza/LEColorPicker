@@ -3,22 +3,28 @@
 //  LEColorPicker
 //
 //  Created by Luis Enrique Espinoza Severino on 10-12-12.
-//  Copyright (c) 2012 LuisEspinoza. All rights reserved.
+//  Copyright (c) 2012 Luis Espinoza. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import <GLKit/GLKit.h>
+#import "LEColorScheme.h"
 
-#define LECOLORPICKER_CLASS                  @"LEColorPickerGPU"
+#ifdef DEBUG
+#	 define LELog(s,...) NSLog((@"[%s] " s),__func__,## __VA_ARGS__);
+#else
+#	 define LELog(...) /* */
+#endif
 
 @interface LEColorPicker : NSObject
-
-/**
- This class methods is allow the client to generate three colors from a specific UIImage.
- @param image Input image, wich will be used to generate the three colors.
- @returns A NSDictionary with three UIColors, the keys are: "BackgroundColor", "PrimaryTextColor", and
- "SecondaryTextColor".
- */
-+ (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage*)image;
+{
+    GLuint _vertexArray;
+    GLuint _vertexBuffer;
+    GLuint _program;
+    UIImage *_currentImage;
+    EAGLContext *_context;
+    dispatch_queue_t taskQueue;
+}
 
 /**
  This class methods is allow the client to generate three colors from a specific UIImage. The complete
@@ -31,8 +37,15 @@
  @param image Input image, wich will be used to generate the three colors.
  @param completeBlock Execution block for when the task is complete.
  */
-+ (void)pickColorsFromImage:(UIImage*)image
-                 onComplete:(void (^)(NSDictionary *colorsPickedDictionary))completeBlock;
+- (void)pickColorsFromImage:(UIImage*)image onComplete:(void (^)(LEColorScheme *colorScheme))completeBlock;
 
+/**
+ This class methods allows image scalation.
+ 
+ @param image Source image.
+ @param width New width.
+ @param height New height.
+ @returns A new image like "image" but with width "width" and height "height".
+ */
 + (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height;
 @end

@@ -10,7 +10,6 @@
 		A000253616F2C20D003A0C03 /* Shader.fsh in Sources */ = {isa = PBXBuildFile; fileRef = A000253416F2C20D003A0C03 /* Shader.fsh */; };
 		A000253716F2C20D003A0C03 /* Shader.vsh in Sources */ = {isa = PBXBuildFile; fileRef = A000253516F2C20D003A0C03 /* Shader.vsh */; };
 		A0080D2B167C15BB00F45CE3 /* UIColor+YUVSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */; };
-		A024CC0516BA0F5F00D6B568 /* LEColorPickerGPU.m in Sources */ = {isa = PBXBuildFile; fileRef = A024CC0416BA0F5F00D6B568 /* LEColorPickerGPU.m */; };
 		A0279B7A16C1F632001E82BD /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0279B7916C1F632001E82BD /* OpenGLES.framework */; };
 		A05119EE16EED4DA00FC03CA /* shader_codeword.cg in Resources */ = {isa = PBXBuildFile; fileRef = A05119ED16EED4DA00FC03CA /* shader_codeword.cg */; };
 		A05119F116EED4EB00FC03CA /* shader_lighting.cg in Resources */ = {isa = PBXBuildFile; fileRef = A05119EF16EED4EB00FC03CA /* shader_lighting.cg */; };
@@ -34,7 +33,7 @@
 		A088355A16781592006D6F0F /* MonaLisa.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355416781592006D6F0F /* MonaLisa.png */; };
 		A088355B16781592006D6F0F /* TheScream.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355516781592006D6F0F /* TheScream.png */; };
 		A0883560167815CC006D6F0F /* ATPagingView.m in Sources */ = {isa = PBXBuildFile; fileRef = A088355F167815CC006D6F0F /* ATPagingView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		A0AC902E16800A92006B72FA /* LEColorPickerSethThompson.m in Sources */ = {isa = PBXBuildFile; fileRef = A0AC902D16800A92006B72FA /* LEColorPickerSethThompson.m */; };
+		A0AE702D16FBEF9700858303 /* LEColorScheme.m in Sources */ = {isa = PBXBuildFile; fileRef = A0AE702C16FBEF9700858303 /* LEColorScheme.m */; };
 		A0F8F05716797898007DBA2B /* AirplaneVortex.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F05616797898007DBA2B /* AirplaneVortex.png */; };
 		A0F8F059167978C5007DBA2B /* VitruvianMan.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F058167978C5007DBA2B /* VitruvianMan.png */; };
 /* End PBXBuildFile section */
@@ -44,8 +43,6 @@
 		A000253516F2C20D003A0C03 /* Shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		A0080D29167C15BB00F45CE3 /* UIColor+YUVSpace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+YUVSpace.h"; sourceTree = "<group>"; };
 		A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+YUVSpace.m"; sourceTree = "<group>"; };
-		A024CC0316BA0F5F00D6B568 /* LEColorPickerGPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LEColorPickerGPU.h; sourceTree = "<group>"; };
-		A024CC0416BA0F5F00D6B568 /* LEColorPickerGPU.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LEColorPickerGPU.m; sourceTree = "<group>"; };
 		A0279B7916C1F632001E82BD /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		A05119ED16EED4DA00FC03CA /* shader_codeword.cg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = shader_codeword.cg; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		A05119EF16EED4EB00FC03CA /* shader_lighting.cg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = shader_lighting.cg; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
@@ -77,8 +74,8 @@
 		A088355516781592006D6F0F /* TheScream.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TheScream.png; sourceTree = "<group>"; };
 		A088355E167815CC006D6F0F /* ATPagingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ATPagingView.h; sourceTree = "<group>"; };
 		A088355F167815CC006D6F0F /* ATPagingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ATPagingView.m; sourceTree = "<group>"; };
-		A0AC902C16800A92006B72FA /* LEColorPickerSethThompson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LEColorPickerSethThompson.h; sourceTree = "<group>"; };
-		A0AC902D16800A92006B72FA /* LEColorPickerSethThompson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LEColorPickerSethThompson.m; sourceTree = "<group>"; };
+		A0AE702B16FBEF9700858303 /* LEColorScheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LEColorScheme.h; sourceTree = "<group>"; };
+		A0AE702C16FBEF9700858303 /* LEColorScheme.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LEColorScheme.m; sourceTree = "<group>"; };
 		A0F8F05616797898007DBA2B /* AirplaneVortex.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AirplaneVortex.png; sourceTree = "<group>"; };
 		A0F8F058167978C5007DBA2B /* VitruvianMan.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = VitruvianMan.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -106,8 +103,6 @@
 				A05119F016EED4EB00FC03CA /* shader_som.cg */,
 				A000253416F2C20D003A0C03 /* Shader.fsh */,
 				A000253516F2C20D003A0C03 /* Shader.vsh */,
-				A024CC0316BA0F5F00D6B568 /* LEColorPickerGPU.h */,
-				A024CC0416BA0F5F00D6B568 /* LEColorPickerGPU.m */,
 			);
 			path = LEColorPickerGPU;
 			sourceTree = "<group>";
@@ -175,13 +170,14 @@
 			isa = PBXGroup;
 			children = (
 				A024CC0116BA0E8800D6B568 /* LEColorPickerGPU */,
-				A0AC902A16800A7F006B72FA /* LEColorPickerSethThompson */,
 				A08835461678158B006D6F0F /* LEColorPicker.h */,
 				A08835471678158B006D6F0F /* LEColorPicker.m */,
 				A0080D29167C15BB00F45CE3 /* UIColor+YUVSpace.h */,
 				A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */,
 				A088354A1678158B006D6F0F /* UIImage+LEColorPicker.h */,
 				A088354B1678158B006D6F0F /* UIImage+LEColorPicker.m */,
+				A0AE702B16FBEF9700858303 /* LEColorScheme.h */,
+				A0AE702C16FBEF9700858303 /* LEColorScheme.m */,
 			);
 			path = LEColorPicker;
 			sourceTree = "<group>";
@@ -214,15 +210,6 @@
 				A088355F167815CC006D6F0F /* ATPagingView.m */,
 			);
 			path = ATPagingView;
-			sourceTree = "<group>";
-		};
-		A0AC902A16800A7F006B72FA /* LEColorPickerSethThompson */ = {
-			isa = PBXGroup;
-			children = (
-				A0AC902C16800A92006B72FA /* LEColorPickerSethThompson.h */,
-				A0AC902D16800A92006B72FA /* LEColorPickerSethThompson.m */,
-			);
-			path = LEColorPickerSethThompson;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -308,10 +295,9 @@
 				A088354E1678158B006D6F0F /* UIImage+LEColorPicker.m in Sources */,
 				A0883560167815CC006D6F0F /* ATPagingView.m in Sources */,
 				A0080D2B167C15BB00F45CE3 /* UIColor+YUVSpace.m in Sources */,
-				A0AC902E16800A92006B72FA /* LEColorPickerSethThompson.m in Sources */,
-				A024CC0516BA0F5F00D6B568 /* LEColorPickerGPU.m in Sources */,
 				A000253616F2C20D003A0C03 /* Shader.fsh in Sources */,
 				A000253716F2C20D003A0C03 /* Shader.vsh in Sources */,
+				A0AE702D16FBEF9700858303 /* LEColorScheme.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
