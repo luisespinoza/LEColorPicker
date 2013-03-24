@@ -17,6 +17,22 @@
 
 #define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   36
 #define LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH           3*(LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE)
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
+// Uniform index.
+enum
+{
+    UNIFORM_VERTEX_POSITIONS,
+    NUM_UNIFORMS
+};
+GLint uniforms[NUM_UNIFORMS];
+
+// Attribute index.
+enum
+{
+    ATTRIB_VERTEX,
+    NUM_ATTRIBUTES
+};
 
 GLfloat yComponentFromColor(GLfloat red, GLfloat green, GLfloat blue)
 {
@@ -80,7 +96,7 @@ void arrayOfColorVertexesFromImage(UIImage *image,
 void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH])
 {
     for (NSUInteger i=0; i<LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2; i+=3) {
-        printf("Vertex number:%d R:%f G:%f B:%f \n",i,vertex[i],vertex[i+1],vertex[i+2]);
+        printf("Vertex number:%d Y:%f U:%f V:%f \n",i,vertex[i],vertex[i+1],vertex[i+2]);
     }
 }
 
@@ -98,16 +114,16 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
 
 
 - (void)pickColorsFromImage:(UIImage *)image
-                   onComplete:(void (^)(LEColorScheme *colorsPickedDictionary))completeBlock
+                 onComplete:(void (^)(LEColorScheme *colorsPickedDictionary))completeBlock
 {
     dispatch_async(taskQueue, ^{
         NSDate *startDate = [NSDate date];
         LEColorScheme *colorScheme = [self colorSchemeFromImage:image];
-
+        
         NSDate *endDate = [NSDate date];
         NSTimeInterval timeDifference = [endDate timeIntervalSinceDate:startDate];
         double timePassed_ms = timeDifference * -1000.0;
-
+        
         LELog(@"Computation time: %f", timePassed_ms);
         dispatch_async(dispatch_get_main_queue(), ^{
             completeBlock(colorScheme);
@@ -117,7 +133,7 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
 
 - (LEColorScheme*)colorSchemeFromImage:(UIImage*)inputImage
 {
-    
+    //1 Scale and crop Image
     //First scale a generate pixel array
     UIImage *scaledImage = [LEColorPicker scaleImage:inputImage
                                                width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
@@ -126,10 +142,27 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2, 2)];
     //[UIImagePNGRepresentation(croppedImage) writeToFile:@"/Users/Luis/croppedImage.png" atomically:YES];
     
-    //vertexArray creation
-    GLfloat vertexArray[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH];
-    arrayOfColorVertexesFromImage(croppedImage, 0, 0, vertexArray);
-    printVertexArray(vertexArray);
+    //2 Get core graphics image reference
+    CGImageRef inputTextureImage = croppedImage.CGImage;
+    size_t width = CGImageGetWidth(inputTextureImage);
+    size_t height = CGImageGetHeight(inputTextureImage);
+    
+    GLubyte *inputTextureData = (GLubyte*)calloc(width*height*4, sizeof(GLubyte));
+    CGContextRef inputTextureContext = CGBitmapContextCreate(inputTextureData, width, height, 8, width*4, CGImageGetColorSpace(inputTextureImage), kCGImageAlphaPremultipliedLast);
+    
+    //3 Draw image into the context
+    CGContextDrawImage(inputTextureContext, CGRectMake(0, 0, width, height),inputTextureImage);
+    CGContextRelease(inputTextureContext);
+    
+    
+    //4 Send the pixel data to OpenGL
+    GLuint inputTexName;
+    glGenTextures(1, &inputTexName);
+    glBindTexture(GL_TEXTURE_2D, inputTexName);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
+    free(inputTextureData);
     
     //Load shaders
     [self setupGL];
@@ -141,34 +174,30 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
 }
 
 - (void)setupGL
-{/*
-  [EAGLContext setCurrentContext:self.context];
-  
-  GLfloat triangle[18] = {     // Data layout for each line below is:
-  // positionX, positionY, positionZ,     normalX, normalY, normalZ,
-  0.0f, 0.0f, -0.0f,        0.0f, 0.0f, 1.0f,
-  0.5f, 0.0f, -0.0f,         0.0f, 0.0f, 1.0f,
-  0.0f, 0.5f, 0.0f,         0.0f, 0.0f, 1.0f,};
-  
-  
-  [self loadShaders];
-  
-  glEnable(GL_DEPTH_TEST);
-  
-  glGenVertexArraysOES(1, &_vertexArray);
-  glBindVertexArrayOES(_vertexArray);
-  
-  glGenBuffers(1, &_vertexBuffer);
-  glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
-  
-  glEnableVertexAttribArray(GLKVertexAttribPosition);
-  glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(0));
-  glEnableVertexAttribArray(GLKVertexAttribNormal);
-  glVertexAttribPointer(GLKVertexAttribNormal, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(12));
-  
-  glBindVertexArrayOES(0);
-  */
+{
+    [EAGLContext setCurrentContext:_context];
+    
+    [self loadShaders];
+    
+    glEnable(GL_DEPTH_TEST);
+    
+    glGenVertexArraysOES(1, &_vertexArray);
+    glBindVertexArrayOES(_vertexArray);
+    
+    glGenBuffers(1, &_vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(_vertexArray), _vertexArray, GL_STATIC_DRAW);
+    
+    glEnableVertexAttribArray(GLKVertexAttribPosition);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(0));
+    
+    glBindVertexArrayOES(0);
+    
+    // Render the object again with ES2
+    glUseProgram(_program);
+    
+    //Print the 
+    
 }
 
 
@@ -205,7 +234,6 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     // Bind attribute locations.
     // This needs to be done prior to linking.
     glBindAttribLocation(_program, GLKVertexAttribPosition, "position");
-    glBindAttribLocation(_program, GLKVertexAttribNormal, "normal");
     
     // Link program.
     if (![self linkProgram:_program]) {
@@ -228,7 +256,7 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     }
     
     // Get uniform locations.
-    //uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX] = glGetUniformLocation(_program, "modelViewProjectionMatrix");
+    uniforms[UNIFORM_VERTEX_POSITIONS] = glGetUniformLocation(_program, "otherPositions");
     //uniforms[UNIFORM_NORMAL_MATRIX] = glGetUniformLocation(_program, "normalMatrix");
     
     // Release vertex and fragment shaders.
