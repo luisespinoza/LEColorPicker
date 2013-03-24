@@ -142,8 +142,22 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2, 2)];
     //[UIImagePNGRepresentation(croppedImage) writeToFile:@"/Users/Luis/croppedImage.png" atomically:YES];
     
+    [self setupTextureFromImage:croppedImage];
+    
+    
+    //Load shaders
+    [self setupGL];
+    
+    
+    //Create Vertex array or Vertex Data
+    
+    return nil;
+}
+
+- (void)setupTextureFromImage:(UIImage*)image
+{
     //2 Get core graphics image reference
-    CGImageRef inputTextureImage = croppedImage.CGImage;
+    CGImageRef inputTextureImage = image.CGImage;
     size_t width = CGImageGetWidth(inputTextureImage);
     size_t height = CGImageGetHeight(inputTextureImage);
     
@@ -163,14 +177,6 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
     free(inputTextureData);
-    
-    //Load shaders
-    [self setupGL];
-    
-    
-    //Create Vertex array or Vertex Data
-    
-    return nil;
 }
 
 - (void)setupGL
