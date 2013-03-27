@@ -1,6 +1,6 @@
 //
-//  Shader.fsh
-//  LearningOpenGLES
+//  DominantColorShader.fsh
+//  LEColorPicker
 //
 //  Created by Luis Enrique Espinoza Severino on 07-03-13.
 //  Copyright (c) 2013 Luis Espinoza. All rights reserved.

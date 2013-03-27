@@ -34,6 +34,25 @@ enum
     NUM_ATTRIBUTES
 };
 
+// Add texture coordinates to Vertex structure as follows
+typedef struct {
+    float Position[3];
+    float Color[4];
+    float TexCoord[2]; // New
+} Vertex;
+
+// Add texture coordinates to Vertices as follows
+const Vertex Vertices[] = {
+    {{1, -1, 0}, {1, 0, 0, 1}, {1, 0}},
+    {{1, 1, 0}, {1, 0, 0, 1}, {1, 1}},
+    {{-1, 1, 0}, {0, 1, 0, 1}, {0, 1}},
+    {{-1, -1, 0}, {0, 1, 0, 1}, {0, 0}},
+    {{1, -1, -1}, {1, 0, 0, 1}, {1, 0}},
+    {{1, 1, -1}, {1, 0, 0, 1}, {1, 1}},
+    {{-1, 1, -1}, {0, 1, 0, 1}, {0, 1}},
+    {{-1, -1, -1}, {0, 1, 0, 1}, {0, 0}}
+};
+
 GLfloat yComponentFromColor(GLfloat red, GLfloat green, GLfloat blue)
 {
     GLfloat y = 0.299*red + 0.587*green+ 0.114*blue;
@@ -100,7 +119,7 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     }
 }
 
-#pragma mark - Obj-C code
+#pragma mark - Obj-C interface methods
 
 - (id)init
 {
@@ -108,6 +127,7 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     if (self) {
         //Do something?
         taskQueue = dispatch_queue_create("ColorPickerQueue", DISPATCH_QUEUE_SERIAL);
+        [self setupOpenGL];
     }
     return self;
 }
@@ -142,16 +162,36 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2, 2)];
     //[UIImagePNGRepresentation(croppedImage) writeToFile:@"/Users/Luis/croppedImage.png" atomically:YES];
     
+
+    
     [self setupTextureFromImage:croppedImage];
     
-    
     //Load shaders
-    [self setupGL];
+    //[self setupOpenGLForDominantColor];
+    
     
     
     //Create Vertex array or Vertex Data
     
     return nil;
+}
+
+#pragma mark - OpenGL ES 2 custom methods
+
+- (void)setupOpenGL
+{
+    [self setupContext];
+    
+    [self setupDepthBuffer];
+    
+    [self setupRenderBuffer];
+    
+    [self setupFrameBuffer];
+    
+    [self setupOpenGLForDominantColor];
+    
+    [self setupVBOs];
+    
 }
 
 - (void)setupTextureFromImage:(UIImage*)image
@@ -179,33 +219,206 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     free(inputTextureData);
 }
 
-- (void)setupGL
-{
-    [EAGLContext setCurrentContext:_context];
+- (void)setupContext {
+    EAGLRenderingAPI api = kEAGLRenderingAPIOpenGLES2;
+    _context = [[EAGLContext alloc] initWithAPI:api];
+    if (!_context) {
+        NSLog(@"Failed to initialize OpenGLES 2.0 context");
+        exit(1);
+    }
     
-    [self loadShaders];
-    
-    glEnable(GL_DEPTH_TEST);
-    
-    glGenVertexArraysOES(1, &_vertexArray);
-    glBindVertexArrayOES(_vertexArray);
+    if (![EAGLContext setCurrentContext:_context]) {
+        NSLog(@"Failed to set current OpenGL context");
+        exit(1);
+    }
+}
+
+- (void)setupRenderBuffer {
+    glGenRenderbuffers(1, &_colorRenderBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderBuffer);
+    //[_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:_eaglLayer];
+}
+
+- (void)setupDepthBuffer {
+    glGenRenderbuffers(1, &_depthRenderBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, _depthRenderBuffer);
+    //glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, self..frame.size.width, self.frame.size.height);
+}
+
+- (void)setupFrameBuffer {
+    GLuint framebuffer;
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _colorRenderBuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderBuffer);
+}
+
+- (void)setupVBOs {
     
     glGenBuffers(1, &_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(_vertexArray), _vertexArray, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+/*
+    glGenBuffers(1, &_indexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
     
-    glEnableVertexAttribArray(GLKVertexAttribPosition);
-    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(0));
+    glGenBuffers(1, &_vertexBuffer2);
+    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer2);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices2), Vertices2, GL_STATIC_DRAW);
     
-    glBindVertexArrayOES(0);
-    
-    // Render the object again with ES2
-    glUseProgram(_program);
-    
-    //Print the 
-    
+    glGenBuffers(1, &_indexBuffer2);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer2);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices2), Indices2, GL_STATIC_DRAW);
+*/    
 }
 
+
+- (BOOL)setupOpenGLForDominantColor
+{
+    GLuint vertShader, fragShader;
+    NSString *vertShaderPathname, *fragShaderPathname;
+    
+    // Create shader program.
+    _program = glCreateProgram();
+    
+    // Create and compile vertex shader.
+    vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"DominantColorShader" ofType:@"vsh"];
+    if (![self compileShader:&vertShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
+        NSLog(@"Failed to compile vertex shader");
+        return NO;
+    }
+    
+    // Create and compile fragment shader.
+    fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"DominantColorShader" ofType:@"fsh"];
+    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname]) {
+        NSLog(@"Failed to compile fragment shader");
+        return NO;
+    }
+    
+    // Attach vertex shader to program.
+    glAttachShader(_program, vertShader);
+    
+    // Attach fragment shader to program.
+    glAttachShader(_program, fragShader);
+    
+    // Bind attribute locations.
+    // This needs to be done prior to linking.
+    //glBindAttribLocation(_program, GLKVertexAttribPosition, "position");
+    
+    // Link program.
+    if (![self linkProgram:_program]) {
+        NSLog(@"Failed to link program: %d", _program);
+        
+        if (vertShader) {
+            glDeleteShader(vertShader);
+            vertShader = 0;
+        }
+        if (fragShader) {
+            glDeleteShader(fragShader);
+            fragShader = 0;
+        }
+        if (_program) {
+            glDeleteProgram(_program);
+            _program = 0;
+        }
+        
+        return NO;
+    }
+    
+    // Get uniform locations.
+    //uniforms[UNIFORM_VERTEX_POSITIONS] = glGetUniformLocation(_program, "otherPositions");
+    
+    // 5
+    _positionSlot = glGetAttribLocation(_program, "position");
+    _colorSlot = glGetAttribLocation(_program, "sourceColor");
+    glEnableVertexAttribArray(_positionSlot);
+    glEnableVertexAttribArray(_colorSlot);
+    
+    _texCoordSlot = glGetAttribLocation(_program, "texCoordIn");
+    glEnableVertexAttribArray(_texCoordSlot);
+    _textureUniform = glGetUniformLocation(_program, "texture");
+    
+    // Release vertex and fragment shaders.
+    if (vertShader) {
+        glDetachShader(_program, vertShader);
+        glDeleteShader(vertShader);
+    }
+    if (fragShader) {
+        glDetachShader(_program, fragShader);
+        glDeleteShader(fragShader);
+    }
+    
+    return YES;
+}
+
+- (BOOL)setupOpenGlForColorFiltering
+{
+    GLuint vertShader, fragShader;
+    NSString *vertShaderPathname, *fragShaderPathname;
+    
+    // Create shader program.
+    _program = glCreateProgram();
+    
+    // Create and compile vertex shader.
+    vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"ColorFilterShader" ofType:@"vsh"];
+    if (![self compileShader:&vertShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
+        NSLog(@"Failed to compile vertex shader");
+        return NO;
+    }
+    
+    // Create and compile fragment shader.
+    fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"ColorFilterShader" ofType:@"fsh"];
+    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname]) {
+        NSLog(@"Failed to compile fragment shader");
+        return NO;
+    }
+    
+    // Attach vertex shader to program.
+    glAttachShader(_program, vertShader);
+    
+    // Attach fragment shader to program.
+    glAttachShader(_program, fragShader);
+    
+    // Bind attribute locations.
+    // This needs to be done prior to linking.
+    glBindAttribLocation(_program, GLKVertexAttribPosition, "position");
+    
+    // Link program.
+    if (![self linkProgram:_program]) {
+        NSLog(@"Failed to link program: %d", _program);
+        
+        if (vertShader) {
+            glDeleteShader(vertShader);
+            vertShader = 0;
+        }
+        if (fragShader) {
+            glDeleteShader(fragShader);
+            fragShader = 0;
+        }
+        if (_program) {
+            glDeleteProgram(_program);
+            _program = 0;
+        }
+        
+        return NO;
+    }
+    
+    // Get uniform locations.
+    uniforms[UNIFORM_VERTEX_POSITIONS] = glGetUniformLocation(_program, "otherPositions");
+    
+    // Release vertex and fragment shaders.
+    if (vertShader) {
+        glDetachShader(_program, vertShader);
+        glDeleteShader(vertShader);
+    }
+    if (fragShader) {
+        glDetachShader(_program, fragShader);
+        glDeleteShader(fragShader);
+    }
+    
+    return YES;
+}
 
 #pragma mark -  OpenGL ES 2 shader compilation
 
@@ -263,7 +476,6 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     
     // Get uniform locations.
     uniforms[UNIFORM_VERTEX_POSITIONS] = glGetUniformLocation(_program, "otherPositions");
-    //uniforms[UNIFORM_NORMAL_MATRIX] = glGetUniformLocation(_program, "normalMatrix");
     
     // Release vertex and fragment shaders.
     if (vertShader) {
@@ -363,6 +575,49 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     
 }
 
+#pragma mark - Convert GL image to UIImage`
+-(UIImage *) glToUIImage
+{
+    
+    imageWidth = 702;
+    imageHeight = 962;
+    
+    NSInteger myDataLength = imageWidth * imageHeight * 4;
+    
+    
+    // allocate array and read pixels into it.
+    GLubyte *buffer = (GLubyte *) malloc(myDataLength);
+    glReadPixels(0, 0, imageWidth, imageHeight, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    
+    // gl renders "upside down" so swap top to bottom into new array.
+    // there's gotta be a better way, but this works.
+    GLubyte *buffer2 = (GLubyte *) malloc(myDataLength);
+    for(int y = 0; y < imageHeight; y++)
+    {
+        for(int x = 0; x < imageWidth * 4; x++)
+        {
+            buffer2[((imageHeight - 1) - y) * imageWidth * 4 + x] = buffer[y * 4 * imageWidth + x];
+        }
+    }
+    
+    // make data provider with data.
+    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, buffer2, myDataLength, NULL);
+    
+    // prep the ingredients
+    int bitsPerComponent = 8;
+    int bitsPerPixel = 32;
+    int bytesPerRow = 4 * imageWidth;
+    CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
+    CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
+    CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
+    
+    // make the cgimage
+    CGImageRef imageRef = CGImageCreate(imageWidth, imageHeight, bitsPerComponent, bitsPerPixel, bytesPerRow, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
+    
+    // then make the uiimage from that
+    UIImage *myImage = [UIImage imageWithCGImage:imageRef];
+    return myImage;
+}
 
 + (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
 {

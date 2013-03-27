@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A000253616F2C20D003A0C03 /* Shader.fsh in Sources */ = {isa = PBXBuildFile; fileRef = A000253416F2C20D003A0C03 /* Shader.fsh */; };
-		A000253716F2C20D003A0C03 /* Shader.vsh in Sources */ = {isa = PBXBuildFile; fileRef = A000253516F2C20D003A0C03 /* Shader.vsh */; };
+		A000253616F2C20D003A0C03 /* DominantColorShader.fsh in Sources */ = {isa = PBXBuildFile; fileRef = A000253416F2C20D003A0C03 /* DominantColorShader.fsh */; };
+		A000253716F2C20D003A0C03 /* DominantColorShader.vsh in Sources */ = {isa = PBXBuildFile; fileRef = A000253516F2C20D003A0C03 /* DominantColorShader.vsh */; };
 		A0080D2B167C15BB00F45CE3 /* UIColor+YUVSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */; };
 		A0279B7A16C1F632001E82BD /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0279B7916C1F632001E82BD /* OpenGLES.framework */; };
+		A04698B117027C060034ED7B /* ColorFilterShader.fsh in Sources */ = {isa = PBXBuildFile; fileRef = A04698AF17027C060034ED7B /* ColorFilterShader.fsh */; };
+		A04698B217027C060034ED7B /* ColorFilterShader.vsh in Sources */ = {isa = PBXBuildFile; fileRef = A04698B017027C060034ED7B /* ColorFilterShader.vsh */; };
 		A05119EE16EED4DA00FC03CA /* shader_codeword.cg in Resources */ = {isa = PBXBuildFile; fileRef = A05119ED16EED4DA00FC03CA /* shader_codeword.cg */; };
 		A05119F116EED4EB00FC03CA /* shader_lighting.cg in Resources */ = {isa = PBXBuildFile; fileRef = A05119EF16EED4EB00FC03CA /* shader_lighting.cg */; };
 		A05119F216EED4EB00FC03CA /* shader_som.cg in Resources */ = {isa = PBXBuildFile; fileRef = A05119F016EED4EB00FC03CA /* shader_som.cg */; };
@@ -39,11 +41,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A000253416F2C20D003A0C03 /* Shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
-		A000253516F2C20D003A0C03 /* Shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		A000253416F2C20D003A0C03 /* DominantColorShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = DominantColorShader.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		A000253516F2C20D003A0C03 /* DominantColorShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = DominantColorShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		A0080D29167C15BB00F45CE3 /* UIColor+YUVSpace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+YUVSpace.h"; sourceTree = "<group>"; };
 		A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+YUVSpace.m"; sourceTree = "<group>"; };
 		A0279B7916C1F632001E82BD /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		A04698AF17027C060034ED7B /* ColorFilterShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ColorFilterShader.fsh; sourceTree = "<group>"; };
+		A04698B017027C060034ED7B /* ColorFilterShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ColorFilterShader.vsh; sourceTree = "<group>"; };
 		A05119ED16EED4DA00FC03CA /* shader_codeword.cg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = shader_codeword.cg; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		A05119EF16EED4EB00FC03CA /* shader_lighting.cg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = shader_lighting.cg; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		A05119F016EED4EB00FC03CA /* shader_som.cg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = shader_som.cg; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
@@ -101,8 +105,10 @@
 				A05119ED16EED4DA00FC03CA /* shader_codeword.cg */,
 				A05119EF16EED4EB00FC03CA /* shader_lighting.cg */,
 				A05119F016EED4EB00FC03CA /* shader_som.cg */,
-				A000253416F2C20D003A0C03 /* Shader.fsh */,
-				A000253516F2C20D003A0C03 /* Shader.vsh */,
+				A000253416F2C20D003A0C03 /* DominantColorShader.fsh */,
+				A000253516F2C20D003A0C03 /* DominantColorShader.vsh */,
+				A04698AF17027C060034ED7B /* ColorFilterShader.fsh */,
+				A04698B017027C060034ED7B /* ColorFilterShader.vsh */,
 			);
 			path = LEColorPickerGPU;
 			sourceTree = "<group>";
@@ -295,9 +301,11 @@
 				A088354E1678158B006D6F0F /* UIImage+LEColorPicker.m in Sources */,
 				A0883560167815CC006D6F0F /* ATPagingView.m in Sources */,
 				A0080D2B167C15BB00F45CE3 /* UIColor+YUVSpace.m in Sources */,
-				A000253616F2C20D003A0C03 /* Shader.fsh in Sources */,
-				A000253716F2C20D003A0C03 /* Shader.vsh in Sources */,
+				A000253616F2C20D003A0C03 /* DominantColorShader.fsh in Sources */,
+				A000253716F2C20D003A0C03 /* DominantColorShader.vsh in Sources */,
 				A0AE702D16FBEF9700858303 /* LEColorScheme.m in Sources */,
+				A04698B117027C060034ED7B /* ColorFilterShader.fsh in Sources */,
+				A04698B217027C060034ED7B /* ColorFilterShader.vsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

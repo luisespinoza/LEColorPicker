@@ -18,9 +18,15 @@
 
 @interface LEColorPicker : NSObject
 {
-    GLuint _vertexArray;
+    //GLuint _vertexArray;
     GLuint _vertexBuffer;
+    GLuint _colorRenderBuffer;
+    GLuint _depthRenderBuffer;
     GLuint _program;
+    GLuint _positionSlot;
+    GLuint _colorSlot;
+    GLuint _texCoordSlot;
+    GLuint _textureUniform;
     UIImage *_currentImage;
     EAGLContext *_context;
     dispatch_queue_t taskQueue;
