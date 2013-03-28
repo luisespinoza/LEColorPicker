@@ -41,16 +41,21 @@ typedef struct {
     float TexCoord[2]; // New
 } Vertex;
 
+#define TEX_COORD_MAX   4
+
 // Add texture coordinates to Vertices as follows
 const Vertex Vertices[] = {
-    {{1, -1, 0}, {1, 0, 0, 1}, {1, 0}},
-    {{1, 1, 0}, {1, 0, 0, 1}, {1, 1}},
-    {{-1, 1, 0}, {0, 1, 0, 1}, {0, 1}},
-    {{-1, -1, 0}, {0, 1, 0, 1}, {0, 0}},
-    {{1, -1, -1}, {1, 0, 0, 1}, {1, 0}},
-    {{1, 1, -1}, {1, 0, 0, 1}, {1, 1}},
-    {{-1, 1, -1}, {0, 1, 0, 1}, {0, 1}},
-    {{-1, -1, -1}, {0, 1, 0, 1}, {0, 0}}
+    // Front
+    {{1, -1, 0}, {1, 0, 0, 1}, {TEX_COORD_MAX, 0}},
+    {{1, 1, 0}, {0, 1, 0, 1}, {TEX_COORD_MAX, TEX_COORD_MAX}},
+    {{-1, 1, 0}, {0, 0, 1, 1}, {0, TEX_COORD_MAX}},
+    {{-1, -1, 0}, {0, 0, 0, 1}, {0, 0}},
+};
+
+const GLubyte Indices[] = {
+    // Front
+    0, 1, 2,
+    2, 3, 0,
 };
 
 GLfloat yComponentFromColor(GLfloat red, GLfloat green, GLfloat blue)
@@ -164,7 +169,7 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     
 
     
-    [self setupTextureFromImage:croppedImage];
+    _aTexture = [self setupTextureFromImage:croppedImage];
     
     //Load shaders
     //[self setupOpenGLForDominantColor];
@@ -194,7 +199,33 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     
 }
 
-- (void)setupTextureFromImage:(UIImage*)image
+- (void)render
+{
+    //start up
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    
+    glClearColor(0, 104.0/255.0, 55.0/255.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    
+    //Setup inputs
+    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
+    glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+    glVertexAttribPointer(_colorSlot, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) (sizeof(float) * 3));
+    
+    glVertexAttribPointer(_texCoordSlot, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) (sizeof(float) * 7));
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _aTexture);
+    glUniform1i(_textureUniform, 0);
+    glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
+    
+    //Save output png file
+}
+
+- (GLuint)setupTextureFromImage:(UIImage*)image
 {
     //2 Get core graphics image reference
     CGImageRef inputTextureImage = image.CGImage;
@@ -217,6 +248,8 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
     free(inputTextureData);
+    return inputTexName;
+
 }
 
 - (void)setupContext {
@@ -258,11 +291,11 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     glGenBuffers(1, &_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-/*
+
     glGenBuffers(1, &_indexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-    
+/*    
     glGenBuffers(1, &_vertexBuffer2);
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer2);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices2), Vertices2, GL_STATIC_DRAW);

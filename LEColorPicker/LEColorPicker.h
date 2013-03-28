@@ -20,6 +20,7 @@
 {
     //GLuint _vertexArray;
     GLuint _vertexBuffer;
+    GLuint _indexBuffer;
     GLuint _colorRenderBuffer;
     GLuint _depthRenderBuffer;
     GLuint _program;
@@ -27,6 +28,7 @@
     GLuint _colorSlot;
     GLuint _texCoordSlot;
     GLuint _textureUniform;
+    GLuint _aTexture;
     UIImage *_currentImage;
     EAGLContext *_context;
     dispatch_queue_t taskQueue;
