@@ -6,17 +6,16 @@
 //  Copyright (c) 2013 Luis Espinoza. All rights reserved.
 //
 
-attribute vec4 position;
-attribute vec4 sourceColor;
+attribute vec4 Position;
+attribute vec4 SourceColor;
 
-varying vec4 destinationColor;
+varying vec4 DestinationColor;
 
-attribute vec2 texCoordIn;
-varying vec2 texCoordOut;
+attribute vec2 TexCoordIn; // New
+varying vec2 TexCoordOut; // New
 
-void main()
-{
-    destinationColor = sourceColor;
-    gl_Position = position;
-    texCoordOut = texCoordIn;
+void main(void) {
+    DestinationColor = SourceColor;
+    gl_Position = Position;
+    TexCoordOut = TexCoordIn; // New
 }

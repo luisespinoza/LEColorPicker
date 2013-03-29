@@ -46,10 +46,10 @@ typedef struct {
 // Add texture coordinates to Vertices as follows
 const Vertex Vertices[] = {
     // Front
-    {{1, -1, 0}, {1, 0, 0, 1}, {TEX_COORD_MAX, 0}},
-    {{1, 1, 0}, {0, 1, 0, 1}, {TEX_COORD_MAX, TEX_COORD_MAX}},
-    {{-1, 1, 0}, {0, 0, 1, 1}, {0, TEX_COORD_MAX}},
-    {{-1, -1, 0}, {0, 0, 0, 1}, {0, 0}},
+    {{1, -1, 0}, {1, 0, 0, 1}, {1, 1}},
+    {{1, 1, 0}, {0, 1, 0, 1}, {1, 0}},
+    {{-1, 1, 0}, {0, 0, 1, 1}, {0, 0}},
+    {{-1, -1, 0}, {0, 0, 0, 1}, {0, 1}},
 };
 
 const GLubyte Indices[] = {
@@ -124,6 +124,12 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     }
 }
 
+void freeImageData(void *info, const void *data, size_t size)
+{
+    //printf("freeImageData called");
+    free((void*)data);
+}
+
 #pragma mark - Obj-C interface methods
 
 - (id)init
@@ -132,7 +138,6 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     if (self) {
         //Do something?
         taskQueue = dispatch_queue_create("ColorPickerQueue", DISPATCH_QUEUE_SERIAL);
-        [self setupOpenGL];
     }
     return self;
 }
@@ -164,17 +169,21 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
                                                width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                               height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
     //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
-    UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2, 2)];
-    //[UIImagePNGRepresentation(croppedImage) writeToFile:@"/Users/Luis/croppedImage.png" atomically:YES];
+    //UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2, 2)];
+    [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
     
-
+    [self setupOpenGL];
+    _aTexture = [self setupTextureFromImage:scaledImage];
     
-    _aTexture = [self setupTextureFromImage:croppedImage];
-    
-    //Load shaders
-    //[self setupOpenGLForDominantColor];
+    //Render
+    [self render];
     
     
+    //Save output png file
+    [UIImagePNGRepresentation([self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                                height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE])
+     writeToFile:@"/Users/Luis/Output.png"
+     atomically:YES];
     
     //Create Vertex array or Vertex Data
     
@@ -210,6 +219,7 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     glEnable(GL_DEPTH_TEST);
     
     //Setup inputs
+    glViewport(0, 0, 36, 36);
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
     glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
@@ -222,7 +232,12 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     glUniform1i(_textureUniform, 0);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
     
-    //Save output png file
+[_context presentRenderbuffer:GL_RENDERBUFFER];
+}
+
+- (void)setupLayer {
+    _eaglLayer = (CAEAGLLayer*) [CAEAGLLayer layer];
+    _eaglLayer.opaque = YES;
 }
 
 - (GLuint)setupTextureFromImage:(UIImage*)image
@@ -249,7 +264,7 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
     free(inputTextureData);
     return inputTexName;
-
+    
 }
 
 - (void)setupContext {
@@ -269,13 +284,13 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
 - (void)setupRenderBuffer {
     glGenRenderbuffers(1, &_colorRenderBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderBuffer);
-    //[_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:_eaglLayer];
+    [_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:_eaglLayer];
 }
 
 - (void)setupDepthBuffer {
     glGenRenderbuffers(1, &_depthRenderBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, _depthRenderBuffer);
-    //glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, self..frame.size.width, self.frame.size.height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE , LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
 }
 
 - (void)setupFrameBuffer {
@@ -291,19 +306,19 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     glGenBuffers(1, &_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-
+    
     glGenBuffers(1, &_indexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-/*    
-    glGenBuffers(1, &_vertexBuffer2);
-    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer2);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices2), Vertices2, GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &_indexBuffer2);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer2);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices2), Indices2, GL_STATIC_DRAW);
-*/    
+    /*
+     glGenBuffers(1, &_vertexBuffer2);
+     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer2);
+     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices2), Vertices2, GL_STATIC_DRAW);
+     
+     glGenBuffers(1, &_indexBuffer2);
+     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer2);
+     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices2), Indices2, GL_STATIC_DRAW);
+     */
 }
 
 
@@ -362,25 +377,27 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     // Get uniform locations.
     //uniforms[UNIFORM_VERTEX_POSITIONS] = glGetUniformLocation(_program, "otherPositions");
     
+    glUseProgram(_program);
+    
     // 5
-    _positionSlot = glGetAttribLocation(_program, "position");
-    _colorSlot = glGetAttribLocation(_program, "sourceColor");
+    _positionSlot = glGetAttribLocation(_program, "Position");
+    _colorSlot = glGetAttribLocation(_program, "SourceColor");
     glEnableVertexAttribArray(_positionSlot);
     glEnableVertexAttribArray(_colorSlot);
     
-    _texCoordSlot = glGetAttribLocation(_program, "texCoordIn");
+    _texCoordSlot = glGetAttribLocation(_program, "TexCoordIn");
     glEnableVertexAttribArray(_texCoordSlot);
-    _textureUniform = glGetUniformLocation(_program, "texture");
+    _textureUniform = glGetUniformLocation(_program, "Texture");
     
     // Release vertex and fragment shaders.
-    if (vertShader) {
-        glDetachShader(_program, vertShader);
-        glDeleteShader(vertShader);
-    }
-    if (fragShader) {
-        glDetachShader(_program, fragShader);
-        glDeleteShader(fragShader);
-    }
+//    if (vertShader) {
+//        glDetachShader(_program, vertShader);
+//        glDeleteShader(vertShader);
+//    }
+//    if (fragShader) {
+//        glDetachShader(_program, fragShader);
+//        glDeleteShader(fragShader);
+//    }
     
     return YES;
 }
@@ -415,7 +432,7 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     
     // Bind attribute locations.
     // This needs to be done prior to linking.
-    glBindAttribLocation(_program, GLKVertexAttribPosition, "position");
+    glBindAttribLocation(_program, GLKVertexAttribPosition, "Position");
     
     // Link program.
     if (![self linkProgram:_program]) {
@@ -454,74 +471,6 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
 }
 
 #pragma mark -  OpenGL ES 2 shader compilation
-
-- (BOOL)loadShaders
-{
-    GLuint vertShader, fragShader;
-    NSString *vertShaderPathname, *fragShaderPathname;
-    
-    // Create shader program.
-    _program = glCreateProgram();
-    
-    // Create and compile vertex shader.
-    vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"Shader" ofType:@"vsh"];
-    if (![self compileShader:&vertShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
-        NSLog(@"Failed to compile vertex shader");
-        return NO;
-    }
-    
-    // Create and compile fragment shader.
-    fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"Shader" ofType:@"fsh"];
-    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname]) {
-        NSLog(@"Failed to compile fragment shader");
-        return NO;
-    }
-    
-    // Attach vertex shader to program.
-    glAttachShader(_program, vertShader);
-    
-    // Attach fragment shader to program.
-    glAttachShader(_program, fragShader);
-    
-    // Bind attribute locations.
-    // This needs to be done prior to linking.
-    glBindAttribLocation(_program, GLKVertexAttribPosition, "position");
-    
-    // Link program.
-    if (![self linkProgram:_program]) {
-        NSLog(@"Failed to link program: %d", _program);
-        
-        if (vertShader) {
-            glDeleteShader(vertShader);
-            vertShader = 0;
-        }
-        if (fragShader) {
-            glDeleteShader(fragShader);
-            fragShader = 0;
-        }
-        if (_program) {
-            glDeleteProgram(_program);
-            _program = 0;
-        }
-        
-        return NO;
-    }
-    
-    // Get uniform locations.
-    uniforms[UNIFORM_VERTEX_POSITIONS] = glGetUniformLocation(_program, "otherPositions");
-    
-    // Release vertex and fragment shaders.
-    if (vertShader) {
-        glDetachShader(_program, vertShader);
-        glDeleteShader(vertShader);
-    }
-    if (fragShader) {
-        glDetachShader(_program, fragShader);
-        glDeleteShader(fragShader);
-    }
-    
-    return YES;
-}
 
 - (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file
 {
@@ -608,48 +557,41 @@ void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENG
     
 }
 
-#pragma mark - Convert GL image to UIImage`
--(UIImage *) glToUIImage
+#pragma mark - Convert GL image to UIImage
+-(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height
 {
+    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
+    GLubyte *buffer2 = (GLubyte *) malloc(width * height * 4);
     
-    imageWidth = 702;
-    imageHeight = 962;
+    //GLvoid *pixel_data = nil;
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
-    NSInteger myDataLength = imageWidth * imageHeight * 4;
+    /* make upside down */
     
-    
-    // allocate array and read pixels into it.
-    GLubyte *buffer = (GLubyte *) malloc(myDataLength);
-    glReadPixels(0, 0, imageWidth, imageHeight, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    
-    // gl renders "upside down" so swap top to bottom into new array.
-    // there's gotta be a better way, but this works.
-    GLubyte *buffer2 = (GLubyte *) malloc(myDataLength);
-    for(int y = 0; y < imageHeight; y++)
-    {
-        for(int x = 0; x < imageWidth * 4; x++)
-        {
-            buffer2[((imageHeight - 1) - y) * imageWidth * 4 + x] = buffer[y * 4 * imageWidth + x];
+    for (int y=0; y<height; y++) {
+        for (int x=0; x<width*4; x++) {
+            buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
         }
     }
     
-    // make data provider with data.
-    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, buffer2, myDataLength, NULL);
+    // make data provider from buffer
+    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, buffer2, width * height * 4, freeImageData);
     
-    // prep the ingredients
+    // set up for CGImage creation
     int bitsPerComponent = 8;
     int bitsPerPixel = 32;
-    int bytesPerRow = 4 * imageWidth;
+    int bytesPerRow = 4 * width;
     CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
     CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
+    // Use this to retain alpha
+    //CGBitmapInfo bitmapInfo = kCGImageAlphaPremultipliedLast;
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
+    CGImageRef imageRef = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
     
-    // make the cgimage
-    CGImageRef imageRef = CGImageCreate(imageWidth, imageHeight, bitsPerComponent, bitsPerPixel, bytesPerRow, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
+    // make UIImage from CGImage
+    UIImage *newUIImage = [UIImage imageWithCGImage:imageRef];
     
-    // then make the uiimage from that
-    UIImage *myImage = [UIImage imageWithCGImage:imageRef];
-    return myImage;
+    return newUIImage;
 }
 
 + (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height

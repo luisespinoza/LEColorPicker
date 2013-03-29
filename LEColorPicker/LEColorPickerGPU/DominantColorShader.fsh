@@ -6,11 +6,11 @@
 //  Copyright (c) 2013 Luis Espinoza. All rights reserved.
 //
 
-varying lowp vec4 destinationColor;
-varying lowp vec2 texCoordOut;
-uniform sampler2D texture;
+varying lowp vec4 DestinationColor;
 
-void main()
-{
-    gl_FragColor = destinationColor * texture2D(texture, texCoordOut);
+varying lowp vec2 TexCoordOut; // New
+uniform sampler2D Texture; // New
+
+void main(void) {
+    gl_FragColor = vec4(1,0,1,1); // New
 }

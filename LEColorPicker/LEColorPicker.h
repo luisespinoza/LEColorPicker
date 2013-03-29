@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import <GLKit/GLKit.h>
+#import <QuartzCore/QuartzCore.h>
+
 #import "LEColorScheme.h"
 
 #ifdef DEBUG
@@ -30,6 +32,7 @@
     GLuint _textureUniform;
     GLuint _aTexture;
     UIImage *_currentImage;
+    CAEAGLLayer* _eaglLayer;
     EAGLContext *_context;
     dispatch_queue_t taskQueue;
 }
