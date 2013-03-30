@@ -58,72 +58,6 @@ const GLubyte Indices[] = {
     2, 3, 0,
 };
 
-GLfloat yComponentFromColor(GLfloat red, GLfloat green, GLfloat blue)
-{
-    GLfloat y = 0.299*red + 0.587*green+ 0.114*blue;
-    return y;
-}
-
-GLfloat uComponentFromColor(GLfloat red, GLfloat green, GLfloat blue)
-{
-    GLfloat u = (-0.14713)*red + (-0.28886)*green + (0.436)*blue;
-    return u;
-}
-
-GLfloat vComponentFromColor(GLfloat red, GLfloat green, GLfloat blue)
-{
-    
-    GLfloat v = 0.615*red + (-0.51499)*green + (-0.10001)*blue;
-    return v;
-}
-
-void arrayOfColorVertexesFromImage(UIImage *image,
-                                   NSUInteger xx,
-                                   NSUInteger yy,
-                                   CGFloat resultArray[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH])
-{
-    // First put image into your data buffer
-    CGImageRef imageRef = [image CGImage];
-    NSUInteger width = CGImageGetWidth(imageRef);
-    NSUInteger height = CGImageGetHeight(imageRef);
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    unsigned char *rawData = (unsigned char*) calloc(height * width * 4, sizeof(unsigned char));
-    NSUInteger bytesPerPixel = 4;
-    NSUInteger bytesPerRow = bytesPerPixel * width;
-    NSUInteger bitsPerComponent = 8;
-    CGContextRef context = CGBitmapContextCreate(rawData, width, height,
-                                                 bitsPerComponent, bytesPerRow, colorSpace,
-                                                 kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
-    CGColorSpaceRelease(colorSpace);
-    
-    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
-    CGContextRelease(context);
-    
-    // Now your rawData contains the image data in the RGBA8888 pixel format.
-    int byteIndex = (bytesPerRow * yy) + xx * bytesPerPixel;
-    for (int i = 0 ; i < LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH ; i+=3)
-    {
-        GLfloat red   = (rawData[byteIndex]     * 1.0) / 255.0;
-        GLfloat green = (rawData[byteIndex + 1] * 1.0) / 255.0;
-        GLfloat blue  = (rawData[byteIndex + 2] * 1.0) / 255.0;
-        //CGFloat alpha = (rawData[byteIndex + 3] * 1.0) / 255.0;
-        byteIndex += 4;
-        
-        resultArray[i]      = yComponentFromColor(red, blue, green);
-        resultArray[i+1]    = uComponentFromColor(red, blue, green);
-        resultArray[i+2]    = vComponentFromColor(red, blue, green);
-    }
-    
-    free(rawData);
-}
-
-void printVertexArray(CGFloat vertex[LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH])
-{
-    for (NSUInteger i=0; i<LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*2; i+=3) {
-        printf("Vertex number:%d Y:%f U:%f V:%f \n",i,vertex[i],vertex[i+1],vertex[i+2]);
-    }
-}
-
 void freeImageData(void *info, const void *data, size_t size)
 {
     //printf("freeImageData called");
@@ -138,6 +72,7 @@ void freeImageData(void *info, const void *data, size_t size)
     if (self) {
         //Do something?
         taskQueue = dispatch_queue_create("ColorPickerQueue", DISPATCH_QUEUE_SERIAL);
+        self.frame = CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
     }
     return self;
 }
@@ -146,7 +81,7 @@ void freeImageData(void *info, const void *data, size_t size)
 - (void)pickColorsFromImage:(UIImage *)image
                  onComplete:(void (^)(LEColorScheme *colorsPickedDictionary))completeBlock
 {
-    dispatch_async(taskQueue, ^{
+    //dispatch_async(taskQueue, ^{
         NSDate *startDate = [NSDate date];
         LEColorScheme *colorScheme = [self colorSchemeFromImage:image];
         
@@ -158,13 +93,12 @@ void freeImageData(void *info, const void *data, size_t size)
         dispatch_async(dispatch_get_main_queue(), ^{
             completeBlock(colorScheme);
         });
-    });
+    //});
 }
 
 - (LEColorScheme*)colorSchemeFromImage:(UIImage*)inputImage
 {
-    //1 Scale and crop Image
-    //First scale a generate pixel array
+    //1. First, we scale the input image, to get a constant image size.
     UIImage *scaledImage = [LEColorPicker scaleImage:inputImage
                                                width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                               height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
@@ -172,12 +106,12 @@ void freeImageData(void *info, const void *data, size_t size)
     //UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2, 2)];
     [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
     
+    //2. Then, we set the initial openGL ES 2.0 state.
     [self setupOpenGL];
     _aTexture = [self setupTextureFromImage:scaledImage];
     
-    //Render
+    //3. Now that all is ready, proceed we the first render, to find the dominant color
     [self render];
-    
     
     //Save output png file
     [UIImagePNGRepresentation([self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
@@ -194,11 +128,13 @@ void freeImageData(void *info, const void *data, size_t size)
 
 - (void)setupOpenGL
 {
+    [self setupLayer];
+    
     [self setupContext];
     
-    [self setupDepthBuffer];
-    
     [self setupRenderBuffer];
+    
+    [self setupDepthBuffer];
     
     [self setupFrameBuffer];
     
@@ -206,6 +142,7 @@ void freeImageData(void *info, const void *data, size_t size)
     
     [self setupVBOs];
     
+    //[self setupDisplayLink];
 }
 
 - (void)render
@@ -232,13 +169,12 @@ void freeImageData(void *info, const void *data, size_t size)
     glUniform1i(_textureUniform, 0);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
     
-[_context presentRenderbuffer:GL_RENDERBUFFER];
+    [_context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
 - (void)setupLayer {
-    _eaglLayer = (CAEAGLLayer*) [CAEAGLLayer layer];
-    _eaglLayer.opaque = YES;
-}
+    _eaglLayer = (CAEAGLLayer*) self.layer;
+    _eaglLayer.opaque = YES;}
 
 - (GLuint)setupTextureFromImage:(UIImage*)image
 {
@@ -310,15 +246,11 @@ void freeImageData(void *info, const void *data, size_t size)
     glGenBuffers(1, &_indexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-    /*
-     glGenBuffers(1, &_vertexBuffer2);
-     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer2);
-     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices2), Vertices2, GL_STATIC_DRAW);
-     
-     glGenBuffers(1, &_indexBuffer2);
-     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer2);
-     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices2), Indices2, GL_STATIC_DRAW);
-     */
+}
+
+- (void)setupDisplayLink {
+    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(render)];
+    [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 }
 
 
@@ -326,9 +258,6 @@ void freeImageData(void *info, const void *data, size_t size)
 {
     GLuint vertShader, fragShader;
     NSString *vertShaderPathname, *fragShaderPathname;
-    
-    // Create shader program.
-    _program = glCreateProgram();
     
     // Create and compile vertex shader.
     vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"DominantColorShader" ofType:@"vsh"];
@@ -343,6 +272,9 @@ void freeImageData(void *info, const void *data, size_t size)
         NSLog(@"Failed to compile fragment shader");
         return NO;
     }
+    
+    // Create shader program.
+    _program = glCreateProgram();
     
     // Attach vertex shader to program.
     glAttachShader(_program, vertShader);
@@ -388,17 +320,7 @@ void freeImageData(void *info, const void *data, size_t size)
     _texCoordSlot = glGetAttribLocation(_program, "TexCoordIn");
     glEnableVertexAttribArray(_texCoordSlot);
     _textureUniform = glGetUniformLocation(_program, "Texture");
-    
-    // Release vertex and fragment shaders.
-//    if (vertShader) {
-//        glDetachShader(_program, vertShader);
-//        glDeleteShader(vertShader);
-//    }
-//    if (fragShader) {
-//        glDetachShader(_program, fragShader);
-//        glDeleteShader(fragShader);
-//    }
-    
+
     return YES;
 }
 
@@ -592,6 +514,10 @@ void freeImageData(void *info, const void *data, size_t size)
     UIImage *newUIImage = [UIImage imageWithCGImage:imageRef];
     
     return newUIImage;
+}
+
++ (Class)layerClass {
+    return [CAEAGLLayer class];
 }
 
 + (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height

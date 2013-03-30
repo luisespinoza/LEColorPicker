@@ -18,7 +18,7 @@
 #	 define LELog(...) /* */
 #endif
 
-@interface LEColorPicker : NSObject
+@interface LEColorPicker : UIView
 {
     //GLuint _vertexArray;
     GLuint _vertexBuffer;
@@ -59,4 +59,6 @@
  @returns A new image like "image" but with width "width" and height "height".
  */
 + (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height;
+
+- (void)render;
 @end

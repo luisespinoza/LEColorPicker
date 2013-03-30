@@ -24,6 +24,8 @@
     
     _colorPicker = [[LEColorPicker alloc] init];
     
+    [_outputView addSubview:_colorPicker];
+    
     [self configurePagingView];
 }
 
@@ -102,6 +104,7 @@
         
         [UIView commitAnimations];
     }];
+    
 }
 @end
 
