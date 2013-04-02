@@ -18,7 +18,7 @@
 #	 define LELog(...) /* */
 #endif
 
-@interface LEColorPicker : UIView
+@interface LEColorPicker : UIImageView
 {
     //GLuint _vertexArray;
     GLuint _vertexBuffer;

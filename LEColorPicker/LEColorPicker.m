@@ -46,10 +46,10 @@ typedef struct {
 // Add texture coordinates to Vertices as follows
 const Vertex Vertices[] = {
     // Front
-    {{1, -1, 0}, {1, 0, 0, 1}, {1, 1}},
-    {{1, 1, 0}, {0, 1, 0, 1}, {1, 0}},
-    {{-1, 1, 0}, {0, 0, 1, 1}, {0, 0}},
-    {{-1, -1, 0}, {0, 0, 0, 1}, {0, 1}},
+    {{1, -1, 0}, {1, 0, 0, 1}, {TEX_COORD_MAX, 0}},
+    {{1, 1, 0}, {0, 1, 0, 1}, {TEX_COORD_MAX, TEX_COORD_MAX}},
+    {{-1, 1, 0}, {0, 0, 1, 1}, {0, TEX_COORD_MAX}},
+    {{-1, -1, 0}, {0, 0, 0, 1}, {0, 0}},
 };
 
 const GLubyte Indices[] = {
@@ -72,7 +72,7 @@ void freeImageData(void *info, const void *data, size_t size)
     if (self) {
         //Do something?
         taskQueue = dispatch_queue_create("ColorPickerQueue", DISPATCH_QUEUE_SERIAL);
-        self.frame = CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
+        self.frame = CGRectMake(50, 50, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
     }
     return self;
 }
@@ -92,6 +92,7 @@ void freeImageData(void *info, const void *data, size_t size)
         LELog(@"Computation time: %f", timePassed_ms);
         dispatch_async(dispatch_get_main_queue(), ^{
             completeBlock(colorScheme);
+            [self setNeedsDisplay];
         });
     //});
 }
@@ -120,7 +121,8 @@ void freeImageData(void *info, const void *data, size_t size)
      atomically:YES];
     
     //Create Vertex array or Vertex Data
-    
+    self.image = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                   height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
     return nil;
 }
 
@@ -150,13 +152,12 @@ void freeImageData(void *info, const void *data, size_t size)
     //start up
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-    
     glClearColor(0, 104.0/255.0, 55.0/255.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     
     //Setup inputs
-    glViewport(0, 0, 36, 36);
+    glViewport(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
     glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
@@ -180,6 +181,12 @@ void freeImageData(void *info, const void *data, size_t size)
 {
     //2 Get core graphics image reference
     CGImageRef inputTextureImage = image.CGImage;
+    
+    if (!inputTextureImage) {
+        LELog(@"Failed to load image for texture");
+        exit(1);
+    }
+    
     size_t width = CGImageGetWidth(inputTextureImage);
     size_t height = CGImageGetHeight(inputTextureImage);
     
@@ -196,7 +203,8 @@ void freeImageData(void *info, const void *data, size_t size)
     glGenTextures(1, &inputTexName);
     glBindTexture(GL_TEXTURE_2D, inputTexName);
     
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_CLAMP_TO_EDGE);
+    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_CLAMP_TO_EDGE );
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
     free(inputTextureData);
     return inputTexName;
@@ -314,11 +322,11 @@ void freeImageData(void *info, const void *data, size_t size)
     // 5
     _positionSlot = glGetAttribLocation(_program, "Position");
     _colorSlot = glGetAttribLocation(_program, "SourceColor");
+    _texCoordSlot = glGetAttribLocation(_program, "TexCoordIn");
     glEnableVertexAttribArray(_positionSlot);
     glEnableVertexAttribArray(_colorSlot);
-    
-    _texCoordSlot = glGetAttribLocation(_program, "TexCoordIn");
     glEnableVertexAttribArray(_texCoordSlot);
+    
     _textureUniform = glGetUniformLocation(_program, "Texture");
 
     return YES;
@@ -493,6 +501,7 @@ void freeImageData(void *info, const void *data, size_t size)
     for (int y=0; y<height; y++) {
         for (int x=0; x<width*4; x++) {
             buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
+            //NSLog(@"%d",buffer[y * 4 * width + x]);
         }
     }
     

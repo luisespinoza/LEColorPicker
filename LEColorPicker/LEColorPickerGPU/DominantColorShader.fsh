@@ -12,7 +12,7 @@ varying lowp vec2 TexCoordOut; // New
 uniform sampler2D Texture; // New
 
 void main(void) {
-    //gl_FragColor = DestinationColor * texture2D(Texture, TexCoordOut); // New
-    gl_FragColor = DestinationColor;
-   // gl_FragColor = texture2D(Texture, TexCoordOut);
+    //gl_FragColor = DestinationColor * vec4(texture2D(Texture, TexCoordOut).aaa,1.0); // New
+    //gl_FragColor = DestinationColor;
+    gl_FragColor = texture2D(Texture, TexCoordOut).aaaa;
 }
