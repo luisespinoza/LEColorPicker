@@ -35,6 +35,7 @@
     CAEAGLLayer* _eaglLayer;
     EAGLContext *_context;
     dispatch_queue_t taskQueue;
+    UIImage *savedImage;
 }
 
 /**

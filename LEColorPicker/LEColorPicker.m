@@ -81,7 +81,7 @@ void freeImageData(void *info, const void *data, size_t size)
 - (void)pickColorsFromImage:(UIImage *)image
                  onComplete:(void (^)(LEColorScheme *colorsPickedDictionary))completeBlock
 {
-    //dispatch_async(taskQueue, ^{
+    dispatch_async(taskQueue, ^{
         NSDate *startDate = [NSDate date];
         LEColorScheme *colorScheme = [self colorSchemeFromImage:image];
         
@@ -91,10 +91,10 @@ void freeImageData(void *info, const void *data, size_t size)
         
         LELog(@"Computation time: %f", timePassed_ms);
         dispatch_async(dispatch_get_main_queue(), ^{
+            self.image = savedImage;
             completeBlock(colorScheme);
-            [self setNeedsDisplay];
         });
-    //});
+    });
 }
 
 - (LEColorScheme*)colorSchemeFromImage:(UIImage*)inputImage
@@ -121,8 +121,10 @@ void freeImageData(void *info, const void *data, size_t size)
     // atomically:YES];
     
     //Create Vertex array or Vertex Data
-    self.image = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                   height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+    //dispatch_async(dispatch_get_main_queue(), ^{
+        savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                       height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+    //});
     return nil;
 }
 
