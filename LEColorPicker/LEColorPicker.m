@@ -15,7 +15,7 @@
 
 #pragma mark - C Code
 
-#define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   36
+#define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   64
 #define LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH           3*(LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE)
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -41,7 +41,7 @@ typedef struct {
     float TexCoord[2]; // New
 } Vertex;
 
-#define TEX_COORD_MAX   4
+#define TEX_COORD_MAX   1
 
 // Add texture coordinates to Vertices as follows
 const Vertex Vertices[] = {
@@ -72,7 +72,7 @@ void freeImageData(void *info, const void *data, size_t size)
     if (self) {
         //Do something?
         taskQueue = dispatch_queue_create("ColorPickerQueue", DISPATCH_QUEUE_SERIAL);
-        self.frame = CGRectMake(50, 50, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
+        self.frame = CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
     }
     return self;
 }
@@ -155,6 +155,7 @@ void freeImageData(void *info, const void *data, size_t size)
     glClearColor(0, 104.0/255.0, 55.0/255.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_2D);
     
     //Setup inputs
     glViewport(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
@@ -191,8 +192,8 @@ void freeImageData(void *info, const void *data, size_t size)
     size_t height = CGImageGetHeight(inputTextureImage);
     
     GLubyte *inputTextureData = (GLubyte*)calloc(width*height*4, sizeof(GLubyte));
-    CGContextRef inputTextureContext = CGBitmapContextCreate(inputTextureData, width, height, 8, width*4, CGImageGetColorSpace(inputTextureImage), kCGImageAlphaPremultipliedLast);
-    
+    CGColorSpaceRef inputTextureColorSpace = CGImageGetColorSpace(inputTextureImage);
+    CGContextRef inputTextureContext = CGBitmapContextCreate(inputTextureData, width, height, 8, width*4, inputTextureColorSpace , kCGImageAlphaPremultipliedLast);
     //3 Draw image into the context
     CGContextDrawImage(inputTextureContext, CGRectMake(0, 0, width, height),inputTextureImage);
     CGContextRelease(inputTextureContext);
@@ -203,8 +204,7 @@ void freeImageData(void *info, const void *data, size_t size)
     glGenTextures(1, &inputTexName);
     glBindTexture(GL_TEXTURE_2D, inputTexName);
     
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_CLAMP_TO_EDGE);
-    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_CLAMP_TO_EDGE );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
     free(inputTextureData);
     return inputTexName;
