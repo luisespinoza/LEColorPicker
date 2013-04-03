@@ -15,7 +15,7 @@
 
 #pragma mark - C Code
 
-#define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   64
+#define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   32
 #define LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH           3*(LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE)
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -105,7 +105,7 @@ void freeImageData(void *info, const void *data, size_t size)
                                               height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
     //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
     //UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2, 2)];
-    [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
+    //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
     
     //2. Then, we set the initial openGL ES 2.0 state.
     [self setupOpenGL];
@@ -115,10 +115,10 @@ void freeImageData(void *info, const void *data, size_t size)
     [self render];
     
     //Save output png file
-    [UIImagePNGRepresentation([self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                                height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE])
-     writeToFile:@"/Users/Luis/Output.png"
-     atomically:YES];
+    //[UIImagePNGRepresentation([self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+     //                                           height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE])
+    // writeToFile:@"/Users/Luis/Output.png"
+    // atomically:YES];
     
     //Create Vertex array or Vertex Data
     self.image = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
@@ -205,7 +205,7 @@ void freeImageData(void *info, const void *data, size_t size)
     glBindTexture(GL_TEXTURE_2D, inputTexName);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA , width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
     free(inputTextureData);
     return inputTexName;
     
@@ -314,9 +314,6 @@ void freeImageData(void *info, const void *data, size_t size)
         return NO;
     }
     
-    // Get uniform locations.
-    //uniforms[UNIFORM_VERTEX_POSITIONS] = glGetUniformLocation(_program, "otherPositions");
-    
     glUseProgram(_program);
     
     // 5
@@ -326,7 +323,6 @@ void freeImageData(void *info, const void *data, size_t size)
     glEnableVertexAttribArray(_positionSlot);
     glEnableVertexAttribArray(_colorSlot);
     glEnableVertexAttribArray(_texCoordSlot);
-    
     _textureUniform = glGetUniformLocation(_program, "Texture");
 
     return YES;
