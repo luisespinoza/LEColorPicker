@@ -105,7 +105,7 @@ void freeImageData(void *info, const void *data, size_t size)
                                               height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
     //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
     //UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2, 2)];
-    //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
+    [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
     
     //2. Then, we set the initial openGL ES 2.0 state.
     [self setupOpenGL];
@@ -115,10 +115,10 @@ void freeImageData(void *info, const void *data, size_t size)
     [self render];
     
     //Save output png file
-    //[UIImagePNGRepresentation([self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-     //                                           height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE])
-    // writeToFile:@"/Users/Luis/Output.png"
-    // atomically:YES];
+    [UIImagePNGRepresentation([self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                            height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE])
+     writeToFile:@"/Users/Luis/Output.png"
+     atomically:YES];
     
     //Create Vertex array or Vertex Data
     //dispatch_async(dispatch_get_main_queue(), ^{
@@ -496,15 +496,15 @@ void freeImageData(void *info, const void *data, size_t size)
     
     /* make upside down */
     
-    for (int y=0; y<height; y++) {
-        for (int x=0; x<width*4; x++) {
-            buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
-            //NSLog(@"%d",buffer[y * 4 * width + x]);
-        }
-    }
+//    for (int y=0; y<height; y++) {
+//        for (int x=0; x<width*4; x++) {
+//            buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
+//            //NSLog(@"%d",buffer[y * 4 * width + x]);
+//        }
+//    }
     
     // make data provider from buffer
-    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, buffer2, width * height * 4, freeImageData);
+    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, buffer, width * height * 4, freeImageData);
     
     // set up for CGImage creation
     int bitsPerComponent = 8;
