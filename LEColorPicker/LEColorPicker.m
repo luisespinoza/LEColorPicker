@@ -492,12 +492,12 @@ void freeImageData(void *info, const void *data, size_t size)
     
     /* make upside down */
     
-//    for (int y=0; y<height; y++) {
-//        for (int x=0; x<width*4; x++) {
-//            buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
-//            //NSLog(@"%d",buffer[y * 4 * width + x]);
-//        }
-//    }
+    for (int y=0; y<height; y++) {
+        for (int x=0; x<width*4; x++) {
+            //buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
+           NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
+        }
+    }
     
     // make data provider from buffer
     CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, buffer, width * height * 4, freeImageData);
