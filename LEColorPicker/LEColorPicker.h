@@ -26,6 +26,8 @@
     GLuint _colorRenderBuffer;
     GLuint _depthRenderBuffer;
     GLuint _program;
+    GLuint _proccesedWidthSlot;
+    GLuint _totalWidthSlot;
     GLuint _positionSlot;
     GLuint _colorSlot;
     GLuint _texCoordSlot;

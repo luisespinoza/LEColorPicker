@@ -27,13 +27,6 @@ enum
 };
 GLint uniforms[NUM_UNIFORMS];
 
-// Attribute index.
-enum
-{
-    ATTRIB_VERTEX,
-    NUM_ATTRIBUTES
-};
-
 // Add texture coordinates to Vertex structure as follows
 typedef struct {
     float Position[3];
@@ -168,6 +161,8 @@ void freeImageData(void *info, const void *data, size_t size)
     
     glVertexAttribPointer(_texCoordSlot, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) (sizeof(float) * 7));
     
+    glUniform1i(_proccesedWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2);
+    glUniform1i(_totalWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _aTexture);
     glUniform1i(_textureUniform, 0);
@@ -312,21 +307,22 @@ void freeImageData(void *info, const void *data, size_t size)
             glDeleteProgram(_program);
             _program = 0;
         }
-        
         return NO;
     }
     
     glUseProgram(_program);
     
-    // 5
+    //Get attributes locations
     _positionSlot = glGetAttribLocation(_program, "Position");
     _colorSlot = glGetAttribLocation(_program, "SourceColor");
     _texCoordSlot = glGetAttribLocation(_program, "TexCoordIn");
     glEnableVertexAttribArray(_positionSlot);
     glEnableVertexAttribArray(_colorSlot);
     glEnableVertexAttribArray(_texCoordSlot);
+    
     _textureUniform = glGetUniformLocation(_program, "Texture");
-
+    _proccesedWidthSlot = glGetUniformLocation(_program, "ProccesedWidth");
+    _totalWidthSlot = glGetUniformLocation(_program, "TotalWidth");
     return YES;
 }
 
@@ -489,7 +485,7 @@ void freeImageData(void *info, const void *data, size_t size)
 -(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height
 {
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
-    GLubyte *buffer2 = (GLubyte *) malloc(width * height * 4);
+    //GLubyte *buffer2 = (GLubyte *) malloc(width * height * 4);
     
     //GLvoid *pixel_data = nil;
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
