@@ -145,9 +145,9 @@ void freeImageData(void *info, const void *data, size_t size)
 - (void)render
 {
     //start up
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-    glClearColor(0, 104.0/255.0, 55.0/255.0, 1.0);
+    glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
+    glClearColor(0.0, 0.0/255.0, 0.0/255.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
@@ -495,7 +495,7 @@ void freeImageData(void *info, const void *data, size_t size)
     for (int y=0; y<height; y++) {
         for (int x=0; x<width*4; x++) {
             //buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
-           NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
+           //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
         }
     }
     

@@ -41,6 +41,7 @@ void main(void) {
                 }
             }
         }
-        gl_FragColor = vec4(accumulator,0.0,0.0,1.0); // New
+        gl_FragColor = vec4(currentPixel.r,currentPixel.g,currentPixel.b,accumulator); // New
+        //gl_FragColor = vec4(accumulator,0.0,0.0,1.0); // New
     }
 }
