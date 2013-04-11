@@ -108,17 +108,21 @@ void freeImageData(void *info, const void *data, size_t size)
     [self render];
     
     //Save output png file
-    [UIImagePNGRepresentation([self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                            height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE])
-     writeToFile:@"/Users/Luis/Output.png"
-     atomically:YES];
+    //[UIImagePNGRepresentation([self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+    //                                        height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE])
+    // writeToFile:@"/Users/Luis/Output.png"
+    // atomically:YES];
     
+    LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
+    UIColor *backgroundColor=nil;
     //Create Vertex array or Vertex Data
     //dispatch_async(dispatch_get_main_queue(), ^{
         savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                       height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+                                       height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                      biggestAlphaColorReturn:&backgroundColor];
+    colorScheme.backgroundColor = backgroundColor;
     //});
-    return nil;
+    return colorScheme;
 }
 
 #pragma mark - OpenGL ES 2 custom methods
@@ -146,10 +150,10 @@ void freeImageData(void *info, const void *data, size_t size)
 {
     //start up
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
-    glClearColor(0.0, 0.0/255.0, 0.0/255.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
+    glBlendFunc(GL_ONE, GL_ZERO);
+    //glClearColor(0.0, 0.0, 0.0, 1.0);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     
     //Setup inputs
@@ -482,7 +486,7 @@ void freeImageData(void *info, const void *data, size_t size)
 }
 
 #pragma mark - Convert GL image to UIImage
--(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height
+-(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height biggestAlphaColorReturn:(UIColor**)returnColor
 {
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
     //GLubyte *buffer2 = (GLubyte *) malloc(width * height * 4);
@@ -490,14 +494,33 @@ void freeImageData(void *info, const void *data, size_t size)
     //GLvoid *pixel_data = nil;
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
-    /* make upside down */
+    /* Find bigger Alpha color*/
+    NSUInteger biggerR = 0;
+    NSUInteger biggerG = 0;
+    NSUInteger biggerB = 0;
+    NSUInteger biggerAlpha = 0;
     
-    for (int y=0; y<height; y++) {
-        for (int x=0; x<width*4; x++) {
+    for (NSUInteger y=0; y<(height/2); y++) {
+        for (NSUInteger x=0; x<(width/2)*4; x++) {
             //buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
            //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
+            if ((!((x+1)%4)) && (x>0)) {
+                if (buffer[y * 4 * width + x] > biggerAlpha ) {
+                    
+                    biggerAlpha = buffer[y * 4 * width + x];
+                    biggerR = buffer[y * 4 * width + (x-3)];
+                    biggerG = buffer[y * 4 * width + (x-2)];
+                    biggerB = buffer[y * 4 * width + (x-1)];
+            //        NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
+                }
+            }
         }
     }
+    
+    *returnColor = [UIColor colorWithRed:biggerR/255.0
+                                   green:biggerG/255.0
+                                    blue:biggerB/255.0
+                                   alpha:1.0];
     
     // make data provider from buffer
     CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, buffer, width * height * 4, freeImageData);
