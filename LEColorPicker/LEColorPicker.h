@@ -3,22 +3,42 @@
 //  LEColorPicker
 //
 //  Created by Luis Enrique Espinoza Severino on 10-12-12.
-//  Copyright (c) 2012 LuisEspinoza. All rights reserved.
+//  Copyright (c) 2012 Luis Espinoza. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import <GLKit/GLKit.h>
+#import <QuartzCore/QuartzCore.h>
 
-#define LECOLORPICKER_CLASS                  @"LEColorPickerSethThompson"
+#import "LEColorScheme.h"
 
-@interface LEColorPicker : NSObject
+#ifdef DEBUG
+#	 define LELog(s,...) NSLog((@"[%s] " s),__func__,## __VA_ARGS__);
+#else
+#	 define LELog(...) /* */
+#endif
 
-/**
- This class methods is allow the client to generate three colors from a specific UIImage.
- @param image Input image, wich will be used to generate the three colors.
- @returns A NSDictionary with three UIColors, the keys are: "BackgroundColor", "PrimaryTextColor", and
- "SecondaryTextColor".
- */
-+ (NSDictionary*)dictionaryWithColorsPickedFromImage:(UIImage*)image;
+@interface LEColorPicker : UIImageView
+{
+    //GLuint _vertexArray;
+    GLuint _vertexBuffer;
+    GLuint _indexBuffer;
+    GLuint _colorRenderBuffer;
+    GLuint _depthRenderBuffer;
+    GLuint _program;
+    GLuint _proccesedWidthSlot;
+    GLuint _totalWidthSlot;
+    GLuint _positionSlot;
+    GLuint _colorSlot;
+    GLuint _texCoordSlot;
+    GLuint _textureUniform;
+    GLuint _aTexture;
+    UIImage *_currentImage;
+    CAEAGLLayer* _eaglLayer;
+    EAGLContext *_context;
+    dispatch_queue_t taskQueue;
+    UIImage *savedImage;
+}
 
 /**
  This class methods is allow the client to generate three colors from a specific UIImage. The complete
@@ -31,6 +51,17 @@
  @param image Input image, wich will be used to generate the three colors.
  @param completeBlock Execution block for when the task is complete.
  */
-+ (void)pickColorsFromImage:(UIImage*)image
-                 onComplete:(void (^)(NSDictionary *colorsPickedDictionary))completeBlock;
+- (void)pickColorsFromImage:(UIImage*)image onComplete:(void (^)(LEColorScheme *colorScheme))completeBlock;
+
+/**
+ This class methods allows image scalation.
+ 
+ @param image Source image.
+ @param width New width.
+ @param height New height.
+ @returns A new image like "image" but with width "width" and height "height".
+ */
++ (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height;
+
+- (void)render;
 @end

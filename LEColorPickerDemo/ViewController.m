@@ -3,7 +3,7 @@
 //  LEColorPickerDemo
 //
 //  Created by Luis Enrique Espinoza Severino on 11-12-12.
-//  Copyright (c) 2012 LuisEspinoza. All rights reserved.
+//  Copyright (c) 2012 Luis Espinoza. All rights reserved.
 //
 
 #import "ViewController.h"
@@ -21,6 +21,10 @@
 	// Do any additional setup after loading the view, typically from a nib.
     
     [self populateImagesNamesArray];
+    
+    _colorPicker = [[LEColorPicker alloc] init];
+    
+    [_outputView addSubview:_colorPicker];
     
     [self configurePagingView];
 }
@@ -86,7 +90,7 @@
     [_activityIndicator startAnimating];
     _activityIndicator.hidden = NO;
     
-    [LEColorPicker pickColorsFromImage:image onComplete:^(NSDictionary *colorsPickedDictionary) {
+    [_colorPicker pickColorsFromImage:image onComplete:^(LEColorScheme *colorScheme) {
         [_activityIndicator stopAnimating];
         _activityIndicator.hidden = YES;
         //HERE THE COLOR CHANGE IS ANIMATED
@@ -94,12 +98,13 @@
         [UIView setAnimationCurve: UIViewAnimationCurveEaseInOut];
         [UIView setAnimationDuration:0.5];
         //HERE THE COLOR IS CHANGED
-        _outputView.backgroundColor = [colorsPickedDictionary objectForKey:@"BackgroundColor"];
-        _titleTextField.textColor = [colorsPickedDictionary objectForKey:@"PrimaryTextColor"];
-        _bodyTextField.textColor = [colorsPickedDictionary objectForKey:@"SecondaryTextColor"];
+        _outputView.backgroundColor = colorScheme.backgroundColor;
+        _titleTextField.textColor = colorScheme.primaryTextColor;
+        _bodyTextField.textColor = colorScheme.secondaryTextColor;
         
         [UIView commitAnimations];
     }];
+    
 }
 @end
 

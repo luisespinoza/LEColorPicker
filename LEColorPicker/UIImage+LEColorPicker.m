@@ -3,7 +3,7 @@
 //  LEColorPicker
 //
 //  Created by Luis Enrique Espinoza Severino on 04-12-12.
-//  Copyright (c) 2012 LuisEspinoza. All rights reserved.
+//  Copyright (c) 2012 Luis Espinoza. All rights reserved.
 //
 
 #import "UIImage+LEColorPicker.h"
@@ -27,10 +27,10 @@
         @autoreleasepool {
             //Pick most dominant color
             if (i==0) {
-                pixelArray = [UIImage getRGBAsFromImage:image
-                                                    atX:0
-                                                   andY:0
-                                                  count:(NSUInteger)count];
+                pixelArray = [UIImage arrayOfColorPixelsFromImage:image
+                                                              atX:0
+                                                             andY:0
+                                                            count:(NSUInteger)count];
             } else {
                 pixelArray = [self filterColor:dominantColor fromPixelArray:pixelArray threshold:0.3];
             }
@@ -108,7 +108,7 @@
 }
 
 //http://stackoverflow.com/questions/448125/how-to-get-pixel-data-from-a-uiimage-cocoa-touch-or-cgimage-core-graphics
-+ (NSArray*)getRGBAsFromImage:(UIImage*)image atX:(int)xx andY:(int)yy count:(int)count
++ (NSArray*)arrayOfColorPixelsFromImage:(UIImage*)image atX:(int)xx andY:(int)yy count:(int)count
 {
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:count];
     
@@ -152,7 +152,7 @@
 
 + (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize {
     //UIGraphicsBeginImageContext(newSize);
-    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 1.0);
     [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
@@ -176,3 +176,5 @@
 }
 
 @end
+
+
