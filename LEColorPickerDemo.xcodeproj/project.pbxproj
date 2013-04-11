@@ -10,6 +10,12 @@
 		A000253616F2C20D003A0C03 /* DominantColorShader.fsh in Sources */ = {isa = PBXBuildFile; fileRef = A000253416F2C20D003A0C03 /* DominantColorShader.fsh */; };
 		A000253716F2C20D003A0C03 /* DominantColorShader.vsh in Sources */ = {isa = PBXBuildFile; fileRef = A000253516F2C20D003A0C03 /* DominantColorShader.vsh */; };
 		A0080D2B167C15BB00F45CE3 /* UIColor+YUVSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */; };
+		A0279B7A16C1F632001E82BD /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0279B7916C1F632001E82BD /* OpenGLES.framework */; };
+		A02AB13817052ABA00D5CE09 /* DominantColorShader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = A000253416F2C20D003A0C03 /* DominantColorShader.fsh */; };
+		A02AB13917052ABA00D5CE09 /* DominantColorShader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = A000253516F2C20D003A0C03 /* DominantColorShader.vsh */; };
+		A02AB13B17054B1A00D5CE09 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */; };
+		A04698B117027C060034ED7B /* ColorFilterShader.fsh in Sources */ = {isa = PBXBuildFile; fileRef = A04698AF17027C060034ED7B /* ColorFilterShader.fsh */; };
+		A04698B217027C060034ED7B /* ColorFilterShader.vsh in Sources */ = {isa = PBXBuildFile; fileRef = A04698B017027C060034ED7B /* ColorFilterShader.vsh */; };
 		A05A8F1C16C2F7E4002FE750 /* cruzblanca.png in Resources */ = {isa = PBXBuildFile; fileRef = A05A8F1B16C2F7E4002FE750 /* cruzblanca.png */; };
 		A0883520167814CC006D6F0F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A088351F167814CC006D6F0F /* UIKit.framework */; };
 		A0883522167814CC006D6F0F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0883521167814CC006D6F0F /* Foundation.framework */; };
@@ -30,6 +36,10 @@
 		A088355A16781592006D6F0F /* MonaLisa.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355416781592006D6F0F /* MonaLisa.png */; };
 		A088355B16781592006D6F0F /* TheScream.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355516781592006D6F0F /* TheScream.png */; };
 		A0883560167815CC006D6F0F /* ATPagingView.m in Sources */ = {isa = PBXBuildFile; fileRef = A088355F167815CC006D6F0F /* ATPagingView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		A0A3895F1716608D00C0F53D /* acdc.png in Resources */ = {isa = PBXBuildFile; fileRef = A0A3895E1716608D00C0F53D /* acdc.png */; };
+		A0A389611716609500C0F53D /* inspiron.png in Resources */ = {isa = PBXBuildFile; fileRef = A0A389601716609500C0F53D /* inspiron.png */; };
+		A0A38963171660A000C0F53D /* emotive.png in Resources */ = {isa = PBXBuildFile; fileRef = A0A38962171660A000C0F53D /* emotive.png */; };
+		A0A38965171660A600C0F53D /* deadmau5.png in Resources */ = {isa = PBXBuildFile; fileRef = A0A38964171660A600C0F53D /* deadmau5.png */; };
 		A0AE702D16FBEF9700858303 /* LEColorScheme.m in Sources */ = {isa = PBXBuildFile; fileRef = A0AE702C16FBEF9700858303 /* LEColorScheme.m */; };
 		A0F8F05716797898007DBA2B /* AirplaneVortex.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F05616797898007DBA2B /* AirplaneVortex.png */; };
 		A0F8F059167978C5007DBA2B /* VitruvianMan.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F058167978C5007DBA2B /* VitruvianMan.png */; };
@@ -40,6 +50,10 @@
 		A000253516F2C20D003A0C03 /* DominantColorShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = DominantColorShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		A0080D29167C15BB00F45CE3 /* UIColor+YUVSpace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+YUVSpace.h"; sourceTree = "<group>"; };
 		A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+YUVSpace.m"; sourceTree = "<group>"; };
+		A0279B7916C1F632001E82BD /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		A04698AF17027C060034ED7B /* ColorFilterShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ColorFilterShader.fsh; sourceTree = "<group>"; };
+		A04698B017027C060034ED7B /* ColorFilterShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ColorFilterShader.vsh; sourceTree = "<group>"; };
 		A05A8F1B16C2F7E4002FE750 /* cruzblanca.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cruzblanca.png; sourceTree = "<group>"; };
 		A088351B167814CC006D6F0F /* LEColorPickerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LEColorPickerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A088351F167814CC006D6F0F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -68,6 +82,10 @@
 		A088355516781592006D6F0F /* TheScream.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TheScream.png; sourceTree = "<group>"; };
 		A088355E167815CC006D6F0F /* ATPagingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ATPagingView.h; sourceTree = "<group>"; };
 		A088355F167815CC006D6F0F /* ATPagingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ATPagingView.m; sourceTree = "<group>"; };
+		A0A3895E1716608D00C0F53D /* acdc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = acdc.png; sourceTree = "<group>"; };
+		A0A389601716609500C0F53D /* inspiron.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = inspiron.png; sourceTree = "<group>"; };
+		A0A38962171660A000C0F53D /* emotive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = emotive.png; path = ../emotive.png; sourceTree = "<group>"; };
+		A0A38964171660A600C0F53D /* deadmau5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = deadmau5.png; sourceTree = "<group>"; };
 		A0AE702B16FBEF9700858303 /* LEColorScheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LEColorScheme.h; sourceTree = "<group>"; };
 		A0AE702C16FBEF9700858303 /* LEColorScheme.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LEColorScheme.m; sourceTree = "<group>"; };
 		A0F8F05616797898007DBA2B /* AirplaneVortex.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AirplaneVortex.png; sourceTree = "<group>"; };
@@ -187,6 +205,10 @@
 				A088355216781592006D6F0F /* earth.png */,
 				A088355416781592006D6F0F /* MonaLisa.png */,
 				A088355516781592006D6F0F /* TheScream.png */,
+				A0A3895E1716608D00C0F53D /* acdc.png */,
+				A0A389601716609500C0F53D /* inspiron.png */,
+				A0A38964171660A600C0F53D /* deadmau5.png */,
+				A0A38962171660A000C0F53D /* emotive.png */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -274,6 +296,10 @@
 				A0F8F05716797898007DBA2B /* AirplaneVortex.png in Resources */,
 				A0F8F059167978C5007DBA2B /* VitruvianMan.png in Resources */,
 				A05A8F1C16C2F7E4002FE750 /* cruzblanca.png in Resources */,
+				A0A3895F1716608D00C0F53D /* acdc.png in Resources */,
+				A0A389611716609500C0F53D /* inspiron.png in Resources */,
+				A0A38963171660A000C0F53D /* emotive.png in Resources */,
+				A0A38965171660A600C0F53D /* deadmau5.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
