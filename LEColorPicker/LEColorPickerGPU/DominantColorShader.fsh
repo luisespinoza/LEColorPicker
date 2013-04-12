@@ -7,8 +7,8 @@
 //
 
 varying lowp vec4 DestinationColor;
-varying lowp vec2 TexCoordOut; // New
-uniform sampler2D Texture; // New
+varying lowp vec2 TexCoordOut;
+uniform sampler2D Texture; 
 uniform int ProccesedWidth;
 uniform int TotalWidth;
 

@@ -17,7 +17,6 @@
 
 #define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   32
 #define LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH           3*(LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE)
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 // Uniform index.
 enum
@@ -97,7 +96,6 @@ void freeImageData(void *info, const void *data, size_t size)
                                                width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                               height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
     //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
-    //UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2, 2)];
     [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
     
     //2. Then, we set the initial openGL ES 2.0 state.
