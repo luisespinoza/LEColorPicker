@@ -33,6 +33,8 @@
     GLuint _texCoordSlot;
     GLuint _textureUniform;
     GLuint _aTexture;
+    GLuint _tolerance;
+    GLuint _colorToFilter;
     UIImage *_currentImage;
     CAEAGLLayer* _eaglLayer;
     EAGLContext *_context;

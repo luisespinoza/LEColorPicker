@@ -33,7 +33,7 @@ void main()
         
         d = distance(colorToFilterYUV,currentYUV);
         lowp float alpha;
-        if (d < 0.2) {
+        if (d < Tolerance) {
             alpha = 0.0;
         } else {
             alpha = 1.0;

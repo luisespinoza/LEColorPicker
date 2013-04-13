@@ -17,7 +17,7 @@
 
 #define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   32
 #define LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH           3*(LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE)
-
+#define LECOLORPICKER_FILTER_TOLERANCE                          0.3
 // Uniform index.
 enum
 {
@@ -119,6 +119,19 @@ void freeImageData(void *info, const void *data, size_t size)
                                        height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                       biggestAlphaColorReturn:&backgroundColor];
     colorScheme.backgroundColor = backgroundColor;
+    
+    //Now, filter the backgroundColor.
+    [self setupOpenGlForColorFiltering];
+    _aTexture = [self setupTextureFromImage:savedImage];
+    [self render];
+    
+    UIColor *primaryColor=nil;
+    savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                   height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                  biggestAlphaColorReturn:&primaryColor];
+    colorScheme.primaryTextColor = primaryColor;
+    
+    
     //});
     return colorScheme;
 }
@@ -144,7 +157,7 @@ void freeImageData(void *info, const void *data, size_t size)
     //[self setupDisplayLink];
 }
 
-- (void)render
+- (void)renderDominant
 {
     //start up
     glEnable(GL_BLEND);
@@ -165,6 +178,38 @@ void freeImageData(void *info, const void *data, size_t size)
     
     glUniform1i(_proccesedWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2);
     glUniform1i(_totalWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _aTexture);
+    glUniform1i(_textureUniform, 0);
+    glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
+    
+    [_context presentRenderbuffer:GL_RENDERBUFFER];
+}
+
+- (void)renderFilter
+{
+    //start up
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ZERO);
+    //glClearColor(0.0, 0.0, 0.0, 1.0);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_2D);
+    
+    //Setup inputs
+    glViewport(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
+    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
+    glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+    glVertexAttribPointer(_colorSlot, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) (sizeof(float) * 3));
+    
+    glVertexAttribPointer(_texCoordSlot, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) (sizeof(float) * 7));
+    
+    glUniform1i(_proccesedWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2);
+    glUniform1i(_totalWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
+    glUniform1i(_tolerance, LECOLORPICKER_FILTER_TOLERANCE);
+    glUniform1i(_totalWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
+    glUniform1fv(_colorToFilter, 4, WE NEED A POINTER TO THE COLOR!!!)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _aTexture);
     glUniform1i(_textureUniform, 0);
@@ -333,9 +378,6 @@ void freeImageData(void *info, const void *data, size_t size)
     GLuint vertShader, fragShader;
     NSString *vertShaderPathname, *fragShaderPathname;
     
-    // Create shader program.
-    _program = glCreateProgram();
-    
     // Create and compile vertex shader.
     vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"ColorFilterShader" ofType:@"vsh"];
     if (![self compileShader:&vertShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
@@ -350,6 +392,9 @@ void freeImageData(void *info, const void *data, size_t size)
         return NO;
     }
     
+    // Create shader program.
+    _program = glCreateProgram();
+    
     // Attach vertex shader to program.
     glAttachShader(_program, vertShader);
     
@@ -358,7 +403,7 @@ void freeImageData(void *info, const void *data, size_t size)
     
     // Bind attribute locations.
     // This needs to be done prior to linking.
-    glBindAttribLocation(_program, GLKVertexAttribPosition, "Position");
+    //glBindAttribLocation(_program, GLKVertexAttribPosition, "position");
     
     // Link program.
     if (![self linkProgram:_program]) {
@@ -376,23 +421,24 @@ void freeImageData(void *info, const void *data, size_t size)
             glDeleteProgram(_program);
             _program = 0;
         }
-        
         return NO;
     }
     
-    // Get uniform locations.
-    uniforms[UNIFORM_VERTEX_POSITIONS] = glGetUniformLocation(_program, "otherPositions");
+    glUseProgram(_program);
     
-    // Release vertex and fragment shaders.
-    if (vertShader) {
-        glDetachShader(_program, vertShader);
-        glDeleteShader(vertShader);
-    }
-    if (fragShader) {
-        glDetachShader(_program, fragShader);
-        glDeleteShader(fragShader);
-    }
+    //Get attributes locations
+    _positionSlot = glGetAttribLocation(_program, "Position");
+    _colorSlot = glGetAttribLocation(_program, "SourceColor");
+    _texCoordSlot = glGetAttribLocation(_program, "TexCoordIn");
+    glEnableVertexAttribArray(_positionSlot);
+    glEnableVertexAttribArray(_colorSlot);
+    glEnableVertexAttribArray(_texCoordSlot);
     
+    _textureUniform = glGetUniformLocation(_program, "Texture");
+    _proccesedWidthSlot = glGetUniformLocation(_program, "ProccesedWidth");
+    _totalWidthSlot = glGetUniformLocation(_program, "TotalWidth");
+    _tolerance = glGetUniformLocation(_program, "Tolerance");
+    _colorToFilter = glGetUniformLocation(_program, "ColorToFilter");
     return YES;
 }
 
