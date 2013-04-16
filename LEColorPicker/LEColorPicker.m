@@ -115,9 +115,9 @@ void freeImageData(void *info, const void *data, size_t size)
     UIColor *backgroundColor=nil;
     //Create Vertex array or Vertex Data
     //dispatch_async(dispatch_get_main_queue(), ^{
-        savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                       height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                      biggestAlphaColorReturn:&backgroundColor];
+    savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                   height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                  biggestAlphaColorReturn:&backgroundColor];
     colorScheme.backgroundColor = backgroundColor;
     
     //Now, filter the backgroundColor.
@@ -186,37 +186,39 @@ void freeImageData(void *info, const void *data, size_t size)
     [_context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
-- (void)renderFilter
-{
-    //start up
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ZERO);
-    //glClearColor(0.0, 0.0, 0.0, 1.0);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glEnable(GL_DEPTH_TEST);
-    glEnable(GL_TEXTURE_2D);
-    
-    //Setup inputs
-    glViewport(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
-    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
-    glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-    glVertexAttribPointer(_colorSlot, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) (sizeof(float) * 3));
-    
-    glVertexAttribPointer(_texCoordSlot, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) (sizeof(float) * 7));
-    
-    glUniform1i(_proccesedWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2);
-    glUniform1i(_totalWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
-    glUniform1i(_tolerance, LECOLORPICKER_FILTER_TOLERANCE);
-    glUniform1i(_totalWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
-    glUniform1fv(_colorToFilter, 4, WE NEED A POINTER TO THE COLOR!!!)
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, _aTexture);
-    glUniform1i(_textureUniform, 0);
-    glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
-    
-    [_context presentRenderbuffer:GL_RENDERBUFFER];
-}
+/*
+ - (void)renderFilter
+ {
+ //start up
+ glEnable(GL_BLEND);
+ glBlendFunc(GL_ONE, GL_ZERO);
+ //glClearColor(0.0, 0.0, 0.0, 1.0);
+ //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+ //glEnable(GL_DEPTH_TEST);
+ glEnable(GL_TEXTURE_2D);
+ 
+ //Setup inputs
+ glViewport(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
+ glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+ glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
+ glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+ glVertexAttribPointer(_colorSlot, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) (sizeof(float) * 3));
+ 
+ glVertexAttribPointer(_texCoordSlot, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) (sizeof(float) * 7));
+ 
+ glUniform1i(_proccesedWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2);
+ glUniform1i(_totalWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
+ glUniform1i(_tolerance, LECOLORPICKER_FILTER_TOLERANCE);
+ glUniform1i(_totalWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
+ glUniform1fv(_colorToFilter, 4, WE NEED A POINTER TO THE COLOR!!!)
+ glActiveTexture(GL_TEXTURE0);
+ glBindTexture(GL_TEXTURE_2D, _aTexture);
+ glUniform1i(_textureUniform, 0);
+ glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
+ 
+ [_context presentRenderbuffer:GL_RENDERBUFFER];
+ }
+ */
 
 - (void)setupLayer {
     _eaglLayer = (CAEAGLLayer*) self.layer;
@@ -547,7 +549,7 @@ void freeImageData(void *info, const void *data, size_t size)
     for (NSUInteger y=0; y<(height/2); y++) {
         for (NSUInteger x=0; x<(width/2)*4; x++) {
             //buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
-           //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
+            //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
             if ((!((x+1)%4)) && (x>0)) {
                 if (buffer[y * 4 * width + x] > biggerAlpha ) {
                     
@@ -555,7 +557,7 @@ void freeImageData(void *info, const void *data, size_t size)
                     biggerR = buffer[y * 4 * width + (x-3)];
                     biggerG = buffer[y * 4 * width + (x-2)];
                     biggerB = buffer[y * 4 * width + (x-1)];
-            //        NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
+                    //        NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
                 }
             }
         }
@@ -586,6 +588,67 @@ void freeImageData(void *info, const void *data, size_t size)
     return newUIImage;
 }
 
+-(UIColor *)colorFromImageWithWidth:(NSUInteger)width
+                             height:(NSUInteger)height
+                     filteringColor:(UIColor*)colorToFilter
+                          tolerance:(GLfloat)tolerance
+{
+    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
+    
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
+    
+    /* Find bigger Alpha color*/
+    NSUInteger biggerR = 0;
+    NSUInteger biggerG = 0;
+    NSUInteger biggerB = 0;
+    NSUInteger biggerAlpha = 0;
+    CGFloat filteringRedFloat = 0;
+    CGFloat filteringGreenFloat = 0;
+    CGFloat filteringBlueFloat = 0;
+    
+    [colorToFilter getRed:&filteringRedFloat
+                    green:&filteringGreenFloat
+                     blue:&filteringBlueFloat
+                    alpha:nil];
+    
+    NSUInteger filteringRed = (NSUInteger)filteringRedFloat;
+    NSUInteger filteringGreen = (NSUInteger)filteringGreenFloat;
+    NSUInteger filteringBlue = (NSUInteger)filteringBlueFloat;
+    
+    for (NSUInteger y=0; y<(height/2); y++) {
+        for (NSUInteger x=0; x<(width/2)*4; x++) {
+            //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
+            if ((!((x+1)%4)) && (x>0)) {
+                NSUInteger currentRed = buffer[y * 4 * width + (x-3)];
+                NSUInteger currentGreen = buffer[y * 4 * width + (x-2)];
+                NSUInteger currentBlue = buffer[y * 4 * width + (x-1)];
+                
+                NSUInteger squareDistance = (currentRed-filteringRed)*(currentRed-filteringRed)+
+                (currentGreen-filteringGreen)*(currentGreen-filteringGreen)+
+                (currentBlue-filteringBlue)*(currentBlue-filteringBlue);
+                
+                NSUInteger thresholdSquareDistance = (255*tolerance)*(255*tolerance);
+                
+                if (squareDistance > thresholdSquareDistance) {
+                    if (buffer[y * 4 * width + x] > biggerAlpha ) {
+                        
+                        biggerAlpha = buffer[y * 4 * width + x];
+                        biggerR = buffer[y * 4 * width + (x-3)];
+                        biggerG = buffer[y * 4 * width + (x-2)];
+                        biggerB = buffer[y * 4 * width + (x-1)];
+                        //        NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
+                    }
+                }
+            }
+        }
+    }
+    
+    return [UIColor colorWithRed:biggerR/255.0
+                           green:biggerG/255.0
+                            blue:biggerB/255.0
+                           alpha:1.0];
+}
+
 + (Class)layerClass {
     return [CAEAGLLayer class];
 }
@@ -595,5 +658,7 @@ void freeImageData(void *info, const void *data, size_t size)
     UIImage *scaledImage =  [UIImage imageWithImage:image scaledToSize:CGSizeMake(width,height)];
     return scaledImage;
 }
+
+
 
 @end
