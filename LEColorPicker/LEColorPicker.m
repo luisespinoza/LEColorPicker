@@ -17,7 +17,7 @@
 
 #define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   32
 #define LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH           3*(LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE)
-#define LECOLORPICKER_FILTER_TOLERANCE                          0.3
+#define LECOLORPICKER_FILTER_TOLERANCE                          0.5
 // Uniform index.
 enum
 {
@@ -103,7 +103,7 @@ void freeImageData(void *info, const void *data, size_t size)
     _aTexture = [self setupTextureFromImage:scaledImage];
     
     //3. Now that all is ready, proceed we the first render, to find the dominant color
-    [self render];
+    [self renderDominant];
     
     //Save output png file
     //[UIImagePNGRepresentation([self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
@@ -121,14 +121,11 @@ void freeImageData(void *info, const void *data, size_t size)
     colorScheme.backgroundColor = backgroundColor;
     
     //Now, filter the backgroundColor.
-    [self setupOpenGlForColorFiltering];
-    _aTexture = [self setupTextureFromImage:savedImage];
-    [self render];
-    
     UIColor *primaryColor=nil;
-    savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                   height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                  biggestAlphaColorReturn:&primaryColor];
+    primaryColor = [self colorFromImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                          height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                  filteringColor:colorScheme.backgroundColor
+                                       tolerance:LECOLORPICKER_FILTER_TOLERANCE];
     colorScheme.primaryTextColor = primaryColor;
     
     
@@ -185,40 +182,6 @@ void freeImageData(void *info, const void *data, size_t size)
     
     [_context presentRenderbuffer:GL_RENDERBUFFER];
 }
-
-/*
- - (void)renderFilter
- {
- //start up
- glEnable(GL_BLEND);
- glBlendFunc(GL_ONE, GL_ZERO);
- //glClearColor(0.0, 0.0, 0.0, 1.0);
- //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
- //glEnable(GL_DEPTH_TEST);
- glEnable(GL_TEXTURE_2D);
- 
- //Setup inputs
- glViewport(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
- glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
- glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
- glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
- glVertexAttribPointer(_colorSlot, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) (sizeof(float) * 3));
- 
- glVertexAttribPointer(_texCoordSlot, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) (sizeof(float) * 7));
- 
- glUniform1i(_proccesedWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2);
- glUniform1i(_totalWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
- glUniform1i(_tolerance, LECOLORPICKER_FILTER_TOLERANCE);
- glUniform1i(_totalWidthSlot, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
- glUniform1fv(_colorToFilter, 4, WE NEED A POINTER TO THE COLOR!!!)
- glActiveTexture(GL_TEXTURE0);
- glBindTexture(GL_TEXTURE_2D, _aTexture);
- glUniform1i(_textureUniform, 0);
- glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
- 
- [_context presentRenderbuffer:GL_RENDERBUFFER];
- }
- */
 
 - (void)setupLayer {
     _eaglLayer = (CAEAGLLayer*) self.layer;
@@ -526,10 +489,6 @@ void freeImageData(void *info, const void *data, size_t size)
     return YES;
 }
 
-- (void)prepareLightShader
-{
-    
-}
 
 #pragma mark - Convert GL image to UIImage
 -(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height biggestAlphaColorReturn:(UIColor**)returnColor
@@ -611,9 +570,9 @@ void freeImageData(void *info, const void *data, size_t size)
                      blue:&filteringBlueFloat
                     alpha:nil];
     
-    NSUInteger filteringRed = (NSUInteger)filteringRedFloat;
-    NSUInteger filteringGreen = (NSUInteger)filteringGreenFloat;
-    NSUInteger filteringBlue = (NSUInteger)filteringBlueFloat;
+    NSUInteger filteringRed = (NSUInteger)(filteringRedFloat*255);
+    NSUInteger filteringGreen = (NSUInteger)(filteringGreenFloat*255);
+    NSUInteger filteringBlue = (NSUInteger)(filteringBlueFloat*255);
     
     for (NSUInteger y=0; y<(height/2); y++) {
         for (NSUInteger x=0; x<(width/2)*4; x++) {
