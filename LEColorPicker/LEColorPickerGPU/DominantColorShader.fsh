@@ -13,6 +13,7 @@ uniform int ProccesedWidth;
 uniform int TotalWidth;
 
 void main(void) {
+    lowp vec4 dummyColor = DestinationColor; //Dummy line for avoid WARNING from shader compiler
     lowp float accumulator = 0.0;
     lowp vec4 currentPixel = texture2D(Texture, TexCoordOut);
     highp float currentY = 0.299*currentPixel.r + 0.587*currentPixel.g+ 0.114*currentPixel.b;

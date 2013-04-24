@@ -14,8 +14,6 @@
 		A02AB13817052ABA00D5CE09 /* DominantColorShader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = A000253416F2C20D003A0C03 /* DominantColorShader.fsh */; };
 		A02AB13917052ABA00D5CE09 /* DominantColorShader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = A000253516F2C20D003A0C03 /* DominantColorShader.vsh */; };
 		A02AB13B17054B1A00D5CE09 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */; };
-		A04698B117027C060034ED7B /* ColorFilterShader.fsh in Sources */ = {isa = PBXBuildFile; fileRef = A04698AF17027C060034ED7B /* ColorFilterShader.fsh */; };
-		A04698B217027C060034ED7B /* ColorFilterShader.vsh in Sources */ = {isa = PBXBuildFile; fileRef = A04698B017027C060034ED7B /* ColorFilterShader.vsh */; };
 		A0883520167814CC006D6F0F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A088351F167814CC006D6F0F /* UIKit.framework */; };
 		A0883522167814CC006D6F0F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0883521167814CC006D6F0F /* Foundation.framework */; };
 		A0883524167814CC006D6F0F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0883523167814CC006D6F0F /* CoreGraphics.framework */; };
@@ -35,8 +33,6 @@
 		A088355A16781592006D6F0F /* MonaLisa.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355416781592006D6F0F /* MonaLisa.png */; };
 		A088355B16781592006D6F0F /* TheScream.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355516781592006D6F0F /* TheScream.png */; };
 		A0883560167815CC006D6F0F /* ATPagingView.m in Sources */ = {isa = PBXBuildFile; fileRef = A088355F167815CC006D6F0F /* ATPagingView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		A0A389A11718FF8C00C0F53D /* ColorFilterShader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = A04698AF17027C060034ED7B /* ColorFilterShader.fsh */; };
-		A0A389A21718FF8C00C0F53D /* ColorFilterShader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = A04698B017027C060034ED7B /* ColorFilterShader.vsh */; };
 		A0AE702D16FBEF9700858303 /* LEColorScheme.m in Sources */ = {isa = PBXBuildFile; fileRef = A0AE702C16FBEF9700858303 /* LEColorScheme.m */; };
 		A0F8F05716797898007DBA2B /* AirplaneVortex.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F05616797898007DBA2B /* AirplaneVortex.png */; };
 		A0F8F059167978C5007DBA2B /* VitruvianMan.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F058167978C5007DBA2B /* VitruvianMan.png */; };
@@ -49,8 +45,6 @@
 		A0080D2A167C15BB00F45CE3 /* UIColor+YUVSpace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+YUVSpace.m"; sourceTree = "<group>"; };
 		A0279B7916C1F632001E82BD /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		A04698AF17027C060034ED7B /* ColorFilterShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ColorFilterShader.fsh; sourceTree = "<group>"; };
-		A04698B017027C060034ED7B /* ColorFilterShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ColorFilterShader.vsh; sourceTree = "<group>"; };
 		A088351B167814CC006D6F0F /* LEColorPickerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LEColorPickerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A088351F167814CC006D6F0F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		A0883521167814CC006D6F0F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -105,8 +99,6 @@
 			children = (
 				A000253416F2C20D003A0C03 /* DominantColorShader.fsh */,
 				A000253516F2C20D003A0C03 /* DominantColorShader.vsh */,
-				A04698AF17027C060034ED7B /* ColorFilterShader.fsh */,
-				A04698B017027C060034ED7B /* ColorFilterShader.vsh */,
 			);
 			path = LEColorPickerGPU;
 			sourceTree = "<group>";
@@ -268,8 +260,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A0A389A11718FF8C00C0F53D /* ColorFilterShader.fsh in Resources */,
-				A0A389A21718FF8C00C0F53D /* ColorFilterShader.vsh in Resources */,
 				A02AB13817052ABA00D5CE09 /* DominantColorShader.fsh in Resources */,
 				A02AB13917052ABA00D5CE09 /* DominantColorShader.vsh in Resources */,
 				A088352A167814CC006D6F0F /* InfoPlist.strings in Resources */,
@@ -304,8 +294,6 @@
 				A000253616F2C20D003A0C03 /* DominantColorShader.fsh in Sources */,
 				A000253716F2C20D003A0C03 /* DominantColorShader.vsh in Sources */,
 				A0AE702D16FBEF9700858303 /* LEColorScheme.m in Sources */,
-				A04698B117027C060034ED7B /* ColorFilterShader.fsh in Sources */,
-				A04698B217027C060034ED7B /* ColorFilterShader.vsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

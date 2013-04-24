@@ -8,6 +8,7 @@
 
 #import "LEColorPicker.h"
 #import "UIImage+LEColorPicker.h"
+#import "UIColor+YUVSpace.h"
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 
@@ -15,18 +16,11 @@
 
 #pragma mark - C Code
 
-#define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   32
-#define LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH           3*(LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE)
-#define LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE               0.5
-#define LECOLORPICKER_PRIMARY_TEXT_FILTER_TOLERANCE             0.3
-
-// Uniform index.
-enum
-{
-    UNIFORM_VERTEX_POSITIONS,
-    NUM_UNIFORMS
-};
-GLint uniforms[NUM_UNIFORMS];
+#define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                           32
+#define LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE                       0.5
+#define LECOLORPICKER_PRIMARY_TEXT_FILTER_TOLERANCE                     0.3
+#define LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE                          150
+#define LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE                     40//125*1
 
 // Add texture coordinates to Vertex structure as follows
 typedef struct {
@@ -41,14 +35,12 @@ typedef struct {
     unsigned int blue;
 } LEColor;
 
-#define TEX_COORD_MAX   1
-
 // Add texture coordinates to Vertices as follows
 const Vertex Vertices[] = {
     // Front
-    {{1, -1, 0}, {1, 0, 0, 1}, {TEX_COORD_MAX, 0}},
-    {{1, 1, 0}, {0, 1, 0, 1}, {TEX_COORD_MAX, TEX_COORD_MAX}},
-    {{-1, 1, 0}, {0, 0, 1, 1}, {0, TEX_COORD_MAX}},
+    {{1, -1, 0}, {1, 0, 0, 1}, {1, 0}},
+    {{1, 1, 0}, {0, 1, 0, 1}, {1, 1}},
+    {{-1, 1, 0}, {0, 0, 1, 1}, {0, 1}},
     {{-1, -1, 0}, {0, 0, 0, 1}, {0, 0}},
 };
 
@@ -81,6 +73,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
         //Do something?
         taskQueue = dispatch_queue_create("ColorPickerQueue", DISPATCH_QUEUE_SERIAL);
         self.frame = CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
+        _isWorking = NO;
     }
     return self;
 }
@@ -89,63 +82,52 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 - (void)pickColorsFromImage:(UIImage *)image
                  onComplete:(void (^)(LEColorScheme *colorsPickedDictionary))completeBlock
 {
-    dispatch_async(taskQueue, ^{
-        NSDate *startDate = [NSDate date];
-        LEColorScheme *colorScheme = [self colorSchemeFromImage:image];
-        
-        NSDate *endDate = [NSDate date];
-        NSTimeInterval timeDifference = [endDate timeIntervalSinceDate:startDate];
-        double timePassed_ms = timeDifference * -1000.0;
-        
-        LELog(@"Computation time: %f", timePassed_ms);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.image = savedImage;
-            completeBlock(colorScheme);
+    if (!_isWorking) {
+        dispatch_async(taskQueue, ^{
+            _isWorking = YES;
+            NSDate *startDate = [NSDate date];
+            LEColorScheme *colorScheme = [self colorSchemeFromImage:image];
+            NSDate *endDate = [NSDate date];
+            NSTimeInterval timeDifference = [endDate timeIntervalSinceDate:startDate];
+            double timePassed_ms = timeDifference * -1000.0;
+            LELog(@"Computation time: %f", timePassed_ms);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.image = savedImage;
+                completeBlock(colorScheme);
+            });
+            _isWorking = NO;
         });
-    });
+    }
 }
 
 - (LEColorScheme*)colorSchemeFromImage:(UIImage*)inputImage
 {
-    //1. First, we scale the input image, to get a constant image size.
+    //First, we scale the input image, to get a constant image size and square texture.
     UIImage *scaledImage = [LEColorPicker scaleImage:inputImage
                                                width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                               height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
     //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
-    [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
+    //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
     
-    //2. Then, we set the initial openGL ES 2.0 state.
+    //We set the initial OpenGL ES 2.0 state.
     [self setupOpenGL];
+    
+    //Now we set the scaled image as the texture to render.
     _aTexture = [self setupTextureFromImage:scaledImage];
     
-    //3. Now that all is ready, proceed we the first render, to find the dominant color
+    //Now that all is ready, proceed we the render, to find the dominant color
     [self renderDominant];
     
-    //Save output png file
-    //[UIImagePNGRepresentation([self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-    //                                        height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE])
-    // writeToFile:@"/Users/Luis/Output.png"
-    // atomically:YES];
-    
+    //Now that we have the rendered result, we start the color calculations.
     LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
     UIColor *backgroundColor=nil;
-    //Create Vertex array or Vertex Data
-    //dispatch_async(dispatch_get_main_queue(), ^{
+
     savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                    height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                   biggestAlphaColorReturn:&backgroundColor];
     colorScheme.backgroundColor = backgroundColor;
-    
     //Now, filter the backgroundColor.
     [self findTextColorsTaskForColorScheme:colorScheme];
-    //UIColor *primaryColor=nil;
-    //primaryColor = [self colorFromImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-    //                                      height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-    //                              filteringColor:colorScheme.backgroundColor
-    //                                   tolerance:LECOLORPICKER_FILTER_TOLERANCE];
-    //colorScheme.primaryTextColor = primaryColor;
-    
-    
     //});
     return colorScheme;
 }
@@ -167,8 +149,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     [self setupOpenGLForDominantColor];
     
     [self setupVBOs];
-    
-    //[self setupDisplayLink];
 }
 
 - (void)renderDominant
@@ -355,74 +335,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     return YES;
 }
 
-- (BOOL)setupOpenGlForColorFiltering
-{
-    GLuint vertShader, fragShader;
-    NSString *vertShaderPathname, *fragShaderPathname;
-    
-    // Create and compile vertex shader.
-    vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"ColorFilterShader" ofType:@"vsh"];
-    if (![self compileShader:&vertShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
-        NSLog(@"Failed to compile vertex shader");
-        return NO;
-    }
-    
-    // Create and compile fragment shader.
-    fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"ColorFilterShader" ofType:@"fsh"];
-    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname]) {
-        NSLog(@"Failed to compile fragment shader");
-        return NO;
-    }
-    
-    // Create shader program.
-    _program = glCreateProgram();
-    
-    // Attach vertex shader to program.
-    glAttachShader(_program, vertShader);
-    
-    // Attach fragment shader to program.
-    glAttachShader(_program, fragShader);
-    
-    // Bind attribute locations.
-    // This needs to be done prior to linking.
-    //glBindAttribLocation(_program, GLKVertexAttribPosition, "position");
-    
-    // Link program.
-    if (![self linkProgram:_program]) {
-        NSLog(@"Failed to link program: %d", _program);
-        
-        if (vertShader) {
-            glDeleteShader(vertShader);
-            vertShader = 0;
-        }
-        if (fragShader) {
-            glDeleteShader(fragShader);
-            fragShader = 0;
-        }
-        if (_program) {
-            glDeleteProgram(_program);
-            _program = 0;
-        }
-        return NO;
-    }
-    
-    glUseProgram(_program);
-    
-    //Get attributes locations
-    _positionSlot = glGetAttribLocation(_program, "Position");
-    _colorSlot = glGetAttribLocation(_program, "SourceColor");
-    _texCoordSlot = glGetAttribLocation(_program, "TexCoordIn");
-    glEnableVertexAttribArray(_positionSlot);
-    glEnableVertexAttribArray(_colorSlot);
-    glEnableVertexAttribArray(_texCoordSlot);
-    
-    _textureUniform = glGetUniformLocation(_program, "Texture");
-    _proccesedWidthSlot = glGetUniformLocation(_program, "ProccesedWidth");
-    _totalWidthSlot = glGetUniformLocation(_program, "TotalWidth");
-    _tolerance = glGetUniformLocation(_program, "Tolerance");
-    _colorToFilter = glGetUniformLocation(_program, "ColorToFilter");
-    return YES;
-}
+
 
 #pragma mark -  OpenGL ES 2 shader compilation
 
@@ -653,10 +566,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     LEColor backgroundColor = {(unsigned int)(backgroundRedFloat*255),
         (unsigned int)(backgroundGreenFloat*255),
         (unsigned int)(backgroundBlueFloat*255)};
-    //
-    //    NSUInteger filteringRed = (NSUInteger)(backgroundRedFloat*255);
-    //    NSUInteger filteringGreen = (NSUInteger)(backgroundGreenFloat*255);
-    //    NSUInteger filteringBlue = (NSUInteger)(backgroundBlueFloat*255);
     
     for (NSUInteger y=0; y<(height/2); y++) {
         for (NSUInteger x=0; x<(width/2)*4; x++) {
@@ -684,10 +593,21 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
         }
     }
     
-    colorScheme.primaryTextColor = [UIColor colorWithRed:primaryColorR/255.0
-                                                   green:primaryColorG/255.0
-                                                    blue:primaryColorB/255.0
-                                                   alpha:1.0];
+    UIColor *tmpColor = [UIColor colorWithRed:primaryColorR/255.0
+                                        green:primaryColorG/255.0
+                                         blue:primaryColorB/255.0
+                                        alpha:1.0];
+    
+//    if ([self isSufficienteContrastBetweenBackground:colorScheme.backgroundColor
+//                                        andForground:tmpColor]) {
+        colorScheme.primaryTextColor = tmpColor;
+//    } else {
+//        if ([UIColor yComponentFromColor:colorScheme.backgroundColor] < 0.5) {
+//            colorScheme.primaryTextColor = [UIColor whiteColor];
+//        } else {
+//            colorScheme.primaryTextColor = [UIColor blackColor];
+//        }
+//    }
     
     NSUInteger secondaryColorR = 0;
     NSUInteger secondaryColorG = 0;
@@ -720,10 +640,22 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
             }
         }
     }
-    colorScheme.secondaryTextColor = [UIColor colorWithRed:secondaryColorR/255.0
-                                                   green:secondaryColorG/255.0
-                                                    blue:secondaryColorB/255.0
-                                                   alpha:1.0];
+
+    tmpColor = [UIColor colorWithRed:secondaryColorR/255.0
+                               green:secondaryColorG/255.0
+                                blue:secondaryColorB/255.0
+                               alpha:1.0];
+    
+//    if ([self isSufficienteContrastBetweenBackground:colorScheme.backgroundColor
+//                                        andForground:tmpColor]) {
+        colorScheme.secondaryTextColor = tmpColor;
+//    } else {
+//        if ([UIColor yComponentFromColor:colorScheme.backgroundColor] < 0.5) {
+//            colorScheme.secondaryTextColor = [UIColor whiteColor];
+//        } else {
+//            colorScheme.secondaryTextColor = [UIColor blackColor];
+//        }
+//    }
 }
 
 + (Class)layerClass {
@@ -770,6 +702,53 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     return squareDistance;
 }
+
+//- (BOOL)isSufficienteContrastBetweenBackground:(UIColor*)backgroundColor andForground:(UIColor*)foregroundColor
+//{
+//    float backgroundColorBrightness = [UIColor yComponentFromColor:backgroundColor];
+//    float foregroundColorBrightness = [UIColor yComponentFromColor:foregroundColor];
+//    float brightnessDifference = fabsf(backgroundColorBrightness-foregroundColorBrightness)*255;
+//    
+//    NSLog(@"BrightnessDifference %f ",brightnessDifference);
+//    
+//    if (brightnessDifference>=LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE) {
+//        float backgroundRed = 0.0;
+//        float backgroundGreen = 0.0;
+//        float backgroundBlue = 0.0;
+//        float foregroundRed = 0.0;
+//        float foregroundGreen = 0.0;
+//        float foregroundBlue = 0.0;
+//        
+//        int numComponents = CGColorGetNumberOfComponents(backgroundColor.CGColor);
+//        
+//        if (numComponents == 4) {
+//            const CGFloat *components = CGColorGetComponents(backgroundColor.CGColor);
+//            backgroundRed = components[0];
+//            backgroundGreen = components[1];
+//            backgroundBlue = components[2];
+//        }
+//        
+//        numComponents = CGColorGetNumberOfComponents(foregroundColor.CGColor);
+//        
+//        if (numComponents == 4) {
+//            const CGFloat *components = CGColorGetComponents(foregroundColor.CGColor);
+//            foregroundRed = components[0];
+//            foregroundGreen = components[1];
+//            foregroundBlue = components[2];
+//        }
+//        
+//        //Compute "Color Diference"
+//        float colorDifference = (MAX(backgroundRed,foregroundRed)-MIN(backgroundRed, foregroundRed)) +
+//        (MAX(backgroundGreen,foregroundGreen)-MIN(backgroundGreen, foregroundGreen)) +
+//        (MAX(backgroundBlue,foregroundBlue)-MIN(backgroundBlue, foregroundBlue));
+//        NSLog(@"ColorDifference = %f",colorDifference*255);
+//        if ((colorDifference*255)>LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE) {
+//            return YES;
+//        }
+//    }
+//    
+//    return NO;
+//}
 
 @end
 

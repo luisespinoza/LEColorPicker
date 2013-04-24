@@ -40,6 +40,7 @@
     EAGLContext *_context;
     dispatch_queue_t taskQueue;
     UIImage *savedImage;
+    BOOL _isWorking;
 }
 
 /**

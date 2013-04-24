@@ -96,7 +96,7 @@
         //HERE THE COLOR CHANGE IS ANIMATED
         [UIView beginAnimations:@"ColorChange" context:nil];
         [UIView setAnimationCurve: UIViewAnimationCurveEaseInOut];
-        [UIView setAnimationDuration:0.5];
+        [UIView setAnimationDuration:0.2];
         //HERE THE COLOR IS CHANGED
         _outputView.backgroundColor = colorScheme.backgroundColor;
         _titleTextField.textColor = colorScheme.primaryTextColor;
