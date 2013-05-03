@@ -671,40 +671,40 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     return scaledImage;
 }
 
-- (NSUInteger)squareDistanceInRGBSpaceBetweenColor:(UIColor*)colorA andColor:(UIColor*)colorB
-{
-    CGFloat colorARed = 0;
-    CGFloat colorAGreen = 0;
-    CGFloat colorABlue = 0;
-    
-    CGFloat colorBRed = 0;
-    CGFloat colorBGreen = 0;
-    CGFloat colorBBlue = 0;
-    
-    [colorA getRed:&colorARed
-             green:&colorAGreen
-              blue:&colorABlue
-             alpha:nil];
-    
-    [colorA getRed:&colorBRed
-             green:&colorBGreen
-              blue:&colorBBlue
-             alpha:nil];
-    
-    NSUInteger colorARedUInt = (NSUInteger)colorARed;
-    NSUInteger colorAGreenUInt = (NSUInteger)colorAGreen;
-    NSUInteger colorABlueUInt = (NSUInteger)colorABlue;
-    
-    NSUInteger colorBRedUInt = (NSUInteger)colorBRed;
-    NSUInteger colorBGreenUInt = (NSUInteger)colorBGreen;
-    NSUInteger colorBBlueUInt = (NSUInteger)colorBBlue;
-    
-    NSUInteger squareDistance = (colorARedUInt-colorBRedUInt)*(colorARedUInt-colorBRedUInt)+
-    (colorAGreenUInt-colorBGreenUInt)*(colorAGreenUInt-colorBGreenUInt)+
-    (colorABlueUInt-colorBBlueUInt)*(colorABlueUInt-colorBBlueUInt);
-    
-    return squareDistance;
-}
+//- (NSUInteger)squareDistanceInRGBSpaceBetweenColor:(UIColor*)colorA andColor:(UIColor*)colorB
+//{
+//    CGFloat colorARed = 0;
+//    CGFloat colorAGreen = 0;
+//    CGFloat colorABlue = 0;
+//    
+//    CGFloat colorBRed = 0;
+//    CGFloat colorBGreen = 0;
+//    CGFloat colorBBlue = 0;
+//    
+//    [colorA getRed:&colorARed
+//             green:&colorAGreen
+//              blue:&colorABlue
+//             alpha:nil];
+//    
+//    [colorA getRed:&colorBRed
+//             green:&colorBGreen
+//              blue:&colorBBlue
+//             alpha:nil];
+//    
+//    NSUInteger colorARedUInt = (NSUInteger)colorARed;
+//    NSUInteger colorAGreenUInt = (NSUInteger)colorAGreen;
+//    NSUInteger colorABlueUInt = (NSUInteger)colorABlue;
+//    
+//    NSUInteger colorBRedUInt = (NSUInteger)colorBRed;
+//    NSUInteger colorBGreenUInt = (NSUInteger)colorBGreen;
+//    NSUInteger colorBBlueUInt = (NSUInteger)colorBBlue;
+//    
+//    NSUInteger squareDistance = (colorARedUInt-colorBRedUInt)*(colorARedUInt-colorBRedUInt)+
+//    (colorAGreenUInt-colorBGreenUInt)*(colorAGreenUInt-colorBGreenUInt)+
+//    (colorABlueUInt-colorBBlueUInt)*(colorABlueUInt-colorBBlueUInt);
+//    
+//    return squareDistance;
+//}
 
 //- (BOOL)isSufficienteContrastBetweenBackground:(UIColor*)backgroundColor andForground:(UIColor*)foregroundColor
 //{
