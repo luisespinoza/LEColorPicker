@@ -49,26 +49,12 @@
 
 /**
  This class methods is allow the client to generate three colors from a specific UIImage. The complete
- block recieves as parameter colorsDictionary, wich is the dictionary with the resultant colors.
- 
- BackgroundColor : is the key for the background color.
- PrimaryTextColor : is the key for the primary text color.
- SecondaryTextColor : is the key for the secondary text color.
+ block recieves as parameter a LEColorScheme wich is the object that encapsulates the output colors.
  
  @param image Input image, wich will be used to generate the three colors.
  @param completeBlock Execution block for when the task is complete.
  */
 - (void)pickColorsFromImage:(UIImage*)image onComplete:(void (^)(LEColorScheme *colorScheme))completeBlock;
-
-/**
- This class methods allows image scalation.
- 
- @param image Source image.
- @param width New width.
- @param height New height.
- @returns A new image like "image" but with width "width" and height "height".
- */
-+ (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height;
 
 @end
 

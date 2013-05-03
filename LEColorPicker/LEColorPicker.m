@@ -106,9 +106,9 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 - (LEColorScheme*)colorSchemeFromImage:(UIImage*)inputImage
 {
     //First, we scale the input image, to get a constant image size and square texture.
-    UIImage *scaledImage = [LEColorPicker scaleImage:inputImage
-                                               width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                              height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+    UIImage *scaledImage = [self scaleImage:inputImage
+                                      width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                     height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
     //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
     //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
     
@@ -124,7 +124,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     //Now that we have the rendered result, we start the color calculations.
     LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
     UIColor *backgroundColor=nil;
-
+    
     savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                    height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                   biggestAlphaColorReturn:&backgroundColor];
@@ -601,16 +601,16 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                                          blue:primaryColorB/255.0
                                         alpha:1.0];
     
-//    if ([self isSufficienteContrastBetweenBackground:colorScheme.backgroundColor
-//                                        andForground:tmpColor]) {
-        colorScheme.primaryTextColor = tmpColor;
-//    } else {
-//        if ([UIColor yComponentFromColor:colorScheme.backgroundColor] < 0.5) {
-//            colorScheme.primaryTextColor = [UIColor whiteColor];
-//        } else {
-//            colorScheme.primaryTextColor = [UIColor blackColor];
-//        }
-//    }
+    //    if ([self isSufficienteContrastBetweenBackground:colorScheme.backgroundColor
+    //                                        andForground:tmpColor]) {
+    colorScheme.primaryTextColor = tmpColor;
+    //    } else {
+    //        if ([UIColor yComponentFromColor:colorScheme.backgroundColor] < 0.5) {
+    //            colorScheme.primaryTextColor = [UIColor whiteColor];
+    //        } else {
+    //            colorScheme.primaryTextColor = [UIColor blackColor];
+    //        }
+    //    }
     
     NSUInteger secondaryColorR = 0;
     NSUInteger secondaryColorG = 0;
@@ -643,29 +643,29 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
             }
         }
     }
-
+    
     tmpColor = [UIColor colorWithRed:secondaryColorR/255.0
                                green:secondaryColorG/255.0
                                 blue:secondaryColorB/255.0
                                alpha:1.0];
     
-//    if ([self isSufficienteContrastBetweenBackground:colorScheme.backgroundColor
-//                                        andForground:tmpColor]) {
-        colorScheme.secondaryTextColor = tmpColor;
-//    } else {
-//        if ([UIColor yComponentFromColor:colorScheme.backgroundColor] < 0.5) {
-//            colorScheme.secondaryTextColor = [UIColor whiteColor];
-//        } else {
-//            colorScheme.secondaryTextColor = [UIColor blackColor];
-//        }
-//    }
+    //    if ([self isSufficienteContrastBetweenBackground:colorScheme.backgroundColor
+    //                                        andForground:tmpColor]) {
+    colorScheme.secondaryTextColor = tmpColor;
+    //    } else {
+    //        if ([UIColor yComponentFromColor:colorScheme.backgroundColor] < 0.5) {
+    //            colorScheme.secondaryTextColor = [UIColor whiteColor];
+    //        } else {
+    //            colorScheme.secondaryTextColor = [UIColor blackColor];
+    //        }
+    //    }
 }
 
 + (Class)layerClass {
     return [CAEAGLLayer class];
 }
 
-+ (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
+- (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
 {
     UIImage *scaledImage =  [UIImage imageWithImage:image scaledToSize:CGSizeMake(width,height)];
     return scaledImage;
@@ -711,9 +711,9 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 //    float backgroundColorBrightness = [UIColor yComponentFromColor:backgroundColor];
 //    float foregroundColorBrightness = [UIColor yComponentFromColor:foregroundColor];
 //    float brightnessDifference = fabsf(backgroundColorBrightness-foregroundColorBrightness)*255;
-//    
+//
 //    NSLog(@"BrightnessDifference %f ",brightnessDifference);
-//    
+//
 //    if (brightnessDifference>=LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE) {
 //        float backgroundRed = 0.0;
 //        float backgroundGreen = 0.0;
@@ -721,25 +721,25 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 //        float foregroundRed = 0.0;
 //        float foregroundGreen = 0.0;
 //        float foregroundBlue = 0.0;
-//        
+//
 //        int numComponents = CGColorGetNumberOfComponents(backgroundColor.CGColor);
-//        
+//
 //        if (numComponents == 4) {
 //            const CGFloat *components = CGColorGetComponents(backgroundColor.CGColor);
 //            backgroundRed = components[0];
 //            backgroundGreen = components[1];
 //            backgroundBlue = components[2];
 //        }
-//        
+//
 //        numComponents = CGColorGetNumberOfComponents(foregroundColor.CGColor);
-//        
+//
 //        if (numComponents == 4) {
 //            const CGFloat *components = CGColorGetComponents(foregroundColor.CGColor);
 //            foregroundRed = components[0];
 //            foregroundGreen = components[1];
 //            foregroundBlue = components[2];
 //        }
-//        
+//
 //        //Compute "Color Diference"
 //        float colorDifference = (MAX(backgroundRed,foregroundRed)-MIN(backgroundRed, foregroundRed)) +
 //        (MAX(backgroundGreen,foregroundGreen)-MIN(backgroundGreen, foregroundGreen)) +
