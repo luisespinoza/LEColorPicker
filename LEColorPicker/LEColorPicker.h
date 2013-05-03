@@ -10,13 +10,17 @@
 #import <GLKit/GLKit.h>
 #import <QuartzCore/QuartzCore.h>
 
-#import "LEColorScheme.h"
-
 #ifdef DEBUG
 #	 define LELog(s,...) NSLog((@"[%s] " s),__func__,## __VA_ARGS__);
 #else
 #	 define LELog(...) /* */
 #endif
+
+@interface LEColorScheme : NSObject
+@property(nonatomic,strong)UIColor *backgroundColor;
+@property(nonatomic,strong)UIColor *primaryTextColor;
+@property(nonatomic,strong)UIColor *secondaryTextColor;
+@end
 
 @interface LEColorPicker : UIImageView
 {
@@ -65,4 +69,7 @@
  @returns A new image like "image" but with width "width" and height "height".
  */
 + (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height;
+
 @end
+
+

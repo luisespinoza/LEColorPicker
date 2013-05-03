@@ -12,6 +12,9 @@
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 
+@implementation LEColorScheme
+@end
+
 @implementation LEColorPicker
 
 #pragma mark - C Code
