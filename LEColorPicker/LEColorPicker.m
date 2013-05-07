@@ -22,8 +22,8 @@
 #define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                           32
 #define LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE                       0.5
 #define LECOLORPICKER_PRIMARY_TEXT_FILTER_TOLERANCE                     0.3
-#define LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE                          150
-#define LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE                     40//125*1
+#define LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE                          500
+#define LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE                     125//125*1
 
 // Add texture coordinates to Vertex structure as follows
 typedef struct {
@@ -649,16 +649,16 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                                 blue:secondaryColorB/255.0
                                alpha:1.0];
     
-    //    if ([self isSufficienteContrastBetweenBackground:colorScheme.backgroundColor
-    //                                        andForground:tmpColor]) {
-    colorScheme.secondaryTextColor = tmpColor;
-    //    } else {
-    //        if ([UIColor yComponentFromColor:colorScheme.backgroundColor] < 0.5) {
-    //            colorScheme.secondaryTextColor = [UIColor whiteColor];
-    //        } else {
-    //            colorScheme.secondaryTextColor = [UIColor blackColor];
-    //        }
-    //    }
+    if ([self isSufficienteContrastBetweenBackground:colorScheme.backgroundColor
+                                        andForground:tmpColor]) {
+        colorScheme.secondaryTextColor = tmpColor;
+    } else {
+        if ([UIColor yComponentFromColor:colorScheme.backgroundColor] < 0.5) {
+            colorScheme.secondaryTextColor = [UIColor whiteColor];
+        } else {
+            colorScheme.secondaryTextColor = [UIColor blackColor];
+        }
+    }
 }
 
 + (Class)layerClass {
@@ -676,82 +676,82 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 //    CGFloat colorARed = 0;
 //    CGFloat colorAGreen = 0;
 //    CGFloat colorABlue = 0;
-//    
+//
 //    CGFloat colorBRed = 0;
 //    CGFloat colorBGreen = 0;
 //    CGFloat colorBBlue = 0;
-//    
+//
 //    [colorA getRed:&colorARed
 //             green:&colorAGreen
 //              blue:&colorABlue
 //             alpha:nil];
-//    
+//
 //    [colorA getRed:&colorBRed
 //             green:&colorBGreen
 //              blue:&colorBBlue
 //             alpha:nil];
-//    
+//
 //    NSUInteger colorARedUInt = (NSUInteger)colorARed;
 //    NSUInteger colorAGreenUInt = (NSUInteger)colorAGreen;
 //    NSUInteger colorABlueUInt = (NSUInteger)colorABlue;
-//    
+//
 //    NSUInteger colorBRedUInt = (NSUInteger)colorBRed;
 //    NSUInteger colorBGreenUInt = (NSUInteger)colorBGreen;
 //    NSUInteger colorBBlueUInt = (NSUInteger)colorBBlue;
-//    
+//
 //    NSUInteger squareDistance = (colorARedUInt-colorBRedUInt)*(colorARedUInt-colorBRedUInt)+
 //    (colorAGreenUInt-colorBGreenUInt)*(colorAGreenUInt-colorBGreenUInt)+
 //    (colorABlueUInt-colorBBlueUInt)*(colorABlueUInt-colorBBlueUInt);
-//    
+//
 //    return squareDistance;
 //}
 
-//- (BOOL)isSufficienteContrastBetweenBackground:(UIColor*)backgroundColor andForground:(UIColor*)foregroundColor
-//{
-//    float backgroundColorBrightness = [UIColor yComponentFromColor:backgroundColor];
-//    float foregroundColorBrightness = [UIColor yComponentFromColor:foregroundColor];
-//    float brightnessDifference = fabsf(backgroundColorBrightness-foregroundColorBrightness)*255;
-//
-//    NSLog(@"BrightnessDifference %f ",brightnessDifference);
-//
-//    if (brightnessDifference>=LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE) {
-//        float backgroundRed = 0.0;
-//        float backgroundGreen = 0.0;
-//        float backgroundBlue = 0.0;
-//        float foregroundRed = 0.0;
-//        float foregroundGreen = 0.0;
-//        float foregroundBlue = 0.0;
-//
-//        int numComponents = CGColorGetNumberOfComponents(backgroundColor.CGColor);
-//
-//        if (numComponents == 4) {
-//            const CGFloat *components = CGColorGetComponents(backgroundColor.CGColor);
-//            backgroundRed = components[0];
-//            backgroundGreen = components[1];
-//            backgroundBlue = components[2];
-//        }
-//
-//        numComponents = CGColorGetNumberOfComponents(foregroundColor.CGColor);
-//
-//        if (numComponents == 4) {
-//            const CGFloat *components = CGColorGetComponents(foregroundColor.CGColor);
-//            foregroundRed = components[0];
-//            foregroundGreen = components[1];
-//            foregroundBlue = components[2];
-//        }
-//
-//        //Compute "Color Diference"
-//        float colorDifference = (MAX(backgroundRed,foregroundRed)-MIN(backgroundRed, foregroundRed)) +
-//        (MAX(backgroundGreen,foregroundGreen)-MIN(backgroundGreen, foregroundGreen)) +
-//        (MAX(backgroundBlue,foregroundBlue)-MIN(backgroundBlue, foregroundBlue));
-//        NSLog(@"ColorDifference = %f",colorDifference*255);
-//        if ((colorDifference*255)>LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE) {
-//            return YES;
-//        }
-//    }
-//    
-//    return NO;
-//}
+- (BOOL)isSufficienteContrastBetweenBackground:(UIColor*)backgroundColor andForground:(UIColor*)foregroundColor
+{
+    float backgroundColorBrightness = [UIColor yComponentFromColor:backgroundColor];
+    float foregroundColorBrightness = [UIColor yComponentFromColor:foregroundColor];
+    float brightnessDifference = fabsf(backgroundColorBrightness-foregroundColorBrightness)*255;
+    
+    NSLog(@"BrightnessDifference %f ",brightnessDifference);
+    
+    if (brightnessDifference>=LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE) {
+        float backgroundRed = 0.0;
+        float backgroundGreen = 0.0;
+        float backgroundBlue = 0.0;
+        float foregroundRed = 0.0;
+        float foregroundGreen = 0.0;
+        float foregroundBlue = 0.0;
+        
+        int numComponents = CGColorGetNumberOfComponents(backgroundColor.CGColor);
+        
+        if (numComponents == 4) {
+            const CGFloat *components = CGColorGetComponents(backgroundColor.CGColor);
+            backgroundRed = components[0];
+            backgroundGreen = components[1];
+            backgroundBlue = components[2];
+        }
+        
+        numComponents = CGColorGetNumberOfComponents(foregroundColor.CGColor);
+        
+        if (numComponents == 4) {
+            const CGFloat *components = CGColorGetComponents(foregroundColor.CGColor);
+            foregroundRed = components[0];
+            foregroundGreen = components[1];
+            foregroundBlue = components[2];
+        }
+        
+        //Compute "Color Diference"
+        float colorDifference = (MAX(backgroundRed,foregroundRed)-MIN(backgroundRed, foregroundRed)) +
+        (MAX(backgroundGreen,foregroundGreen)-MIN(backgroundGreen, foregroundGreen)) +
+        (MAX(backgroundBlue,foregroundBlue)-MIN(backgroundBlue, foregroundBlue));
+        NSLog(@"ColorDifference = %f",colorDifference*255);
+        if ((colorDifference*255)>LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE) {
+            return YES;
+        }
+    }
+    
+    return NO;
+}
 
 @end
 
