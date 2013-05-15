@@ -22,7 +22,7 @@
 @property(nonatomic,strong)UIColor *secondaryTextColor;
 @end
 
-@interface LEColorPicker : UIImageView
+@interface LEColorPicker : NSObject
 {
     //GLuint _vertexArray;
     GLuint _vertexBuffer;

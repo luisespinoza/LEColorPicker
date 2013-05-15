@@ -24,7 +24,7 @@
     
     _colorPicker = [[LEColorPicker alloc] init];
     
-    [_outputView addSubview:_colorPicker];
+    //[_outputView addSubview:_colorPicker];
     
     [self configurePagingView];
 }

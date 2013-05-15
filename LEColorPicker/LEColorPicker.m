@@ -75,7 +75,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     if (self) {
         //Do something?
         taskQueue = dispatch_queue_create("ColorPickerQueue", DISPATCH_QUEUE_SERIAL);
-        self.frame = CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
         _isWorking = NO;
     }
     return self;
@@ -95,7 +94,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
             double timePassed_ms = timeDifference * -1000.0;
             LELog(@"Computation time: %f", timePassed_ms);
             dispatch_async(dispatch_get_main_queue(), ^{
-                self.image = savedImage;
+                //self.image = savedImage;
                 completeBlock(colorScheme);
             });
             _isWorking = NO;
@@ -139,7 +138,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 
 - (void)setupOpenGL
 {
-    [self setupLayer];
+    //[self setupLayer];
     
     [self setupContext];
     
@@ -183,9 +182,10 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     [_context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
-- (void)setupLayer {
-    _eaglLayer = (CAEAGLLayer*) self.layer;
-    _eaglLayer.opaque = YES;}
+//- (void)setupLayer {
+//    _eaglLayer = (CAEAGLLayer*) self.layer;
+//    _eaglLayer.opaque = YES;
+//}
 
 - (GLuint)setupTextureFromImage:(UIImage*)image
 {
