@@ -17,21 +17,22 @@
 
 @implementation LEColorPicker
 
-#pragma mark - C Code
-
+#pragma mark - Preprocessor definitions
 #define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                           32
 #define LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE                       0.5
 #define LECOLORPICKER_PRIMARY_TEXT_FILTER_TOLERANCE                     0.3
 #define LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE                          500
 #define LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE                     125//125*1
 
-// Add texture coordinates to Vertex structure as follows
+#pragma mark - C structures and constants
+// Vertex structure
 typedef struct {
     float Position[3];
     float Color[4];
-    float TexCoord[2]; // New
+    float TexCoord[2]; 
 } Vertex;
 
+// LEColor structure
 typedef struct {
     unsigned int red;
     unsigned int green;
@@ -47,18 +48,29 @@ const Vertex Vertices[] = {
     {{-1, -1, 0}, {0, 0, 0, 1}, {0, 0}},
 };
 
+// Triangles coordinates
 const GLubyte Indices[] = {
     // Front
     0, 1, 2,
     2, 3, 0,
 };
 
+#pragma mark - C internal functions
+/**
+ Function for free output buffer data.
+ **/
 void freeImageData(void *info, const void *data, size_t size)
 {
     //printf("freeImageData called");
     free((void*)data);
 }
 
+/**
+ Function for calculating the square euclidian distance between 2 RGB colors in RGB space.
+ @param colorA A RGB color.
+ @param colorB Another RGB color.
+ @return The square of euclidian distance in RGB space.
+ */
 unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB)
 {
     NSUInteger squareDistance = ((colorA.red - colorB.red)*(colorA.red - colorB.red))+
@@ -73,7 +85,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 {
     self = [super init];
     if (self) {
-        //Do something?
+        //Create queue and set working flag initial state
         taskQueue = dispatch_queue_create("ColorPickerQueue", DISPATCH_QUEUE_SERIAL);
         _isWorking = NO;
     }
@@ -86,15 +98,21 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 {
     if (!_isWorking) {
         dispatch_async(taskQueue, ^{
-            _isWorking = YES;
+            // Get date for debug porpuses
             NSDate *startDate = [NSDate date];
+            
+            // Color calculation process
+            _isWorking = YES;
             LEColorScheme *colorScheme = [self colorSchemeFromImage:image];
+            
+            // Gete time difference for debug porpuses
             NSDate *endDate = [NSDate date];
             NSTimeInterval timeDifference = [endDate timeIntervalSinceDate:startDate];
             double timePassed_ms = timeDifference * -1000.0;
             LELog(@"Computation time: %f", timePassed_ms);
+            
+            // Call complete block and pass colors result
             dispatch_async(dispatch_get_main_queue(), ^{
-                //self.image = savedImage;
                 completeBlock(colorScheme);
             });
             _isWorking = NO;
@@ -104,17 +122,17 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 
 - (LEColorScheme*)colorSchemeFromImage:(UIImage*)inputImage
 {
-    //First, we scale the input image, to get a constant image size and square texture.
+    // First, we scale the input image, to get a constant image size and square texture.
     UIImage *scaledImage = [self scaleImage:inputImage
                                       width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                      height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
     //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
     //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
     
-    //We set the initial OpenGL ES 2.0 state.
+    // Now, We set the initial OpenGL ES 2.0 state. LUCHIN: Aquí estamos trabajando
     [self setupOpenGL];
     
-    //Now we set the scaled image as the texture to render.
+    // Then we set the scaled image as the texture to render.
     _aTexture = [self setupTextureFromImage:scaledImage];
     
     //Now that all is ready, proceed we the render, to find the dominant color
