@@ -145,6 +145,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                    height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                   biggestAlphaColorReturn:&backgroundColor];
+    [UIImagePNGRepresentation(savedImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
     colorScheme.backgroundColor = backgroundColor;
     //Now, filter the backgroundColor.
     [self findTextColorsTaskForColorScheme:colorScheme];
@@ -156,15 +157,14 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 
 - (void)setupOpenGL
 {
-    //[self setupLayer];
-    
+    // Start openGLES
     [self setupContext];
+    
+    [self setupFrameBuffer];
     
     [self setupRenderBuffer];
     
     [self setupDepthBuffer];
-    
-    [self setupFrameBuffer];
     
     [self setupOpenGLForDominantColor];
     
@@ -197,13 +197,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     glUniform1i(_textureUniform, 0);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
     
-    [_context presentRenderbuffer:GL_RENDERBUFFER];
+    //[_context presentRenderbuffer:GL_RENDERBUFFER];
 }
-
-//- (void)setupLayer {
-//    _eaglLayer = (CAEAGLLayer*) self.layer;
-//    _eaglLayer.opaque = YES;
-//}
 
 - (GLuint)setupTextureFromImage:(UIImage*)image
 {
@@ -252,25 +247,30 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     }
 }
 
+- (void)setupFrameBuffer {
+    GLuint framebuffer;
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+//    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _colorRenderBuffer);
+//    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderBuffer);
+}
+
+
 - (void)setupRenderBuffer {
     glGenRenderbuffers(1, &_colorRenderBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderBuffer);
-    [_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:_eaglLayer];
+    //[_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:_eaglLayer];
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8_OES, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _colorRenderBuffer);
 }
 
 - (void)setupDepthBuffer {
     glGenRenderbuffers(1, &_depthRenderBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, _depthRenderBuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE , LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
-}
-
-- (void)setupFrameBuffer {
-    GLuint framebuffer;
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _colorRenderBuffer);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderBuffer);
 }
+
 
 - (void)setupVBOs {
     
@@ -283,10 +283,10 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 }
 
-- (void)setupDisplayLink {
-    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(render)];
-    [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-}
+//- (void)setupDisplayLink {
+//    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(render)];
+//    [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+//}
 
 
 - (BOOL)setupOpenGLForDominantColor
@@ -679,50 +679,11 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     }
 }
 
-+ (Class)layerClass {
-    return [CAEAGLLayer class];
-}
-
 - (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
 {
     UIImage *scaledImage =  [UIImage imageWithImage:image scaledToSize:CGSizeMake(width,height)];
     return scaledImage;
 }
-
-//- (NSUInteger)squareDistanceInRGBSpaceBetweenColor:(UIColor*)colorA andColor:(UIColor*)colorB
-//{
-//    CGFloat colorARed = 0;
-//    CGFloat colorAGreen = 0;
-//    CGFloat colorABlue = 0;
-//
-//    CGFloat colorBRed = 0;
-//    CGFloat colorBGreen = 0;
-//    CGFloat colorBBlue = 0;
-//
-//    [colorA getRed:&colorARed
-//             green:&colorAGreen
-//              blue:&colorABlue
-//             alpha:nil];
-//
-//    [colorA getRed:&colorBRed
-//             green:&colorBGreen
-//              blue:&colorBBlue
-//             alpha:nil];
-//
-//    NSUInteger colorARedUInt = (NSUInteger)colorARed;
-//    NSUInteger colorAGreenUInt = (NSUInteger)colorAGreen;
-//    NSUInteger colorABlueUInt = (NSUInteger)colorABlue;
-//
-//    NSUInteger colorBRedUInt = (NSUInteger)colorBRed;
-//    NSUInteger colorBGreenUInt = (NSUInteger)colorBGreen;
-//    NSUInteger colorBBlueUInt = (NSUInteger)colorBBlue;
-//
-//    NSUInteger squareDistance = (colorARedUInt-colorBRedUInt)*(colorARedUInt-colorBRedUInt)+
-//    (colorAGreenUInt-colorBGreenUInt)*(colorAGreenUInt-colorBGreenUInt)+
-//    (colorABlueUInt-colorBBlueUInt)*(colorABlueUInt-colorBBlueUInt);
-//
-//    return squareDistance;
-//}
 
 - (BOOL)isSufficienteContrastBetweenBackground:(UIColor*)backgroundColor andForground:(UIColor*)foregroundColor
 {
