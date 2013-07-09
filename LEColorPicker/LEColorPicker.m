@@ -143,15 +143,17 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
     UIColor *backgroundColor=nil;
     
-#ifdef LE_DEBUG
+
     UIImage *savedImage;
     savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                    height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                   biggestAlphaColorReturn:&backgroundColor];
+    colorScheme.backgroundColor = backgroundColor;
+    
+#ifdef LE_DEBUG
     [UIImagePNGRepresentation(savedImage) writeToFile:@"/Users/Luis/Output.png" atomically:YES];
 #endif
-    
-    colorScheme.backgroundColor = backgroundColor;
+
     
     // Now, find text colors
     [self findTextColorsTaskForColorScheme:colorScheme];
