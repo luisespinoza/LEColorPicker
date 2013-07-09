@@ -7,7 +7,6 @@
 //
 
 #import "LEColorPicker.h"
-#import "UIImage+LEColorPicker.h"
 #import "UIColor+YUVSpace.h"
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
@@ -29,7 +28,7 @@
 typedef struct {
     float Position[3];
     float Color[4];
-    float TexCoord[2]; 
+    float TexCoord[2];
 } Vertex;
 
 // LEColor structure
@@ -605,7 +604,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                                         alpha:1.0];
     
     colorScheme.primaryTextColor = tmpColor;
-
+    
     NSUInteger secondaryColorR = 0;
     NSUInteger secondaryColorG = 0;
     NSUInteger secondaryColorB = 0;
@@ -657,7 +656,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 
 - (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
 {
-    UIImage *scaledImage =  [UIImage imageWithImage:image scaledToSize:CGSizeMake(width,height)];
+    UIImage *scaledImage =  [self imageWithImage:image scaledToSize:CGSizeMake(width,height)];
     return scaledImage;
 }
 
@@ -706,6 +705,15 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     }
     
     return NO;
+}
+
+#pragma mark - UIImage utilities
+- (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize {
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 1.0);
+    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
 }
 
 @end
