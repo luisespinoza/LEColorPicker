@@ -97,19 +97,21 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 {
     if (!_isWorking) {
         dispatch_async(taskQueue, ^{
+#ifdef TIME_DEBUG
             // Get date for debug porpuses
             NSDate *startDate = [NSDate date];
-            
+#endif
             // Color calculation process
             _isWorking = YES;
             LEColorScheme *colorScheme = [self colorSchemeFromImage:image];
-            
+
+#ifdef TIME_DEBUG
             // Gete time difference for debug porpuses
             NSDate *endDate = [NSDate date];
             NSTimeInterval timeDifference = [endDate timeIntervalSinceDate:startDate];
             double timePassed_ms = timeDifference * -1000.0;
-            LELog(@"Computation time: %f", timePassed_ms);
-            
+            NSLog(@"Computation time: %f", timePassed_ms);
+#endif
             // Call complete block and pass colors result
             dispatch_async(dispatch_get_main_queue(), ^{
                 completeBlock(colorScheme);
@@ -125,30 +127,34 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     UIImage *scaledImage = [self scaleImage:inputImage
                                       width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                      height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
-    //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
-    //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
-    
+#ifdef LE_DEBUG
+    [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
+#endif
     // Now, We set the initial OpenGL ES 2.0 state. LUCHIN: Aquí estamos trabajando
     [self setupOpenGL];
     
     // Then we set the scaled image as the texture to render.
     _aTexture = [self setupTextureFromImage:scaledImage];
     
-    //Now that all is ready, proceed we the render, to find the dominant color
+    // Now that all is ready, proceed we the render, to find the dominant color
     [self renderDominant];
     
-    //Now that we have the rendered result, we start the color calculations.
+    // Now that we have the rendered result, we start the color calculations.
     LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
     UIColor *backgroundColor=nil;
     
+#ifdef LE_DEBUG
+    UIImage *savedImage;
     savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                    height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                   biggestAlphaColorReturn:&backgroundColor];
-    [UIImagePNGRepresentation(savedImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
+    [UIImagePNGRepresentation(savedImage) writeToFile:@"/Users/Luis/Output.png" atomically:YES];
+#endif
+    
     colorScheme.backgroundColor = backgroundColor;
-    //Now, filter the backgroundColor.
+    
+    // Now, find text colors
     [self findTextColorsTaskForColorScheme:colorScheme];
-    //});
     return colorScheme;
 }
 
@@ -157,6 +163,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 - (void)setupOpenGL
 {
     // Start openGLES
+    
     [self setupContext];
     
     [self setupFrameBuffer];
@@ -233,12 +240,12 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     EAGLRenderingAPI api = kEAGLRenderingAPIOpenGLES2;
     _context = [[EAGLContext alloc] initWithAPI:api];
     if (!_context) {
-        NSLog(@"Failed to initialize OpenGLES 2.0 context");
+        LELog(@"Failed to initialize OpenGLES 2.0 context");
         exit(1);
     }
     
     if (![EAGLContext setCurrentContext:_context]) {
-        NSLog(@"Failed to set current OpenGL context");
+        LELog(@"Failed to set current OpenGL context");
         exit(1);
     }
 }
@@ -285,14 +292,14 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     // Create and compile vertex shader.
     vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"DominantColorShader" ofType:@"vsh"];
     if (![self compileShader:&vertShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
-        NSLog(@"Failed to compile vertex shader");
+        LELog(@"Failed to compile vertex shader");
         return NO;
     }
     
     // Create and compile fragment shader.
     fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"DominantColorShader" ofType:@"fsh"];
     if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname]) {
-        NSLog(@"Failed to compile fragment shader");
+        LELog(@"Failed to compile fragment shader");
         return NO;
     }
     
@@ -307,7 +314,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     // Link program.
     if (![self linkProgram:_program]) {
-        NSLog(@"Failed to link program: %d", _program);
+        LELog(@"Failed to link program: %d", _program);
         
         if (vertShader) {
             glDeleteShader(vertShader);
@@ -351,7 +358,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     source = (GLchar *)[[NSString stringWithContentsOfFile:file encoding:NSUTF8StringEncoding error:nil] UTF8String];
     if (!source) {
-        NSLog(@"Failed to load vertex shader");
+        LELog(@"Failed to load vertex shader");
         return NO;
     }
     
@@ -359,7 +366,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     glShaderSource(*shader, 1, &source, NULL);
     glCompileShader(*shader);
     
-#if defined(DEBUG)
+#ifdef LE_DEBUG
     GLint logLength;
     glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &logLength);
     if (logLength > 0) {
@@ -384,7 +391,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     GLint status;
     glLinkProgram(prog);
     
-#if defined(DEBUG)
+#ifdef LE_DEBUG
     GLint logLength;
     glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
     if (logLength > 0) {
@@ -412,7 +419,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     if (logLength > 0) {
         GLchar *log = (GLchar *)malloc(logLength);
         glGetProgramInfoLog(prog, logLength, &logLength, log);
-        NSLog(@"Program validate log:\n%s", log);
+        LELog(@"Program validate log:\n%s", log);
         free(log);
     }
     
@@ -472,7 +479,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
     CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
     // Use this to retain alpha
-    //CGBitmapInfo bitmapInfo = kCGImageAlphaPremultipliedLast;
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     CGImageRef imageRef = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
     
@@ -511,7 +517,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     for (NSUInteger y=0; y<(height/2); y++) {
         for (NSUInteger x=0; x<(width/2)*4; x++) {
-            //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
+            //LELog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
             if ((!((x+1)%4)) && (x>0)) {
                 NSUInteger currentRed = buffer[y * 4 * width + (x-3)];
                 NSUInteger currentGreen = buffer[y * 4 * width + (x-2)];
@@ -591,7 +597,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                         primaryColorR = buffer[y * 4 * width + (x-3)];
                         primaryColorG = buffer[y * 4 * width + (x-2)];
                         primaryColorB = buffer[y * 4 * width + (x-1)];
-                        //        NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
+                        //NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
                     }
                 }
             }
@@ -630,7 +636,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                         secondaryColorR = buffer[y * 4 * width + (x-3)];
                         secondaryColorG = buffer[y * 4 * width + (x-2)];
                         secondaryColorB = buffer[y * 4 * width + (x-1)];
-                        //        NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
+                        //NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
                     }
                 }
             }
@@ -666,7 +672,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     float foregroundColorBrightness = [UIColor yComponentFromColor:foregroundColor];
     float brightnessDifference = fabsf(backgroundColorBrightness-foregroundColorBrightness)*255;
     
-    NSLog(@"BrightnessDifference %f ",brightnessDifference);
+    LELog(@"BrightnessDifference %f ",brightnessDifference);
     
     if (brightnessDifference>=LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE) {
         float backgroundRed = 0.0;
@@ -698,7 +704,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
         float colorDifference = (MAX(backgroundRed,foregroundRed)-MIN(backgroundRed, foregroundRed)) +
         (MAX(backgroundGreen,foregroundGreen)-MIN(backgroundGreen, foregroundGreen)) +
         (MAX(backgroundBlue,foregroundBlue)-MIN(backgroundBlue, foregroundBlue));
-        NSLog(@"ColorDifference = %f",colorDifference*255);
+        LELog(@"ColorDifference = %f",colorDifference*255);
         if ((colorDifference*255)>LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE) {
             return YES;
         }

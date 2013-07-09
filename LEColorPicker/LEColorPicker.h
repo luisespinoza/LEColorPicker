@@ -10,7 +10,7 @@
 #import <GLKit/GLKit.h>
 #import <QuartzCore/QuartzCore.h>
 
-#ifdef DEBUG
+#ifdef LE_DEBUG
 #	 define LELog(s,...) NSLog((@"[%s] " s),__func__,## __VA_ARGS__);
 #else
 #	 define LELog(...) /* */
@@ -43,7 +43,6 @@
     CAEAGLLayer* _eaglLayer;
     EAGLContext *_context;
     dispatch_queue_t taskQueue;
-    UIImage *savedImage;
     BOOL _isWorking;
 }
 
