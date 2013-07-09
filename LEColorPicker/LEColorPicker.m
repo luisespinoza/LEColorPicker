@@ -85,8 +85,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 {
     self = [super init];
     if (self) {
-        //Create queue and set working flag initial state
-        taskQueue = dispatch_queue_create("ColorPickerQueue", DISPATCH_QUEUE_SERIAL);
+        // Create queue and set working flag initial state
+        taskQueue = dispatch_queue_create("LEColorPickerQueue", DISPATCH_QUEUE_SERIAL);
         _isWorking = NO;
     }
     return self;
@@ -196,13 +196,11 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     glBindTexture(GL_TEXTURE_2D, _aTexture);
     glUniform1i(_textureUniform, 0);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
-    
-    //[_context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
 - (GLuint)setupTextureFromImage:(UIImage*)image
 {
-    //2 Get core graphics image reference
+    // Get core graphics image reference
     CGImageRef inputTextureImage = image.CGImage;
     
     if (!inputTextureImage) {
@@ -230,7 +228,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA , width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
     free(inputTextureData);
     return inputTexName;
-    
 }
 
 - (void)setupContext {
@@ -251,8 +248,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     GLuint framebuffer;
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-//    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _colorRenderBuffer);
-//    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderBuffer);
 }
 
 
@@ -283,12 +278,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 }
 
-//- (void)setupDisplayLink {
-//    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(render)];
-//    [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-//}
-
-
 - (BOOL)setupOpenGLForDominantColor
 {
     GLuint vertShader, fragShader;
@@ -316,10 +305,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     // Attach fragment shader to program.
     glAttachShader(_program, fragShader);
-    
-    // Bind attribute locations.
-    // This needs to be done prior to linking.
-    //glBindAttribLocation(_program, GLKVertexAttribPosition, "position");
     
     // Link program.
     if (![self linkProgram:_program]) {
@@ -619,17 +604,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                                          blue:primaryColorB/255.0
                                         alpha:1.0];
     
-    //    if ([self isSufficienteContrastBetweenBackground:colorScheme.backgroundColor
-    //                                        andForground:tmpColor]) {
     colorScheme.primaryTextColor = tmpColor;
-    //    } else {
-    //        if ([UIColor yComponentFromColor:colorScheme.backgroundColor] < 0.5) {
-    //            colorScheme.primaryTextColor = [UIColor whiteColor];
-    //        } else {
-    //            colorScheme.primaryTextColor = [UIColor blackColor];
-    //        }
-    //    }
-    
+
     NSUInteger secondaryColorR = 0;
     NSUInteger secondaryColorG = 0;
     NSUInteger secondaryColorB = 0;
