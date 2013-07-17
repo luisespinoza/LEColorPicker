@@ -21,7 +21,7 @@
 #define LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE                       0.5
 #define LECOLORPICKER_PRIMARY_TEXT_FILTER_TOLERANCE                     0.3
 #define LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE                          500
-#define LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE                     125//125*1
+#define LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE                     125
 
 #pragma mark - C structures and constants
 // Vertex structure
