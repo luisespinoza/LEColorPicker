@@ -486,6 +486,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     // make UIImage from CGImage
     UIImage *newUIImage = [UIImage imageWithCGImage:imageRef];
+    CGImageRelease(imageRef);
+    CGColorSpaceRelease(colorSpaceRef);
     
     return newUIImage;
 }
@@ -544,6 +546,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
             }
         }
     }
+    
+    free(buffer);
     
     return [UIColor colorWithRed:biggerR/255.0
                            green:biggerG/255.0

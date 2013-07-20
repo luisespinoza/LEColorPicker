@@ -13,5 +13,5 @@
     #import <Foundation/Foundation.h>
 #endif
 
-//#define LE_DEBUG
+#define LE_DEBUG
 //#define TIME_DEBUG
