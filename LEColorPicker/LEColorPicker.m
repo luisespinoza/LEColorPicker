@@ -67,13 +67,13 @@ NSString *const kDominantVertexShaderString = SHADER_STRING
  
  varying vec4 DestinationColor;
  
- attribute vec2 TexCoordIn; // New
- varying vec2 TexCoordOut; // New
+ attribute vec2 TexCoordIn;
+ varying vec2 TexCoordOut;
  
  void main(void) {
      DestinationColor = SourceColor;
      gl_Position = Position;
-     TexCoordOut = TexCoordIn; // New
+     TexCoordOut = TexCoordIn;
  }
  );
 
@@ -96,7 +96,7 @@ NSString *const kDominantFragmentShaderString = SHADER_STRING
      highp vec3 currentYUV = vec3(currentY,currentU,currentV);
      lowp float d;
      if ((TexCoordOut.x > (float(ProccesedWidth)/float(TotalWidth))) || (TexCoordOut.y > (float(ProccesedWidth)/float(TotalWidth)))) {
-         gl_FragColor = vec4(0.0,0.0,0.0,1.0); // New
+         gl_FragColor = vec4(0.0,0.0,0.0,1.0);
      } else {
          accumulator = 0.0;
          for (int i=0; i<ProccesedWidth; i=i+1) {
@@ -116,8 +116,7 @@ NSString *const kDominantFragmentShaderString = SHADER_STRING
                  }
              }
          }
-         gl_FragColor = vec4(currentPixel.r,currentPixel.g,currentPixel.b,accumulator); // New
-         //gl_FragColor = vec4(accumulator,0.0,0.0,1.0); // New
+         gl_FragColor = vec4(currentPixel.r,currentPixel.g,currentPixel.b,accumulator);
      }
  }
  );
@@ -211,18 +210,17 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
     UIColor *backgroundColor=nil;
     
-    
+#ifdef LE_DEBUG
     UIImage *savedImage;
     savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                    height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                   biggestAlphaColorReturn:&backgroundColor];
-    colorScheme.backgroundColor = backgroundColor;
-    
-#ifdef LE_DEBUG
     [UIImagePNGRepresentation(savedImage) writeToFile:@"/Users/Luis/Output.png" atomically:YES];
 #endif
     
     
+    colorScheme.backgroundColor = [self colorWithBiggerCountFromImageWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+
     // Now, find text colors
     [self findTextColorsTaskForColorScheme:colorScheme];
     return colorScheme;
@@ -557,6 +555,43 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     return newUIImage;
 }
 
+-(UIColor *)colorWithBiggerCountFromImageWidth:(NSUInteger)width height:(NSUInteger)height
+{
+    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
+    //GLubyte *buffer2 = (GLubyte *) malloc(width * height * 4);
+    
+    //GLvoid *pixel_data = nil;
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
+    
+    /* Find bigger Alpha color*/
+    NSUInteger biggerR = 0;
+    NSUInteger biggerG = 0;
+    NSUInteger biggerB = 0;
+    NSUInteger biggerAlpha = 0;
+    
+    for (NSUInteger y=0; y<(height/2); y++) {
+        for (NSUInteger x=0; x<(width/2)*4; x++) {
+            //buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
+            //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
+            if ((!((x+1)%4)) && (x>0)) {
+                if (buffer[y * 4 * width + x] > biggerAlpha ) {
+                    
+                    biggerAlpha = buffer[y * 4 * width + x];
+                    biggerR = buffer[y * 4 * width + (x-3)];
+                    biggerG = buffer[y * 4 * width + (x-2)];
+                    biggerB = buffer[y * 4 * width + (x-1)];
+                    //        NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
+                }
+            }
+        }
+    }
+    
+    return [UIColor colorWithRed:biggerR/255.0
+                           green:biggerG/255.0
+                            blue:biggerB/255.0
+                           alpha:1.0];
+}
+
 -(UIColor *)colorFromImageWithWidth:(NSUInteger)width
                              height:(NSUInteger)height
                      filteringColor:(UIColor*)colorToFilter
@@ -794,5 +829,3 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 }
 
 @end
-
-
