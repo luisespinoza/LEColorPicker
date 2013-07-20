@@ -23,6 +23,11 @@
 #define LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE                          500
 #define LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE                     125
 
+#define STRINGIZE(x) #x
+#define STRINGIZE2(x) STRINGIZE(x)
+#define SHADER_STRING(text) @ STRINGIZE2(text)
+
+
 #pragma mark - C structures and constants
 // Vertex structure
 typedef struct {
@@ -53,6 +58,69 @@ const GLubyte Indices[] = {
     0, 1, 2,
     2, 3, 0,
 };
+
+//Vertex Shader string definition
+NSString *const kDominantVertexShaderString = SHADER_STRING
+(
+ attribute vec4 Position;
+ attribute vec4 SourceColor;
+ 
+ varying vec4 DestinationColor;
+ 
+ attribute vec2 TexCoordIn; // New
+ varying vec2 TexCoordOut; // New
+ 
+ void main(void) {
+     DestinationColor = SourceColor;
+     gl_Position = Position;
+     TexCoordOut = TexCoordIn; // New
+ }
+ );
+
+//Fragment Shader string definition
+NSString *const kDominantFragmentShaderString = SHADER_STRING
+(
+ varying lowp vec4 DestinationColor;
+ varying lowp vec2 TexCoordOut;
+ uniform sampler2D Texture;
+ uniform int ProccesedWidth;
+ uniform int TotalWidth;
+ 
+ void main(void) {
+     lowp vec4 dummyColor = DestinationColor; //Dummy line for avoid WARNING from shader compiler
+     lowp float accumulator = 0.0;
+     lowp vec4 currentPixel = texture2D(Texture, TexCoordOut);
+     highp float currentY = 0.299*currentPixel.r + 0.587*currentPixel.g+ 0.114*currentPixel.b;
+     highp float currentU = (-0.14713)*currentPixel.r + (-0.28886)*currentPixel.g + (0.436)*currentPixel.b;
+     highp float currentV = 0.615*currentPixel.r + (-0.51499)*currentPixel.g + (-0.10001)*currentPixel.b;
+     highp vec3 currentYUV = vec3(currentY,currentU,currentV);
+     lowp float d;
+     if ((TexCoordOut.x > (float(ProccesedWidth)/float(TotalWidth))) || (TexCoordOut.y > (float(ProccesedWidth)/float(TotalWidth)))) {
+         gl_FragColor = vec4(0.0,0.0,0.0,1.0); // New
+     } else {
+         accumulator = 0.0;
+         for (int i=0; i<ProccesedWidth; i=i+1) {
+             for (int j=0; j<ProccesedWidth; j=j+1) {
+                 lowp vec2 coord = vec2(float(i)/float(TotalWidth),float(j)/float(TotalWidth));
+                 lowp vec4 samplePixel = texture2D(Texture, coord);
+                 
+                 highp float sampleY = 0.299*samplePixel.r + 0.587*samplePixel.g+ 0.114*samplePixel.b;
+                 highp float sampleU = (-0.14713)*samplePixel.r + (-0.28886)*samplePixel.g + (0.436)*samplePixel.b;
+                 highp float sampleV = 0.615*samplePixel.r + (-0.51499)*samplePixel.g + (-0.10001)*samplePixel.b;
+                 highp vec3 sampleYUV = vec3(sampleY,sampleU,sampleV);
+                 
+                 d = distance(sampleYUV,currentYUV);
+                 
+                 if (d < 0.1) {
+                     accumulator = accumulator + 0.0039;
+                 }
+             }
+         }
+         gl_FragColor = vec4(currentPixel.r,currentPixel.g,currentPixel.b,accumulator); // New
+         //gl_FragColor = vec4(accumulator,0.0,0.0,1.0); // New
+     }
+ }
+ );
 
 #pragma mark - C internal functions
 /**
@@ -104,7 +172,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
             // Color calculation process
             _isWorking = YES;
             LEColorScheme *colorScheme = [self colorSchemeFromImage:image];
-
+            
 #ifdef TIME_DEBUG
             // Gete time difference for debug porpuses
             NSDate *endDate = [NSDate date];
@@ -143,7 +211,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
     UIColor *backgroundColor=nil;
     
-
+    
     UIImage *savedImage;
     savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                    height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
@@ -153,7 +221,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 #ifdef LE_DEBUG
     [UIImagePNGRepresentation(savedImage) writeToFile:@"/Users/Luis/Output.png" atomically:YES];
 #endif
-
+    
     
     // Now, find text colors
     [self findTextColorsTaskForColorScheme:colorScheme];
@@ -289,18 +357,15 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 - (BOOL)setupOpenGLForDominantColor
 {
     GLuint vertShader, fragShader;
-    NSString *vertShaderPathname, *fragShaderPathname;
     
     // Create and compile vertex shader.
-    vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"DominantColorShader" ofType:@"vsh"];
-    if (![self compileShader:&vertShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
+    if (![self compileShader:&vertShader type:GL_VERTEX_SHADER string:kDominantVertexShaderString]) {
         LELog(@"Failed to compile vertex shader");
         return NO;
     }
     
     // Create and compile fragment shader.
-    fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"DominantColorShader" ofType:@"fsh"];
-    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname]) {
+    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER string:kDominantFragmentShaderString]) {
         LELog(@"Failed to compile fragment shader");
         return NO;
     }
@@ -353,12 +418,12 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 
 #pragma mark -  OpenGL ES 2 shader compilation
 
-- (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file
+- (BOOL)compileShader:(GLuint *)shader type:(GLenum)type string:(NSString *)string
 {
     GLint status;
     const GLchar *source;
     
-    source = (GLchar *)[[NSString stringWithContentsOfFile:file encoding:NSUTF8StringEncoding error:nil] UTF8String];
+    source = (GLchar *)[string UTF8String];
     if (!source) {
         LELog(@"Failed to load vertex shader");
         return NO;
