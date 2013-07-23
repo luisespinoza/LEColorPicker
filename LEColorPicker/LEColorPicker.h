@@ -10,6 +10,10 @@
 #import <GLKit/GLKit.h>
 #import <QuartzCore/QuartzCore.h>
 
+#ifndef __gl_es20_h_
+#warning OpenGL ES framework not found in project, or not included in precompiled header.
+#endif
+
 #ifdef LE_DEBUG
 #	 define LELog(s,...) NSLog((@"[%s] " s),__func__,## __VA_ARGS__);
 #else
