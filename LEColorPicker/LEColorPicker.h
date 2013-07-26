@@ -10,9 +10,8 @@
 #import <GLKit/GLKit.h>
 #import <QuartzCore/QuartzCore.h>
 
-#ifndef __gl_es20_h_
-#warning OpenGL ES framework not found in project, or not included in precompiled header.
-#endif
+#ifndef LECOLORPICKER
+#define LECOLORPICKER
 
 #ifdef LE_DEBUG
 #	 define LELog(s,...) NSLog((@"[%s] " s),__func__,## __VA_ARGS__);
@@ -51,7 +50,7 @@
 }
 
 /**
- This class methods is allow the client to generate three colors from a specific UIImage. The complete
+ This instance method allows the client object to generate three colors from a specific UIImage. The complete
  block recieves as parameter a LEColorScheme wich is the object that encapsulates the output colors.
  
  @param image Input image, wich will be used to generate the three colors.
@@ -68,4 +67,5 @@
 - (LEColorScheme*)colorSchemeFromImage:(UIImage*)image;
 @end
 
+#endif  /* LECOLORPICKER */
 

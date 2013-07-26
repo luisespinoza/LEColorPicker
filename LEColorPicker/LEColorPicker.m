@@ -164,21 +164,10 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 {
     if (!_isWorking) {
         dispatch_async(taskQueue, ^{
-#ifdef TIME_DEBUG
-            // Get date for debug porpuses
-            NSDate *startDate = [NSDate date];
-#endif
             // Color calculation process
             _isWorking = YES;
             LEColorScheme *colorScheme = [self colorSchemeFromImage:image];
             
-#ifdef TIME_DEBUG
-            // Gete time difference for debug porpuses
-            NSDate *endDate = [NSDate date];
-            NSTimeInterval timeDifference = [endDate timeIntervalSinceDate:startDate];
-            double timePassed_ms = timeDifference * -1000.0;
-            NSLog(@"Computation time: %f", timePassed_ms);
-#endif
             // Call complete block and pass colors result
             dispatch_async(dispatch_get_main_queue(), ^{
                 completeBlock(colorScheme);
@@ -194,9 +183,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     UIImage *scaledImage = [self scaleImage:inputImage
                                       width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                      height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
-#ifdef LE_DEBUG
-    [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
-#endif
+
     // Now, We set the initial OpenGL ES 2.0 state. LUCHIN: Aquí estamos trabajando
     [self setupOpenGL];
     
@@ -208,17 +195,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     // Now that we have the rendered result, we start the color calculations.
     LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
-    UIColor *backgroundColor=nil;
-    
-#ifdef LE_DEBUG
-    UIImage *savedImage;
-    savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                   height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                  biggestAlphaColorReturn:&backgroundColor];
-    [UIImagePNGRepresentation(savedImage) writeToFile:@"/Users/Luis/Output.png" atomically:YES];
-#endif
-    
-    
     colorScheme.backgroundColor = [self colorWithBiggerCountFromImageWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
 
     // Now, find text colors
@@ -250,9 +226,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     //start up
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ZERO);
-    //glClearColor(0.0, 0.0, 0.0, 1.0);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     
     //Setup inputs
@@ -308,12 +281,12 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     EAGLRenderingAPI api = kEAGLRenderingAPIOpenGLES2;
     _context = [[EAGLContext alloc] initWithAPI:api];
     if (!_context) {
-        LELog(@"Failed to initialize OpenGLES 2.0 context");
+        //NSLog(@"Failed to initialize OpenGLES 2.0 context");
         exit(1);
     }
     
     if (![EAGLContext setCurrentContext:_context]) {
-        LELog(@"Failed to set current OpenGL context");
+        //NSLog(@"Failed to set current OpenGL context");
         exit(1);
     }
 }
@@ -328,7 +301,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 - (void)setupRenderBuffer {
     glGenRenderbuffers(1, &_colorRenderBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderBuffer);
-    //[_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:_eaglLayer];
     glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8_OES, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _colorRenderBuffer);
 }
@@ -500,10 +472,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 #pragma mark - Convert GL image to UIImage
 -(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height biggestAlphaColorReturn:(UIColor**)returnColor
 {
-    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
-    //GLubyte *buffer2 = (GLubyte *) malloc(width * height * 4);
-    
-    //GLvoid *pixel_data = nil;
+    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);    
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
     /* Find bigger Alpha color*/
@@ -514,16 +483,12 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     for (NSUInteger y=0; y<(height/2); y++) {
         for (NSUInteger x=0; x<(width/2)*4; x++) {
-            //buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
-            //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
             if ((!((x+1)%4)) && (x>0)) {
                 if (buffer[y * 4 * width + x] > biggerAlpha ) {
-                    
                     biggerAlpha = buffer[y * 4 * width + x];
                     biggerR = buffer[y * 4 * width + (x-3)];
                     biggerG = buffer[y * 4 * width + (x-2)];
                     biggerB = buffer[y * 4 * width + (x-1)];
-                    //        NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
                 }
             }
         }
@@ -558,9 +523,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 -(UIColor *)colorWithBiggerCountFromImageWidth:(NSUInteger)width height:(NSUInteger)height
 {
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
-    //GLubyte *buffer2 = (GLubyte *) malloc(width * height * 4);
-    
-    //GLvoid *pixel_data = nil;
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
     /* Find bigger Alpha color*/
@@ -571,16 +533,12 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     for (NSUInteger y=0; y<(height/2); y++) {
         for (NSUInteger x=0; x<(width/2)*4; x++) {
-            //buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
-            //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
             if ((!((x+1)%4)) && (x>0)) {
                 if (buffer[y * 4 * width + x] > biggerAlpha ) {
-                    
                     biggerAlpha = buffer[y * 4 * width + x];
                     biggerR = buffer[y * 4 * width + (x-3)];
                     biggerG = buffer[y * 4 * width + (x-2)];
                     biggerB = buffer[y * 4 * width + (x-1)];
-                    //        NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
                 }
             }
         }
@@ -621,7 +579,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     for (NSUInteger y=0; y<(height/2); y++) {
         for (NSUInteger x=0; x<(width/2)*4; x++) {
-            //LELog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
             if ((!((x+1)%4)) && (x>0)) {
                 NSUInteger currentRed = buffer[y * 4 * width + (x-3)];
                 NSUInteger currentGreen = buffer[y * 4 * width + (x-2)];
@@ -640,7 +597,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                         biggerR = buffer[y * 4 * width + (x-3)];
                         biggerG = buffer[y * 4 * width + (x-2)];
                         biggerB = buffer[y * 4 * width + (x-1)];
-                        //        NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
                     }
                 }
             }
@@ -686,7 +642,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     for (NSUInteger y=0; y<(height/2); y++) {
         for (NSUInteger x=0; x<(width/2)*4; x++) {
-            //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
             if ((!((x+1)%4)) && (x>0)) {
                 NSUInteger currentRed = buffer[y * 4 * width + (x-3)];
                 NSUInteger currentGreen = buffer[y * 4 * width + (x-2)];
@@ -703,7 +658,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                         primaryColorR = buffer[y * 4 * width + (x-3)];
                         primaryColorG = buffer[y * 4 * width + (x-2)];
                         primaryColorB = buffer[y * 4 * width + (x-1)];
-                        //NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
                     }
                 }
             }
@@ -725,7 +679,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     LEColor primaryTextColor = {primaryColorR,primaryColorG,primaryColorB};
     for (NSUInteger y=0; y<(height/2); y++) {
         for (NSUInteger x=0; x<(width/2)*4; x++) {
-            //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
             if ((!((x+1)%4)) && (x>0)) {
                 NSUInteger currentRed = buffer[y * 4 * width + (x-3)];
                 NSUInteger currentGreen = buffer[y * 4 * width + (x-2)];
@@ -742,7 +695,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                         secondaryColorR = buffer[y * 4 * width + (x-3)];
                         secondaryColorG = buffer[y * 4 * width + (x-2)];
                         secondaryColorB = buffer[y * 4 * width + (x-1)];
-                        //NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
                     }
                 }
             }
