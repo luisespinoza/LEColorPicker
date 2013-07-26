@@ -48,6 +48,13 @@
     dispatch_queue_t taskQueue;
     BOOL _isWorking;
 }
+/**
+ This instance method allows the client object to generate three colors from a specific UIImage. This method generate synchronously colors for background, primary and secondary colors, encapsulated in a LEColorScheme object.
+ 
+ @param image Input image, wich will be used to generate the three colors.
+ @returns LEColorScheme with three output colors.
+ */
+- (LEColorScheme*)colorSchemeFromImage:(UIImage*)image;
 
 /**
  This instance method allows the client object to generate three colors from a specific UIImage. The complete
@@ -57,14 +64,6 @@
  @param completeBlock Execution block for when the task is complete.
  */
 - (void)pickColorsFromImage:(UIImage*)image onComplete:(void (^)(LEColorScheme *colorScheme))completeBlock;
-
-/**
- This instance method allows the client object to generate three colors from a specific UIImage. This method generate synchronously colors for background, primary and secondary colors, encapsulated in a LEColorScheme object.
- 
- @param image Input image, wich will be used to generate the three colors.
- @returns LEColorScheme with three output colors.
- */
-- (LEColorScheme*)colorSchemeFromImage:(UIImage*)image;
 @end
 
 #endif  /* LECOLORPICKER */

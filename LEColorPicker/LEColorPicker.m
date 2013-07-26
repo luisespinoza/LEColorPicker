@@ -121,15 +121,11 @@ NSString *const kDominantFragmentShaderString = SHADER_STRING
  }
  );
 
-#pragma mark - C internal functions
+#pragma mark - C internal functions declaration (to avoid possible warnings)
 /**
  Function for free output buffer data.
  **/
-void freeImageData(void *info, const void *data, size_t size)
-{
-    //printf("freeImageData called");
-    free((void*)data);
-}
+void freeImageData(void *info, const void *data, size_t size);
 
 /**
  Function for calculating the square euclidian distance between 2 RGB colors in RGB space.
@@ -137,6 +133,15 @@ void freeImageData(void *info, const void *data, size_t size)
  @param colorB Another RGB color.
  @return The square of euclidian distance in RGB space.
  */
+unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB);
+
+#pragma mark - C internal functions implementation
+void freeImageData(void *info, const void *data, size_t size)
+{
+    //printf("freeImageData called");
+    free((void*)data);
+}
+
 unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB)
 {
     NSUInteger squareDistance = ((colorA.red - colorB.red)*(colorA.red - colorB.red))+
