@@ -549,6 +549,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
         }
     }
     
+    free(buffer);
+    
     return [UIColor colorWithRed:biggerR/255.0
                            green:biggerG/255.0
                             blue:biggerB/255.0
@@ -721,6 +723,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
             colorScheme.secondaryTextColor = [UIColor blackColor];
         }
     }
+    
+    free(buffer);
 }
 
 - (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
