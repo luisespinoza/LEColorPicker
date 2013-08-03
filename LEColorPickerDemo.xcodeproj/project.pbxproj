@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A0279B7A16C1F632001E82BD /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0279B7916C1F632001E82BD /* OpenGLES.framework */; };
 		A02AB13B17054B1A00D5CE09 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */; };
 		A03AE32F178BA4A8002A4F75 /* UIColor+YUVSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = A0A6B64E173360B3003492A8 /* UIColor+YUVSpace.m */; };
+		A062A1FB17ACB1F90064AA89 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A062A1FA17ACB1F90064AA89 /* OpenGLES.framework */; };
 		A0883520167814CC006D6F0F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A088351F167814CC006D6F0F /* UIKit.framework */; };
 		A0883522167814CC006D6F0F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0883521167814CC006D6F0F /* Foundation.framework */; };
 		A0883524167814CC006D6F0F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0883523167814CC006D6F0F /* CoreGraphics.framework */; };
@@ -33,8 +33,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A0279B7916C1F632001E82BD /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		A062A1FA17ACB1F90064AA89 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		A088351B167814CC006D6F0F /* LEColorPickerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LEColorPickerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A088351F167814CC006D6F0F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		A0883521167814CC006D6F0F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -71,8 +71,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A062A1FB17ACB1F90064AA89 /* OpenGLES.framework in Frameworks */,
 				A02AB13B17054B1A00D5CE09 /* QuartzCore.framework in Frameworks */,
-				A0279B7A16C1F632001E82BD /* OpenGLES.framework in Frameworks */,
 				A0883520167814CC006D6F0F /* UIKit.framework in Frameworks */,
 				A0883522167814CC006D6F0F /* Foundation.framework in Frameworks */,
 				A0883524167814CC006D6F0F /* CoreGraphics.framework in Frameworks */,
@@ -105,8 +105,8 @@
 		A088351E167814CC006D6F0F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A062A1FA17ACB1F90064AA89 /* OpenGLES.framework */,
 				A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */,
-				A0279B7916C1F632001E82BD /* OpenGLES.framework */,
 				A088351F167814CC006D6F0F /* UIKit.framework */,
 				A0883521167814CC006D6F0F /* Foundation.framework */,
 				A0883523167814CC006D6F0F /* CoreGraphics.framework */,
