@@ -207,6 +207,19 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     return colorScheme;
 }
 
+#pragma mark - Old interface implementation
++ (void)pickColorFromImage:(UIImage *)image onComplete:(void (^)(NSDictionary *))completeBlock
+{
+    LEColorPicker *colorPicker = [[LEColorPicker alloc] init];
+    [colorPicker pickColorsFromImage:image onComplete:^(LEColorScheme *colorScheme) {
+        NSDictionary *colorsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                                          colorScheme.backgroundColor,@"BackgroundColor",
+                                          colorScheme.primaryTextColor,@"PrimaryTextColor",
+                                          colorScheme.secondaryTextColor,@"SecondaryTextColor", nil];
+        completeBlock(colorsDictionary);
+    }];
+}
+
 #pragma mark - OpenGL ES 2 custom methods
 
 - (void)setupOpenGL
