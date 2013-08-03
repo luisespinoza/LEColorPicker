@@ -15,8 +15,6 @@ Suggestions will be well received.
 * Drag the 'LEColorPickerDemo/LEColorPicker' folder into your project, and you are done.
 
 ## Usage
-LEColorPicker class provides a class method that receives an UIImage as input and completition block that is executed when the image processing is done. The completion block recieves a NSDictionary with the three computed colors. The computation take some time, that is why we provide this split phase method.
-
 First, you have to create an instance of a `LEColorPicker` object. Then, `LEColorPicker` class provides an instance method that receives an UIImage as input and returns a `LEColorScheme` object. LEColorScheme will provide the three computed colors as properties.
 
     #import "LEColorPicker.h"
