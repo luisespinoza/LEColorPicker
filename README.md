@@ -6,8 +6,8 @@ A Cocoa-Touch system for getting a color scheme in function of an image, like iT
 ![LEColorPicker_Vortex](https://raw.github.com/luisespinoza/LEColorPicker/master/Screenshot_Vortex.png)
 ![LEColorPicker_Mona](https://raw.github.com/luisespinoza/LEColorPicker/master/Screenshot_Mona.png)
 
+**Release note:** Current release (1.0) run faster in devices than simulator.
 
-Suggestions will be well received.
 
 ## Installation
 
@@ -58,6 +58,8 @@ User Seth Thompson from StackOverflow for his [Mathematica code for pick the col
 [Ray Wenderlich tutorials](http://www.raywenderlich.com).
 
 ## Contact
+Suggestions will be well received.
+
 Mail [luis.espinoza.severino@gmail.com](mailto:luis.espinoza.severino@gmail.com)
 
 Twitter [@luis_espinoza](https://twitter.com/luis_espinoza)
