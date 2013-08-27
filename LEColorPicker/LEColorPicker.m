@@ -6,55 +6,152 @@
 //  Copyright (c) 2012 Luis Espinoza. All rights reserved.
 //
 
+#if ! __has_feature(objc_arc)
+#warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
+#endif
+
 #import "LEColorPicker.h"
-#import "UIImage+LEColorPicker.h"
+#import "UIColor+YUVSpace.h"
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 
+@implementation LEColorScheme
+@end
+
 @implementation LEColorPicker
 
-#pragma mark - C Code
+#pragma mark - Preprocessor definitions
+#define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                           32
+#define LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE                       0.5
+#define LECOLORPICKER_PRIMARY_TEXT_FILTER_TOLERANCE                     0.3
+#define LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE                          500
+#define LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE                     125
 
-#define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                   32
-#define LECOLORPICKER_GPU_DEFAULT_VERTEX_ARRAY_LENGTH           3*(LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE*LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE)
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+#define STRINGIZE(x) #x
+#define STRINGIZE2(x) STRINGIZE(x)
+#define SHADER_STRING(text) @ STRINGIZE2(text)
 
-// Uniform index.
-enum
-{
-    UNIFORM_VERTEX_POSITIONS,
-    NUM_UNIFORMS
-};
-GLint uniforms[NUM_UNIFORMS];
 
-// Add texture coordinates to Vertex structure as follows
+#pragma mark - C structures and constants
+// Vertex structure
 typedef struct {
     float Position[3];
     float Color[4];
-    float TexCoord[2]; // New
+    float TexCoord[2];
 } Vertex;
 
-#define TEX_COORD_MAX   1
+// LEColor structure
+typedef struct {
+    unsigned int red;
+    unsigned int green;
+    unsigned int blue;
+} LEColor;
 
 // Add texture coordinates to Vertices as follows
 const Vertex Vertices[] = {
     // Front
-    {{1, -1, 0}, {1, 0, 0, 1}, {TEX_COORD_MAX, 0}},
-    {{1, 1, 0}, {0, 1, 0, 1}, {TEX_COORD_MAX, TEX_COORD_MAX}},
-    {{-1, 1, 0}, {0, 0, 1, 1}, {0, TEX_COORD_MAX}},
+    {{1, -1, 0}, {1, 0, 0, 1}, {1, 0}},
+    {{1, 1, 0}, {0, 1, 0, 1}, {1, 1}},
+    {{-1, 1, 0}, {0, 0, 1, 1}, {0, 1}},
     {{-1, -1, 0}, {0, 0, 0, 1}, {0, 0}},
 };
 
+// Triangles coordinates
 const GLubyte Indices[] = {
     // Front
     0, 1, 2,
     2, 3, 0,
 };
 
+//Vertex Shader string definition
+NSString *const kDominantVertexShaderString = SHADER_STRING
+(
+ attribute vec4 Position;
+ attribute vec4 SourceColor;
+ 
+ varying vec4 DestinationColor;
+ 
+ attribute vec2 TexCoordIn;
+ varying vec2 TexCoordOut;
+ 
+ void main(void) {
+     DestinationColor = SourceColor;
+     gl_Position = Position;
+     TexCoordOut = TexCoordIn;
+ }
+ );
+
+//Fragment Shader string definition
+NSString *const kDominantFragmentShaderString = SHADER_STRING
+(
+ varying lowp vec4 DestinationColor;
+ varying lowp vec2 TexCoordOut;
+ uniform sampler2D Texture;
+ uniform int ProccesedWidth;
+ uniform int TotalWidth;
+ 
+ void main(void) {
+     lowp vec4 dummyColor = DestinationColor; //Dummy line for avoid WARNING from shader compiler
+     lowp float accumulator = 0.0;
+     lowp vec4 currentPixel = texture2D(Texture, TexCoordOut);
+     highp float currentY = 0.299*currentPixel.r + 0.587*currentPixel.g+ 0.114*currentPixel.b;
+     highp float currentU = (-0.14713)*currentPixel.r + (-0.28886)*currentPixel.g + (0.436)*currentPixel.b;
+     highp float currentV = 0.615*currentPixel.r + (-0.51499)*currentPixel.g + (-0.10001)*currentPixel.b;
+     highp vec3 currentYUV = vec3(currentY,currentU,currentV);
+     lowp float d;
+     if ((TexCoordOut.x > (float(ProccesedWidth)/float(TotalWidth))) || (TexCoordOut.y > (float(ProccesedWidth)/float(TotalWidth)))) {
+         gl_FragColor = vec4(0.0,0.0,0.0,1.0);
+     } else {
+         accumulator = 0.0;
+         for (int i=0; i<ProccesedWidth; i=i+1) {
+             for (int j=0; j<ProccesedWidth; j=j+1) {
+                 lowp vec2 coord = vec2(float(i)/float(TotalWidth),float(j)/float(TotalWidth));
+                 lowp vec4 samplePixel = texture2D(Texture, coord);
+                 
+                 highp float sampleY = 0.299*samplePixel.r + 0.587*samplePixel.g+ 0.114*samplePixel.b;
+                 highp float sampleU = (-0.14713)*samplePixel.r + (-0.28886)*samplePixel.g + (0.436)*samplePixel.b;
+                 highp float sampleV = 0.615*samplePixel.r + (-0.51499)*samplePixel.g + (-0.10001)*samplePixel.b;
+                 highp vec3 sampleYUV = vec3(sampleY,sampleU,sampleV);
+                 
+                 d = distance(sampleYUV,currentYUV);
+                 
+                 if (d < 0.1) {
+                     accumulator = accumulator + 0.0039;
+                 }
+             }
+         }
+         gl_FragColor = vec4(currentPixel.r,currentPixel.g,currentPixel.b,accumulator);
+     }
+ }
+ );
+
+#pragma mark - C internal functions declaration (to avoid possible warnings)
+/**
+ Function for free output buffer data.
+ **/
+void freeImageData(void *info, const void *data, size_t size);
+
+/**
+ Function for calculating the square euclidian distance between 2 RGB colors in RGB space.
+ @param colorA A RGB color.
+ @param colorB Another RGB color.
+ @return The square of euclidian distance in RGB space.
+ */
+unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB);
+
+#pragma mark - C internal functions implementation
 void freeImageData(void *info, const void *data, size_t size)
 {
     //printf("freeImageData called");
     free((void*)data);
+}
+
+unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB)
+{
+    NSUInteger squareDistance = ((colorA.red - colorB.red)*(colorA.red - colorB.red))+
+    ((colorA.green - colorB.green) * (colorA.green - colorB.green))+
+    ((colorA.blue - colorB.blue) * (colorA.blue - colorB.blue));
+    return squareDistance;
 }
 
 #pragma mark - Obj-C interface methods
@@ -63,9 +160,9 @@ void freeImageData(void *info, const void *data, size_t size)
 {
     self = [super init];
     if (self) {
-        //Do something?
-        taskQueue = dispatch_queue_create("ColorPickerQueue", DISPATCH_QUEUE_SERIAL);
-        self.frame = CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
+        // Create queue and set working flag initial state
+        taskQueue = dispatch_queue_create("LEColorPickerQueue", DISPATCH_QUEUE_SERIAL);
+        _isWorking = NO;
     }
     return self;
 }
@@ -74,86 +171,83 @@ void freeImageData(void *info, const void *data, size_t size)
 - (void)pickColorsFromImage:(UIImage *)image
                  onComplete:(void (^)(LEColorScheme *colorsPickedDictionary))completeBlock
 {
-    dispatch_async(taskQueue, ^{
-        NSDate *startDate = [NSDate date];
-        LEColorScheme *colorScheme = [self colorSchemeFromImage:image];
-        
-        NSDate *endDate = [NSDate date];
-        NSTimeInterval timeDifference = [endDate timeIntervalSinceDate:startDate];
-        double timePassed_ms = timeDifference * -1000.0;
-        
-        LELog(@"Computation time: %f", timePassed_ms);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.image = savedImage;
-            completeBlock(colorScheme);
+    if (!_isWorking) {
+        dispatch_async(taskQueue, ^{
+            // Color calculation process
+            _isWorking = YES;
+            LEColorScheme *colorScheme = [self colorSchemeFromImage:image];
+            
+            // Call complete block and pass colors result
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completeBlock(colorScheme);
+            });
+            _isWorking = NO;
         });
-    });
+    }
 }
 
 - (LEColorScheme*)colorSchemeFromImage:(UIImage*)inputImage
 {
-    //1. First, we scale the input image, to get a constant image size.
-    UIImage *scaledImage = [LEColorPicker scaleImage:inputImage
-                                               width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                              height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
-    //[UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/scaledImage.png" atomically:YES];
-    //UIImage *croppedImage = [scaledImage crop:CGRectMake(0, 0, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE/2, 2)];
-    [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
-    
-    //2. Then, we set the initial openGL ES 2.0 state.
+    // First, we scale the input image, to get a constant image size and square texture.
+    UIImage *scaledImage = [self scaleImage:inputImage
+                                      width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                     height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+
+    // Now, We set the initial OpenGL ES 2.0 state. LUCHIN: Aquí estamos trabajando
     [self setupOpenGL];
+    
+    // Then we set the scaled image as the texture to render.
     _aTexture = [self setupTextureFromImage:scaledImage];
     
-    //3. Now that all is ready, proceed we the first render, to find the dominant color
-    [self render];
+    // Now that all is ready, proceed we the render, to find the dominant color
+    [self renderDominant];
     
-    //Save output png file
-    //[UIImagePNGRepresentation([self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-    //                                        height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE])
-    // writeToFile:@"/Users/Luis/Output.png"
-    // atomically:YES];
-    
+    // Now that we have the rendered result, we start the color calculations.
     LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
-    UIColor *backgroundColor=nil;
-    //Create Vertex array or Vertex Data
-    //dispatch_async(dispatch_get_main_queue(), ^{
-        savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                       height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                      biggestAlphaColorReturn:&backgroundColor];
-    colorScheme.backgroundColor = backgroundColor;
-    //});
+    colorScheme.backgroundColor = [self colorWithBiggerCountFromImageWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+
+    // Now, find text colors
+    [self findTextColorsTaskForColorScheme:colorScheme];
     return colorScheme;
+}
+
+#pragma mark - Old interface implementation
++ (void)pickColorFromImage:(UIImage *)image onComplete:(void (^)(NSDictionary *))completeBlock
+{
+    LEColorPicker *colorPicker = [[LEColorPicker alloc] init];
+    [colorPicker pickColorsFromImage:image onComplete:^(LEColorScheme *colorScheme) {
+        NSDictionary *colorsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                                          colorScheme.backgroundColor,@"BackgroundColor",
+                                          colorScheme.primaryTextColor,@"PrimaryTextColor",
+                                          colorScheme.secondaryTextColor,@"SecondaryTextColor", nil];
+        completeBlock(colorsDictionary);
+    }];
 }
 
 #pragma mark - OpenGL ES 2 custom methods
 
 - (void)setupOpenGL
 {
-    [self setupLayer];
+    // Start openGLES
     
     [self setupContext];
+    
+    [self setupFrameBuffer];
     
     [self setupRenderBuffer];
     
     [self setupDepthBuffer];
     
-    [self setupFrameBuffer];
-    
     [self setupOpenGLForDominantColor];
     
     [self setupVBOs];
-    
-    //[self setupDisplayLink];
 }
 
-- (void)render
+- (void)renderDominant
 {
     //start up
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ZERO);
-    //glClearColor(0.0, 0.0, 0.0, 1.0);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     
     //Setup inputs
@@ -171,17 +265,11 @@ void freeImageData(void *info, const void *data, size_t size)
     glBindTexture(GL_TEXTURE_2D, _aTexture);
     glUniform1i(_textureUniform, 0);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
-    
-    [_context presentRenderbuffer:GL_RENDERBUFFER];
 }
-
-- (void)setupLayer {
-    _eaglLayer = (CAEAGLLayer*) self.layer;
-    _eaglLayer.opaque = YES;}
 
 - (GLuint)setupTextureFromImage:(UIImage*)image
 {
-    //2 Get core graphics image reference
+    // Get core graphics image reference
     CGImageRef inputTextureImage = image.CGImage;
     
     if (!inputTextureImage) {
@@ -209,42 +297,43 @@ void freeImageData(void *info, const void *data, size_t size)
     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA , width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
     free(inputTextureData);
     return inputTexName;
-    
 }
 
 - (void)setupContext {
     EAGLRenderingAPI api = kEAGLRenderingAPIOpenGLES2;
     _context = [[EAGLContext alloc] initWithAPI:api];
     if (!_context) {
-        NSLog(@"Failed to initialize OpenGLES 2.0 context");
+        //NSLog(@"Failed to initialize OpenGLES 2.0 context");
         exit(1);
     }
     
     if (![EAGLContext setCurrentContext:_context]) {
-        NSLog(@"Failed to set current OpenGL context");
+        //NSLog(@"Failed to set current OpenGL context");
         exit(1);
     }
-}
-
-- (void)setupRenderBuffer {
-    glGenRenderbuffers(1, &_colorRenderBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderBuffer);
-    [_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:_eaglLayer];
-}
-
-- (void)setupDepthBuffer {
-    glGenRenderbuffers(1, &_depthRenderBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, _depthRenderBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE , LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
 }
 
 - (void)setupFrameBuffer {
     GLuint framebuffer;
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+}
+
+
+- (void)setupRenderBuffer {
+    glGenRenderbuffers(1, &_colorRenderBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8_OES, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _colorRenderBuffer);
+}
+
+- (void)setupDepthBuffer {
+    glGenRenderbuffers(1, &_depthRenderBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, _depthRenderBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE , LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderBuffer);
 }
+
 
 - (void)setupVBOs {
     
@@ -257,28 +346,19 @@ void freeImageData(void *info, const void *data, size_t size)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 }
 
-- (void)setupDisplayLink {
-    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(render)];
-    [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-}
-
-
 - (BOOL)setupOpenGLForDominantColor
 {
     GLuint vertShader, fragShader;
-    NSString *vertShaderPathname, *fragShaderPathname;
     
     // Create and compile vertex shader.
-    vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"DominantColorShader" ofType:@"vsh"];
-    if (![self compileShader:&vertShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
-        NSLog(@"Failed to compile vertex shader");
+    if (![self compileShader:&vertShader type:GL_VERTEX_SHADER string:kDominantVertexShaderString]) {
+        LELog(@"Failed to compile vertex shader");
         return NO;
     }
     
     // Create and compile fragment shader.
-    fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"DominantColorShader" ofType:@"fsh"];
-    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname]) {
-        NSLog(@"Failed to compile fragment shader");
+    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER string:kDominantFragmentShaderString]) {
+        LELog(@"Failed to compile fragment shader");
         return NO;
     }
     
@@ -291,13 +371,9 @@ void freeImageData(void *info, const void *data, size_t size)
     // Attach fragment shader to program.
     glAttachShader(_program, fragShader);
     
-    // Bind attribute locations.
-    // This needs to be done prior to linking.
-    //glBindAttribLocation(_program, GLKVertexAttribPosition, "position");
-    
     // Link program.
     if (![self linkProgram:_program]) {
-        NSLog(@"Failed to link program: %d", _program);
+        LELog(@"Failed to link program: %d", _program);
         
         if (vertShader) {
             glDeleteShader(vertShader);
@@ -330,84 +406,18 @@ void freeImageData(void *info, const void *data, size_t size)
     return YES;
 }
 
-- (BOOL)setupOpenGlForColorFiltering
-{
-    GLuint vertShader, fragShader;
-    NSString *vertShaderPathname, *fragShaderPathname;
-    
-    // Create shader program.
-    _program = glCreateProgram();
-    
-    // Create and compile vertex shader.
-    vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"ColorFilterShader" ofType:@"vsh"];
-    if (![self compileShader:&vertShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
-        NSLog(@"Failed to compile vertex shader");
-        return NO;
-    }
-    
-    // Create and compile fragment shader.
-    fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"ColorFilterShader" ofType:@"fsh"];
-    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname]) {
-        NSLog(@"Failed to compile fragment shader");
-        return NO;
-    }
-    
-    // Attach vertex shader to program.
-    glAttachShader(_program, vertShader);
-    
-    // Attach fragment shader to program.
-    glAttachShader(_program, fragShader);
-    
-    // Bind attribute locations.
-    // This needs to be done prior to linking.
-    glBindAttribLocation(_program, GLKVertexAttribPosition, "Position");
-    
-    // Link program.
-    if (![self linkProgram:_program]) {
-        NSLog(@"Failed to link program: %d", _program);
-        
-        if (vertShader) {
-            glDeleteShader(vertShader);
-            vertShader = 0;
-        }
-        if (fragShader) {
-            glDeleteShader(fragShader);
-            fragShader = 0;
-        }
-        if (_program) {
-            glDeleteProgram(_program);
-            _program = 0;
-        }
-        
-        return NO;
-    }
-    
-    // Get uniform locations.
-    uniforms[UNIFORM_VERTEX_POSITIONS] = glGetUniformLocation(_program, "otherPositions");
-    
-    // Release vertex and fragment shaders.
-    if (vertShader) {
-        glDetachShader(_program, vertShader);
-        glDeleteShader(vertShader);
-    }
-    if (fragShader) {
-        glDetachShader(_program, fragShader);
-        glDeleteShader(fragShader);
-    }
-    
-    return YES;
-}
+
 
 #pragma mark -  OpenGL ES 2 shader compilation
 
-- (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file
+- (BOOL)compileShader:(GLuint *)shader type:(GLenum)type string:(NSString *)string
 {
     GLint status;
     const GLchar *source;
     
-    source = (GLchar *)[[NSString stringWithContentsOfFile:file encoding:NSUTF8StringEncoding error:nil] UTF8String];
+    source = (GLchar *)[string UTF8String];
     if (!source) {
-        NSLog(@"Failed to load vertex shader");
+        LELog(@"Failed to load vertex shader");
         return NO;
     }
     
@@ -415,7 +425,7 @@ void freeImageData(void *info, const void *data, size_t size)
     glShaderSource(*shader, 1, &source, NULL);
     glCompileShader(*shader);
     
-#if defined(DEBUG)
+#ifdef LE_DEBUG
     GLint logLength;
     glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &logLength);
     if (logLength > 0) {
@@ -440,7 +450,7 @@ void freeImageData(void *info, const void *data, size_t size)
     GLint status;
     glLinkProgram(prog);
     
-#if defined(DEBUG)
+#ifdef LE_DEBUG
     GLint logLength;
     glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
     if (logLength > 0) {
@@ -468,7 +478,7 @@ void freeImageData(void *info, const void *data, size_t size)
     if (logLength > 0) {
         GLchar *log = (GLchar *)malloc(logLength);
         glGetProgramInfoLog(prog, logLength, &logLength, log);
-        NSLog(@"Program validate log:\n%s", log);
+        LELog(@"Program validate log:\n%s", log);
         free(log);
     }
     
@@ -480,18 +490,11 @@ void freeImageData(void *info, const void *data, size_t size)
     return YES;
 }
 
-- (void)prepareLightShader
-{
-    
-}
 
 #pragma mark - Convert GL image to UIImage
 -(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height biggestAlphaColorReturn:(UIColor**)returnColor
 {
-    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
-    //GLubyte *buffer2 = (GLubyte *) malloc(width * height * 4);
-    
-    //GLvoid *pixel_data = nil;
+    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);    
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
     /* Find bigger Alpha color*/
@@ -502,16 +505,12 @@ void freeImageData(void *info, const void *data, size_t size)
     
     for (NSUInteger y=0; y<(height/2); y++) {
         for (NSUInteger x=0; x<(width/2)*4; x++) {
-            //buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
-           //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
             if ((!((x+1)%4)) && (x>0)) {
                 if (buffer[y * 4 * width + x] > biggerAlpha ) {
-                    
                     biggerAlpha = buffer[y * 4 * width + x];
                     biggerR = buffer[y * 4 * width + (x-3)];
                     biggerG = buffer[y * 4 * width + (x-2)];
                     biggerB = buffer[y * 4 * width + (x-1)];
-            //        NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
                 }
             }
         }
@@ -532,24 +531,279 @@ void freeImageData(void *info, const void *data, size_t size)
     CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
     CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
     // Use this to retain alpha
-    //CGBitmapInfo bitmapInfo = kCGImageAlphaPremultipliedLast;
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     CGImageRef imageRef = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
     
     // make UIImage from CGImage
     UIImage *newUIImage = [UIImage imageWithCGImage:imageRef];
+    CGImageRelease(imageRef);
+    CGColorSpaceRelease(colorSpaceRef);
     
     return newUIImage;
 }
 
-+ (Class)layerClass {
-    return [CAEAGLLayer class];
+-(UIColor *)colorWithBiggerCountFromImageWidth:(NSUInteger)width height:(NSUInteger)height
+{
+    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
+    
+    /* Find bigger Alpha color*/
+    NSUInteger biggerR = 0;
+    NSUInteger biggerG = 0;
+    NSUInteger biggerB = 0;
+    NSUInteger biggerAlpha = 0;
+    
+    for (NSUInteger y=0; y<(height/2); y++) {
+        for (NSUInteger x=0; x<(width/2)*4; x++) {
+            if ((!((x+1)%4)) && (x>0)) {
+                if (buffer[y * 4 * width + x] > biggerAlpha ) {
+                    biggerAlpha = buffer[y * 4 * width + x];
+                    biggerR = buffer[y * 4 * width + (x-3)];
+                    biggerG = buffer[y * 4 * width + (x-2)];
+                    biggerB = buffer[y * 4 * width + (x-1)];
+                }
+            }
+        }
+    }
+    
+    free(buffer);
+    
+    return [UIColor colorWithRed:biggerR/255.0
+                           green:biggerG/255.0
+                            blue:biggerB/255.0
+                           alpha:1.0];
 }
 
-+ (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
+-(UIColor *)colorFromImageWithWidth:(NSUInteger)width
+                             height:(NSUInteger)height
+                     filteringColor:(UIColor*)colorToFilter
+                          tolerance:(GLfloat)tolerance
 {
-    UIImage *scaledImage =  [UIImage imageWithImage:image scaledToSize:CGSizeMake(width,height)];
+    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
+    
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
+    
+    /* Find bigger Alpha color*/
+    NSUInteger biggerR = 0;
+    NSUInteger biggerG = 0;
+    NSUInteger biggerB = 0;
+    NSUInteger biggerAlpha = 0;
+    CGFloat filteringRedFloat = 0;
+    CGFloat filteringGreenFloat = 0;
+    CGFloat filteringBlueFloat = 0;
+    
+    [colorToFilter getRed:&filteringRedFloat
+                    green:&filteringGreenFloat
+                     blue:&filteringBlueFloat
+                    alpha:nil];
+    
+    NSUInteger filteringRed = (NSUInteger)(filteringRedFloat*255);
+    NSUInteger filteringGreen = (NSUInteger)(filteringGreenFloat*255);
+    NSUInteger filteringBlue = (NSUInteger)(filteringBlueFloat*255);
+    
+    for (NSUInteger y=0; y<(height/2); y++) {
+        for (NSUInteger x=0; x<(width/2)*4; x++) {
+            if ((!((x+1)%4)) && (x>0)) {
+                NSUInteger currentRed = buffer[y * 4 * width + (x-3)];
+                NSUInteger currentGreen = buffer[y * 4 * width + (x-2)];
+                NSUInteger currentBlue = buffer[y * 4 * width + (x-1)];
+                
+                NSUInteger squareDistance = (currentRed-filteringRed)*(currentRed-filteringRed)+
+                (currentGreen-filteringGreen)*(currentGreen-filteringGreen)+
+                (currentBlue-filteringBlue)*(currentBlue-filteringBlue);
+                
+                NSUInteger thresholdSquareDistance = (255*tolerance)*(255*tolerance);
+                
+                if (squareDistance > thresholdSquareDistance) {
+                    if (buffer[y * 4 * width + x] > biggerAlpha ) {
+                        
+                        biggerAlpha = buffer[y * 4 * width + x];
+                        biggerR = buffer[y * 4 * width + (x-3)];
+                        biggerG = buffer[y * 4 * width + (x-2)];
+                        biggerB = buffer[y * 4 * width + (x-1)];
+                    }
+                }
+            }
+        }
+    }
+    
+    free(buffer);
+    
+    return [UIColor colorWithRed:biggerR/255.0
+                           green:biggerG/255.0
+                            blue:biggerB/255.0
+                           alpha:1.0];
+}
+
+-(void)findTextColorsTaskForColorScheme:(LEColorScheme*)colorScheme
+{
+    //Set sizes for buffer index calculations
+    NSUInteger width = LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE;
+    NSUInteger height = LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE;
+    
+    //Read Render buffer
+    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
+    
+    //Set initials values for local variables
+    NSUInteger primaryColorR = 0;
+    NSUInteger primaryColorG = 0;
+    NSUInteger primaryColorB = 0;
+    NSUInteger primaryColorAlpha = 0;
+    
+    CGFloat backgroundRedFloat = 0;
+    CGFloat backgroundGreenFloat = 0;
+    CGFloat backgroundBlueFloat = 0;
+    
+    [colorScheme.backgroundColor getRed:&backgroundRedFloat
+                                  green:&backgroundGreenFloat
+                                   blue:&backgroundBlueFloat
+                                  alpha:nil];
+    
+    LEColor backgroundColor = {(unsigned int)(backgroundRedFloat*255),
+        (unsigned int)(backgroundGreenFloat*255),
+        (unsigned int)(backgroundBlueFloat*255)};
+    
+    for (NSUInteger y=0; y<(height/2); y++) {
+        for (NSUInteger x=0; x<(width/2)*4; x++) {
+            if ((!((x+1)%4)) && (x>0)) {
+                NSUInteger currentRed = buffer[y * 4 * width + (x-3)];
+                NSUInteger currentGreen = buffer[y * 4 * width + (x-2)];
+                NSUInteger currentBlue = buffer[y * 4 * width + (x-1)];
+                
+                LEColor currentColor = {currentRed,currentGreen,currentBlue};
+                NSUInteger squareDistance = squareDistanceInRGBSpaceBetweenColor(currentColor, backgroundColor);
+                NSUInteger thresholdSquareDistance = (255*LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE)*(255*LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE);
+                
+                if (squareDistance > thresholdSquareDistance) {
+                    if (buffer[y * 4 * width + x] > primaryColorAlpha ) {
+                        
+                        primaryColorAlpha = buffer[y * 4 * width + x];
+                        primaryColorR = buffer[y * 4 * width + (x-3)];
+                        primaryColorG = buffer[y * 4 * width + (x-2)];
+                        primaryColorB = buffer[y * 4 * width + (x-1)];
+                    }
+                }
+            }
+        }
+    }
+    
+    UIColor *tmpColor = [UIColor colorWithRed:primaryColorR/255.0
+                                        green:primaryColorG/255.0
+                                         blue:primaryColorB/255.0
+                                        alpha:1.0];
+    
+    colorScheme.primaryTextColor = tmpColor;
+    
+    NSUInteger secondaryColorR = 0;
+    NSUInteger secondaryColorG = 0;
+    NSUInteger secondaryColorB = 0;
+    NSUInteger secondaryColorAlpha = 0;
+    
+    LEColor primaryTextColor = {primaryColorR,primaryColorG,primaryColorB};
+    for (NSUInteger y=0; y<(height/2); y++) {
+        for (NSUInteger x=0; x<(width/2)*4; x++) {
+            if ((!((x+1)%4)) && (x>0)) {
+                NSUInteger currentRed = buffer[y * 4 * width + (x-3)];
+                NSUInteger currentGreen = buffer[y * 4 * width + (x-2)];
+                NSUInteger currentBlue = buffer[y * 4 * width + (x-1)];
+                
+                LEColor currentColor = {currentRed,currentGreen,currentBlue};
+                NSUInteger squareDistanceToBackground = squareDistanceInRGBSpaceBetweenColor(currentColor, backgroundColor);
+                NSUInteger squareDistanceToPrimary = squareDistanceInRGBSpaceBetweenColor(currentColor, primaryTextColor);
+                NSUInteger thresholdSquareDistanceToBackground = (255*LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE)*(255*LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE);
+                NSUInteger thresholdSquareDistanceToPrimary = (255*LECOLORPICKER_PRIMARY_TEXT_FILTER_TOLERANCE)*(255*LECOLORPICKER_PRIMARY_TEXT_FILTER_TOLERANCE);
+                if ((squareDistanceToBackground > thresholdSquareDistanceToBackground) && (squareDistanceToPrimary > thresholdSquareDistanceToPrimary)) {
+                    if (buffer[y * 4 * width + x] > secondaryColorAlpha ) {
+                        secondaryColorAlpha = buffer[y * 4 * width + x];
+                        secondaryColorR = buffer[y * 4 * width + (x-3)];
+                        secondaryColorG = buffer[y * 4 * width + (x-2)];
+                        secondaryColorB = buffer[y * 4 * width + (x-1)];
+                    }
+                }
+            }
+        }
+    }
+    
+    tmpColor = [UIColor colorWithRed:secondaryColorR/255.0
+                               green:secondaryColorG/255.0
+                                blue:secondaryColorB/255.0
+                               alpha:1.0];
+    
+    if ([self isSufficienteContrastBetweenBackground:colorScheme.backgroundColor
+                                        andForground:tmpColor]) {
+        colorScheme.secondaryTextColor = tmpColor;
+    } else {
+        if ([UIColor yComponentFromColor:colorScheme.backgroundColor] < 0.5) {
+            colorScheme.secondaryTextColor = [UIColor whiteColor];
+        } else {
+            colorScheme.secondaryTextColor = [UIColor blackColor];
+        }
+    }
+    
+    free(buffer);
+}
+
+- (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
+{
+    UIImage *scaledImage =  [self imageWithImage:image scaledToSize:CGSizeMake(width,height)];
     return scaledImage;
+}
+
+- (BOOL)isSufficienteContrastBetweenBackground:(UIColor*)backgroundColor andForground:(UIColor*)foregroundColor
+{
+    float backgroundColorBrightness = [UIColor yComponentFromColor:backgroundColor];
+    float foregroundColorBrightness = [UIColor yComponentFromColor:foregroundColor];
+    float brightnessDifference = fabsf(backgroundColorBrightness-foregroundColorBrightness)*255;
+    
+    LELog(@"BrightnessDifference %f ",brightnessDifference);
+    
+    if (brightnessDifference>=LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE) {
+        float backgroundRed = 0.0;
+        float backgroundGreen = 0.0;
+        float backgroundBlue = 0.0;
+        float foregroundRed = 0.0;
+        float foregroundGreen = 0.0;
+        float foregroundBlue = 0.0;
+        
+        int numComponents = CGColorGetNumberOfComponents(backgroundColor.CGColor);
+        
+        if (numComponents == 4) {
+            const CGFloat *components = CGColorGetComponents(backgroundColor.CGColor);
+            backgroundRed = components[0];
+            backgroundGreen = components[1];
+            backgroundBlue = components[2];
+        }
+        
+        numComponents = CGColorGetNumberOfComponents(foregroundColor.CGColor);
+        
+        if (numComponents == 4) {
+            const CGFloat *components = CGColorGetComponents(foregroundColor.CGColor);
+            foregroundRed = components[0];
+            foregroundGreen = components[1];
+            foregroundBlue = components[2];
+        }
+        
+        //Compute "Color Diference"
+        float colorDifference = (MAX(backgroundRed,foregroundRed)-MIN(backgroundRed, foregroundRed)) +
+        (MAX(backgroundGreen,foregroundGreen)-MIN(backgroundGreen, foregroundGreen)) +
+        (MAX(backgroundBlue,foregroundBlue)-MIN(backgroundBlue, foregroundBlue));
+        LELog(@"ColorDifference = %f",colorDifference*255);
+        if ((colorDifference*255)>LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE) {
+            return YES;
+        }
+    }
+    
+    return NO;
+}
+
+#pragma mark - UIImage utilities
+- (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize {
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 1.0);
+    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
 }
 
 @end

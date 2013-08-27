@@ -10,15 +10,22 @@
 #import <GLKit/GLKit.h>
 #import <QuartzCore/QuartzCore.h>
 
-#import "LEColorScheme.h"
+#ifndef LECOLORPICKER
+#define LECOLORPICKER
 
-#ifdef DEBUG
+#ifdef LE_DEBUG
 #	 define LELog(s,...) NSLog((@"[%s] " s),__func__,## __VA_ARGS__);
 #else
 #	 define LELog(...) /* */
 #endif
 
-@interface LEColorPicker : UIImageView
+@interface LEColorScheme : NSObject
+@property(nonatomic,strong)UIColor *backgroundColor;
+@property(nonatomic,strong)UIColor *primaryTextColor;
+@property(nonatomic,strong)UIColor *secondaryTextColor;
+@end
+
+@interface LEColorPicker : NSObject
 {
     //GLuint _vertexArray;
     GLuint _vertexBuffer;
@@ -33,15 +40,33 @@
     GLuint _texCoordSlot;
     GLuint _textureUniform;
     GLuint _aTexture;
+    GLuint _tolerance;
+    GLuint _colorToFilter;
     UIImage *_currentImage;
     CAEAGLLayer* _eaglLayer;
     EAGLContext *_context;
     dispatch_queue_t taskQueue;
-    UIImage *savedImage;
+    BOOL _isWorking;
 }
+/**
+ This instance method allows the client object to generate three colors from a specific UIImage. This method generate synchronously colors for background, primary and secondary colors, encapsulated in a LEColorScheme object.
+ 
+ @param image Input image, wich will be used to generate the three colors.
+ @returns LEColorScheme with three output colors.
+ */
+- (LEColorScheme*)colorSchemeFromImage:(UIImage*)image;
 
 /**
- This class methods is allow the client to generate three colors from a specific UIImage. The complete
+ This instance method allows the client object to generate three colors from a specific UIImage. The complete
+ block recieves as parameter a LEColorScheme wich is the object that encapsulates the output colors.
+ 
+ @param image Input image, wich will be used to generate the three colors.
+ @param completeBlock Execution block for when the task is complete.
+ */
+- (void)pickColorsFromImage:(UIImage*)image onComplete:(void (^)(LEColorScheme *colorScheme))completeBlock;
+
+/**
+ This class methods allows the client to generate three colors from a specific UIImage. The "complete"
  block recieves as parameter colorsDictionary, wich is the dictionary with the resultant colors.
  
  BackgroundColor : is the key for the background color.
@@ -51,17 +76,10 @@
  @param image Input image, wich will be used to generate the three colors.
  @param completeBlock Execution block for when the task is complete.
  */
-- (void)pickColorsFromImage:(UIImage*)image onComplete:(void (^)(LEColorScheme *colorScheme))completeBlock;
++ (void)pickColorFromImage:(UIImage*)image
+                onComplete:(void (^)(NSDictionary *colorsPickedDictionary))completeBlock;
 
-/**
- This class methods allows image scalation.
- 
- @param image Source image.
- @param width New width.
- @param height New height.
- @returns A new image like "image" but with width "width" and height "height".
- */
-+ (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height;
-
-- (void)render;
 @end
+
+#endif  /* LECOLORPICKER */
+
