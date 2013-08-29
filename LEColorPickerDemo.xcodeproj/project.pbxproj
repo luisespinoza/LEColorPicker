@@ -32,10 +32,6 @@
 		A0A389611716609500C0F53D /* (null) in Resources */ = {isa = PBXBuildFile; };
 		A0A38963171660A000C0F53D /* (null) in Resources */ = {isa = PBXBuildFile; };
 		A0A38965171660A600C0F53D /* (null) in Resources */ = {isa = PBXBuildFile; };
-		A0AC3C0617CC4DD6001F565C /* acdc.png in Resources */ = {isa = PBXBuildFile; fileRef = A0AC3C0517CC4DD6001F565C /* acdc.png */; };
-		A0AC3C0C17CC4DF8001F565C /* cruzblanca.png in Resources */ = {isa = PBXBuildFile; fileRef = A0AC3C0817CC4DF8001F565C /* cruzblanca.png */; };
-		A0AC3C0D17CC4DF8001F565C /* deadmau5.png in Resources */ = {isa = PBXBuildFile; fileRef = A0AC3C0917CC4DF8001F565C /* deadmau5.png */; };
-		A0AC3C0E17CC4DF8001F565C /* emotive.png in Resources */ = {isa = PBXBuildFile; fileRef = A0AC3C0A17CC4DF8001F565C /* emotive.png */; };
 		A0F8F05716797898007DBA2B /* AirplaneVortex.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F05616797898007DBA2B /* AirplaneVortex.png */; };
 		A0F8F059167978C5007DBA2B /* VitruvianMan.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F058167978C5007DBA2B /* VitruvianMan.png */; };
 /* End PBXBuildFile section */
@@ -70,10 +66,6 @@
 		A088355F167815CC006D6F0F /* ATPagingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ATPagingView.m; sourceTree = "<group>"; };
 		A0A6B64D173360B3003492A8 /* UIColor+YUVSpace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+YUVSpace.h"; sourceTree = "<group>"; };
 		A0A6B64E173360B3003492A8 /* UIColor+YUVSpace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+YUVSpace.m"; sourceTree = "<group>"; };
-		A0AC3C0517CC4DD6001F565C /* acdc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = acdc.png; sourceTree = "<group>"; };
-		A0AC3C0817CC4DF8001F565C /* cruzblanca.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cruzblanca.png; sourceTree = "<group>"; };
-		A0AC3C0917CC4DF8001F565C /* deadmau5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = deadmau5.png; sourceTree = "<group>"; };
-		A0AC3C0A17CC4DF8001F565C /* emotive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = emotive.png; sourceTree = "<group>"; };
 		A0F8F05616797898007DBA2B /* AirplaneVortex.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AirplaneVortex.png; sourceTree = "<group>"; };
 		A0F8F058167978C5007DBA2B /* VitruvianMan.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = VitruvianMan.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -168,10 +160,6 @@
 		A088354F16781592006D6F0F /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				A0AC3C0817CC4DF8001F565C /* cruzblanca.png */,
-				A0AC3C0917CC4DF8001F565C /* deadmau5.png */,
-				A0AC3C0A17CC4DF8001F565C /* emotive.png */,
-				A0AC3C0517CC4DD6001F565C /* acdc.png */,
 				A0F8F058167978C5007DBA2B /* VitruvianMan.png */,
 				A0F8F05616797898007DBA2B /* AirplaneVortex.png */,
 				A088355116781592006D6F0F /* ChileEarthquake2010.png */,
@@ -266,10 +254,6 @@
 				A0A389611716609500C0F53D /* (null) in Resources */,
 				A0A38963171660A000C0F53D /* (null) in Resources */,
 				A0A38965171660A600C0F53D /* (null) in Resources */,
-				A0AC3C0617CC4DD6001F565C /* acdc.png in Resources */,
-				A0AC3C0C17CC4DF8001F565C /* cruzblanca.png in Resources */,
-				A0AC3C0D17CC4DF8001F565C /* deadmau5.png in Resources */,
-				A0AC3C0E17CC4DF8001F565C /* emotive.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
