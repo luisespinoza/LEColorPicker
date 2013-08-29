@@ -193,7 +193,11 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                                       width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                      height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
 
-    // Now, We set the initial OpenGL ES 2.0 state. LUCHIN: Aquí estamos trabajando
+#ifdef LE_DEBUG
+    [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
+#endif
+    
+    // Now, We set the initial OpenGL ES 2.0 state. 
     [self setupOpenGL];
     
     // Then we set the scaled image as the texture to render.
@@ -208,6 +212,16 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 
     // Now, find text colors
     [self findTextColorsTaskForColorScheme:colorScheme];
+    
+#ifdef LE_DEBUG    
+    UIImage *savedImage;
+    savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                   height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+
+    [UIImagePNGRepresentation(savedImage) writeToFile:@"/Users/Luis/Output.png" atomically:YES];
+#endif
+    
+    
     return colorScheme;
 }
 
@@ -492,12 +506,11 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 
 
 #pragma mark - Convert GL image to UIImage
--(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height biggestAlphaColorReturn:(UIColor**)returnColor
+-(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height
 {
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);    
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
-    /* Find bigger Alpha color*/
     NSUInteger biggerR = 0;
     NSUInteger biggerG = 0;
     NSUInteger biggerB = 0;
@@ -505,21 +518,20 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     for (NSUInteger y=0; y<(height/2); y++) {
         for (NSUInteger x=0; x<(width/2)*4; x++) {
+            //buffer2[y * 4 * width + x] = buffer[(height - y - 1) * width * 4 + x];
+            //NSLog(@"x=%d y=%d pixel=%d",x/4,y,buffer[y * 4 * width + x]);
             if ((!((x+1)%4)) && (x>0)) {
                 if (buffer[y * 4 * width + x] > biggerAlpha ) {
+                    
                     biggerAlpha = buffer[y * 4 * width + x];
                     biggerR = buffer[y * 4 * width + (x-3)];
                     biggerG = buffer[y * 4 * width + (x-2)];
                     biggerB = buffer[y * 4 * width + (x-1)];
+                    //        NSLog(@"biggerR=%d biggerG=%d biggerB=%d biggerAlpha=%d",biggerR,biggerG,biggerB,biggerAlpha);
                 }
             }
         }
     }
-    
-    *returnColor = [UIColor colorWithRed:biggerR/255.0
-                                   green:biggerG/255.0
-                                    blue:biggerB/255.0
-                                   alpha:1.0];
     
     // make data provider from buffer
     CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, buffer, width * height * 4, freeImageData);
@@ -529,7 +541,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     int bitsPerPixel = 32;
     int bytesPerRow = 4 * width;
     CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
-    CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
+    CGBitmapInfo bitmapInfo = kCGImageAlphaPremultipliedLast | kCGBitmapByteOrderDefault;
     // Use this to retain alpha
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     CGImageRef imageRef = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
