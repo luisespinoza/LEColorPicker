@@ -163,6 +163,9 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
         // Create queue and set working flag initial state
         taskQueue = dispatch_queue_create("LEColorPickerQueue", DISPATCH_QUEUE_SERIAL);
         _isWorking = NO;
+        
+        // Add notifications for multitasking and background aware
+        [self addNotificationObservers];
     }
     return self;
 }
@@ -171,7 +174,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 - (void)pickColorsFromImage:(UIImage *)image
                  onComplete:(void (^)(LEColorScheme *colorsPickedDictionary))completeBlock
 {
-    if (!_isWorking) {
+    if (!_isWorking && [self isAppActive]) {
         dispatch_async(taskQueue, ^{
             // Color calculation process
             _isWorking = YES;
@@ -188,27 +191,31 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 
 - (LEColorScheme*)colorSchemeFromImage:(UIImage*)inputImage
 {
-    // First, we scale the input image, to get a constant image size and square texture.
-    UIImage *scaledImage = [self scaleImage:inputImage
-                                      width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                     height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
-
-    // Now, We set the initial OpenGL ES 2.0 state. LUCHIN: Aquí estamos trabajando
-    [self setupOpenGL];
+    if ([self isAppActive]) {
+        // First, we scale the input image, to get a constant image size and square texture.
+        UIImage *scaledImage = [self scaleImage:inputImage
+                                          width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                         height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+        
+        // Now, We set the initial OpenGL ES 2.0 state. LUCHIN: Aquí estamos trabajando
+        [self setupOpenGL];
+        
+        // Then we set the scaled image as the texture to render.
+        _aTexture = [self setupTextureFromImage:scaledImage];
+        
+        // Now that all is ready, proceed we the render, to find the dominant color
+        [self renderDominant];
+        
+        // Now that we have the rendered result, we start the color calculations.
+        LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
+        colorScheme.backgroundColor = [self colorWithBiggerCountFromImageWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+        
+        // Now, find text colors
+        [self findTextColorsTaskForColorScheme:colorScheme];
+        return colorScheme;
+    }
     
-    // Then we set the scaled image as the texture to render.
-    _aTexture = [self setupTextureFromImage:scaledImage];
-    
-    // Now that all is ready, proceed we the render, to find the dominant color
-    [self renderDominant];
-    
-    // Now that we have the rendered result, we start the color calculations.
-    LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
-    colorScheme.backgroundColor = [self colorWithBiggerCountFromImageWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
-
-    // Now, find text colors
-    [self findTextColorsTaskForColorScheme:colorScheme];
-    return colorScheme;
+    return nil;
 }
 
 #pragma mark - Old interface implementation
@@ -494,7 +501,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 #pragma mark - Convert GL image to UIImage
 -(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height biggestAlphaColorReturn:(UIColor**)returnColor
 {
-    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);    
+    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
     /* Find bigger Alpha color*/
@@ -806,4 +813,51 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     return newImage;
 }
 
+#pragma mark - Multitasking and Background aware
+- (void)addNotificationObservers
+{
+    // Add notifications to respond at app state changes.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(appWillResignActive)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(appDidEnterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+}
+
+- (void)appWillResignActive
+{
+    dispatch_suspend(taskQueue);
+    glFinish();
+}
+
+- (void)appDidEnterBackground
+{
+    dispatch_suspend(taskQueue);
+    glFinish();
+    
+}
+
+- (void)appDidEnterForeground
+{
+    dispatch_resume(taskQueue);
+}
+
+- (BOOL)isAppActive
+{
+    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+    if (state == UIApplicationStateBackground || state == UIApplicationStateInactive)
+    {
+        return NO;
+    }
+    
+    return YES;
+}
 @end
