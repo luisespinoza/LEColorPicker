@@ -816,7 +816,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 #pragma mark - Multitasking and Background aware
 - (void)addNotificationObservers
 {
-    // Add notifications to respond at app state changes.
+    // Add observers for notification to respond at app state changes.
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(appWillResignActive)
                                                  name:UIApplicationWillResignActiveNotification
@@ -830,6 +830,13 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterForeground)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
+}
+
+- (void)dealloc {
+    //Remove all observers
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 
 - (void)appWillResignActive
