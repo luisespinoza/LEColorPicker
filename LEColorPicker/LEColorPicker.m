@@ -63,7 +63,7 @@ const GLubyte Indices[] = {
     2, 3, 0,
 };
 
-//Vertex Shader string definition
+#pragma mark - Dominant finding shaders
 NSString *const kDominantVertexShaderString = SHADER_STRING
 (
  attribute vec4 Position;
@@ -81,7 +81,6 @@ NSString *const kDominantVertexShaderString = SHADER_STRING
  }
  );
 
-//Fragment Shader string definition
 NSString *const kDominantFragmentShaderString = SHADER_STRING
 (
  varying lowp vec4 DestinationColor;
@@ -124,6 +123,7 @@ NSString *const kDominantFragmentShaderString = SHADER_STRING
      }
  }
  );
+
 
 #pragma mark - C internal functions declaration (to avoid possible warnings)
 /**
@@ -713,7 +713,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                                         alpha:1.0];
     
     colorScheme.primaryTextColor = tmpColor;
-    
+   
+#ifdef BORING_COLOR
     NSUInteger secondaryColorR = 0;
     NSUInteger secondaryColorG = 0;
     NSUInteger secondaryColorB = 0;
@@ -759,6 +760,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
             colorScheme.secondaryTextColor = [UIColor blackColor];
         }
     }
+
+#endif
     
     free(buffer);
 }

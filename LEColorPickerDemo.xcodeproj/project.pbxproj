@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A005126517D9783A0048A2A4 /* cerrone.png in Resources */ = {isa = PBXBuildFile; fileRef = A005126417D9783A0048A2A4 /* cerrone.png */; };
+		A005126717D978400048A2A4 /* dark.png in Resources */ = {isa = PBXBuildFile; fileRef = A005126617D978400048A2A4 /* dark.png */; };
 		A02AB13B17054B1A00D5CE09 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */; };
 		A03AE32F178BA4A8002A4F75 /* UIColor+YUVSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = A0A6B64E173360B3003492A8 /* UIColor+YUVSpace.m */; };
 		A062A1FB17ACB1F90064AA89 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A062A1FA17ACB1F90064AA89 /* OpenGLES.framework */; };
@@ -37,6 +39,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A005126417D9783A0048A2A4 /* cerrone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cerrone.png; sourceTree = "<group>"; };
+		A005126617D978400048A2A4 /* dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dark.png; sourceTree = "<group>"; };
 		A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		A062A1FA17ACB1F90064AA89 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		A088351B167814CC006D6F0F /* LEColorPickerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LEColorPickerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -160,6 +164,8 @@
 		A088354F16781592006D6F0F /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A005126617D978400048A2A4 /* dark.png */,
+				A005126417D9783A0048A2A4 /* cerrone.png */,
 				A0F8F058167978C5007DBA2B /* VitruvianMan.png */,
 				A0F8F05616797898007DBA2B /* AirplaneVortex.png */,
 				A088355116781592006D6F0F /* ChileEarthquake2010.png */,
@@ -254,6 +260,8 @@
 				A0A389611716609500C0F53D /* (null) in Resources */,
 				A0A38963171660A000C0F53D /* (null) in Resources */,
 				A0A38965171660A600C0F53D /* (null) in Resources */,
+				A005126517D9783A0048A2A4 /* cerrone.png in Resources */,
+				A005126717D978400048A2A4 /* dark.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
