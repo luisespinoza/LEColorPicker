@@ -163,6 +163,9 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
         // Create queue and set working flag initial state
         taskQueue = dispatch_queue_create("LEColorPickerQueue", DISPATCH_QUEUE_SERIAL);
         _isWorking = NO;
+        
+        // Add notifications for multitasking and background aware
+        [self addNotificationObservers];
     }
     return self;
 }
@@ -171,7 +174,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 - (void)pickColorsFromImage:(UIImage *)image
                  onComplete:(void (^)(LEColorScheme *colorsPickedDictionary))completeBlock
 {
-    if (!_isWorking) {
+    if (!_isWorking && [self isAppActive]) {
         dispatch_async(taskQueue, ^{
             // Color calculation process
             _isWorking = YES;
@@ -508,7 +511,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 #pragma mark - Convert GL image to UIImage
 -(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height
 {
-    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);    
+    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
     NSUInteger biggerR = 0;
@@ -818,4 +821,58 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     return newImage;
 }
 
+#pragma mark - Multitasking and Background aware
+- (void)addNotificationObservers
+{
+    // Add observers for notification to respond at app state changes.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(appWillResignActive)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(appDidEnterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+}
+
+- (void)dealloc {
+    //Remove all observers
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+- (void)appWillResignActive
+{
+    dispatch_suspend(taskQueue);
+    glFinish();
+}
+
+- (void)appDidEnterBackground
+{
+    dispatch_suspend(taskQueue);
+    glFinish();
+    
+}
+
+- (void)appDidEnterForeground
+{
+    dispatch_resume(taskQueue);
+}
+
+- (BOOL)isAppActive
+{
+    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+    if (state == UIApplicationStateBackground || state == UIApplicationStateInactive)
+    {
+        return NO;
+    }
+    
+    return YES;
+}
 @end
