@@ -191,41 +191,45 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 
 - (LEColorScheme*)colorSchemeFromImage:(UIImage*)inputImage
 {
-    // First, we scale the input image, to get a constant image size and square texture.
-    UIImage *scaledImage = [self scaleImage:inputImage
-                                      width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                     height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
-
+    if ([self isAppActive]) {
+        // First, we scale the input image, to get a constant image size and square texture.
+        UIImage *scaledImage = [self scaleImage:inputImage
+                                          width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                         height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+        
 #ifdef LE_DEBUG
-    [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
+        [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
 #endif
-    
-    // Now, We set the initial OpenGL ES 2.0 state. 
-    [self setupOpenGL];
-    
-    // Then we set the scaled image as the texture to render.
-    _aTexture = [self setupTextureFromImage:scaledImage];
-    
-    // Now that all is ready, proceed we the render, to find the dominant color
-    [self renderDominant];
-    
-    // Now that we have the rendered result, we start the color calculations.
-    LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
-    colorScheme.backgroundColor = [self colorWithBiggerCountFromImageWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
-
-    // Now, find text colors
-    [self findTextColorsTaskForColorScheme:colorScheme];
-    
-#ifdef LE_DEBUG    
-    UIImage *savedImage;
-    savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                   height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
-
-    [UIImagePNGRepresentation(savedImage) writeToFile:@"/Users/Luis/Output.png" atomically:YES];
+        
+        // Now, We set the initial OpenGL ES 2.0 state.
+        [self setupOpenGL];
+        
+        // Then we set the scaled image as the texture to render.
+        _aTexture = [self setupTextureFromImage:scaledImage];
+        
+        // Now that all is ready, proceed we the render, to find the dominant color
+        [self renderDominant];
+        
+        // Now that we have the rendered result, we start the color calculations.
+        LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
+        colorScheme.backgroundColor = [self colorWithBiggerCountFromImageWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+        
+        // Now, find text colors
+        [self findTextColorsTaskForColorScheme:colorScheme];
+        
+#ifdef LE_DEBUG
+        UIImage *savedImage;
+        savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
+                                       height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
+        
+        [UIImagePNGRepresentation(savedImage) writeToFile:@"/Users/Luis/Output.png" atomically:YES];
 #endif
+        
+        
+        return colorScheme;
+    }
     
-    
-    return colorScheme;
+    return nil;
 }
 
 #pragma mark - Old interface implementation
