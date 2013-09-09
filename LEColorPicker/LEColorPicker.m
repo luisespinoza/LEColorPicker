@@ -12,6 +12,7 @@
 
 #import "LEColorPicker.h"
 #import "UIColor+YUVSpace.h"
+#import "UIColor+ColorScheme.h"
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 
@@ -22,10 +23,10 @@
 
 #pragma mark - Preprocessor definitions
 #define LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE                           32
-#define LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE                       0.5
+#define LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE                       0.6
 #define LECOLORPICKER_PRIMARY_TEXT_FILTER_TOLERANCE                     0.3
-#define LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE                          500
-#define LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE                     125
+#define LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE                          0.05
+#define LECOLORPICKER_DEFAULT_COLOR_COMPENSATION                        0.6
 
 #define STRINGIZE(x) #x
 #define STRINGIZE2(x) STRINGIZE(x)
@@ -197,10 +198,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                                           width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                          height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
         
-#ifdef LE_DEBUG
-        [UIImagePNGRepresentation(scaledImage) writeToFile:@"/Users/Luis/Input.png" atomically:YES];
-#endif
-        
         // Now, We set the initial OpenGL ES 2.0 state.
         [self setupOpenGL];
         
@@ -214,17 +211,13 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
         LEColorScheme *colorScheme = [[LEColorScheme alloc] init];
         colorScheme.backgroundColor = [self colorWithBiggerCountFromImageWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
         
-        // Now, find text colors
-        [self findTextColorsTaskForColorScheme:colorScheme];
+        NSArray *textColorAndHarmonics = [self getTextColorsAndHarmonicsFromImage:scaledImage backgroundColor:colorScheme.backgroundColor];
+        colorScheme.primaryTextColor = textColorAndHarmonics[1];
+        colorScheme.secondaryTextColor = textColorAndHarmonics[2];
+        colorScheme.colorScheme = textColorAndHarmonics[0];
         
-#ifdef LE_DEBUG
-        UIImage *savedImage;
-        savedImage = [self dumpImageWithWidth:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
-                                       height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
-        
-        [UIImagePNGRepresentation(savedImage) writeToFile:@"/Users/Luis/Output.png" atomically:YES];
-#endif
-        
+        // Final fix
+        [self fixColorSchemeReadability:colorScheme];
         
         return colorScheme;
     }
@@ -561,6 +554,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     return newUIImage;
 }
 
+#pragma mark - Image look-ups
+
 -(UIColor *)colorWithBiggerCountFromImageWidth:(NSUInteger)width height:(NSUInteger)height
 {
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
@@ -593,239 +588,296 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                            alpha:1.0];
 }
 
--(UIColor *)colorFromImageWithWidth:(NSUInteger)width
-                             height:(NSUInteger)height
-                     filteringColor:(UIColor*)colorToFilter
-                          tolerance:(GLfloat)tolerance
+- (NSArray*)getTextColorsAndHarmonicsFromImage:(UIImage*)inputImage backgroundColor:inputBackgroundColor
 {
-    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
     
-    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
+    //The return
+    NSMutableArray *retArray = [[NSMutableArray alloc] initWithCapacity:3];
     
-    /* Find bigger Alpha color*/
-    NSUInteger biggerR = 0;
-    NSUInteger biggerG = 0;
-    NSUInteger biggerB = 0;
-    NSUInteger biggerAlpha = 0;
-    CGFloat filteringRedFloat = 0;
-    CGFloat filteringGreenFloat = 0;
-    CGFloat filteringBlueFloat = 0;
+    //Get Pixel Array from the inputImage.
+    CGFloat count = inputImage.size.width * inputImage.size.height;
+    NSArray *pixelArray = [self getRGBAsFromImage:inputImage atX:0 andY:0 count:count];
     
-    [colorToFilter getRed:&filteringRedFloat
-                    green:&filteringGreenFloat
-                     blue:&filteringBlueFloat
-                    alpha:nil];
+    //Prapare control color
+    UIColor *primaryControlColor;
+    UIColor *secondaryControlColor;
     
-    NSUInteger filteringRed = (NSUInteger)(filteringRedFloat*255);
-    NSUInteger filteringGreen = (NSUInteger)(filteringGreenFloat*255);
-    NSUInteger filteringBlue = (NSUInteger)(filteringBlueFloat*255);
+    NSArray *hsbColor = [inputBackgroundColor hsbaArray];
+    float hue = [hsbColor[0] floatValue] * 360;
+    float brightness = [hsbColor[2] floatValue];
+    float roundedHue = (roundf(hue/30.0)*30)/360;
     
-    for (NSUInteger y=0; y<(height/2); y++) {
-        for (NSUInteger x=0; x<(width/2)*4; x++) {
-            if ((!((x+1)%4)) && (x>0)) {
-                NSUInteger currentRed = buffer[y * 4 * width + (x-3)];
-                NSUInteger currentGreen = buffer[y * 4 * width + (x-2)];
-                NSUInteger currentBlue = buffer[y * 4 * width + (x-1)];
-                
-                NSUInteger squareDistance = (currentRed-filteringRed)*(currentRed-filteringRed)+
-                (currentGreen-filteringGreen)*(currentGreen-filteringGreen)+
-                (currentBlue-filteringBlue)*(currentBlue-filteringBlue);
-                
-                NSUInteger thresholdSquareDistance = (255*tolerance)*(255*tolerance);
-                
-                if (squareDistance > thresholdSquareDistance) {
-                    if (buffer[y * 4 * width + x] > biggerAlpha ) {
-                        
-                        biggerAlpha = buffer[y * 4 * width + x];
-                        biggerR = buffer[y * 4 * width + (x-3)];
-                        biggerG = buffer[y * 4 * width + (x-2)];
-                        biggerB = buffer[y * 4 * width + (x-1)];
-                    }
-                }
-            }
-        }
-    }
+    NSArray *colorSchemeArray = [NSArray array]; //Just in case... 
     
-    free(buffer);
-    
-    return [UIColor colorWithRed:biggerR/255.0
-                           green:biggerG/255.0
-                            blue:biggerB/255.0
-                           alpha:1.0];
-}
-
--(void)findTextColorsTaskForColorScheme:(LEColorScheme*)colorScheme
-{
-    //Set sizes for buffer index calculations
-    NSUInteger width = LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE;
-    NSUInteger height = LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE;
-    
-    //Read Render buffer
-    GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
-    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
-    
-    //Set initials values for local variables
-    NSUInteger primaryColorR = 0;
-    NSUInteger primaryColorG = 0;
-    NSUInteger primaryColorB = 0;
-    NSUInteger primaryColorAlpha = 0;
-    
-    CGFloat backgroundRedFloat = 0;
-    CGFloat backgroundGreenFloat = 0;
-    CGFloat backgroundBlueFloat = 0;
-    
-    [colorScheme.backgroundColor getRed:&backgroundRedFloat
-                                  green:&backgroundGreenFloat
-                                   blue:&backgroundBlueFloat
-                                  alpha:nil];
-    
-    LEColor backgroundColor = {(unsigned int)(backgroundRedFloat*255),
-        (unsigned int)(backgroundGreenFloat*255),
-        (unsigned int)(backgroundBlueFloat*255)};
-    
-    for (NSUInteger y=0; y<(height/2); y++) {
-        for (NSUInteger x=0; x<(width/2)*4; x++) {
-            if ((!((x+1)%4)) && (x>0)) {
-                NSUInteger currentRed = buffer[y * 4 * width + (x-3)];
-                NSUInteger currentGreen = buffer[y * 4 * width + (x-2)];
-                NSUInteger currentBlue = buffer[y * 4 * width + (x-1)];
-                
-                LEColor currentColor = {currentRed,currentGreen,currentBlue};
-                NSUInteger squareDistance = squareDistanceInRGBSpaceBetweenColor(currentColor, backgroundColor);
-                NSUInteger thresholdSquareDistance = (255*LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE)*(255*LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE);
-                
-                if (squareDistance > thresholdSquareDistance) {
-                    if (buffer[y * 4 * width + x] > primaryColorAlpha ) {
-                        
-                        primaryColorAlpha = buffer[y * 4 * width + x];
-                        primaryColorR = buffer[y * 4 * width + (x-3)];
-                        primaryColorG = buffer[y * 4 * width + (x-2)];
-                        primaryColorB = buffer[y * 4 * width + (x-1)];
-                    }
-                }
-            }
-        }
-    }
-    
-    UIColor *tmpColor = [UIColor colorWithRed:primaryColorR/255.0
-                                        green:primaryColorG/255.0
-                                         blue:primaryColorB/255.0
-                                        alpha:1.0];
-    
-    colorScheme.primaryTextColor = tmpColor;
-   
-#ifdef BORING_COLOR
-    NSUInteger secondaryColorR = 0;
-    NSUInteger secondaryColorG = 0;
-    NSUInteger secondaryColorB = 0;
-    NSUInteger secondaryColorAlpha = 0;
-    
-    LEColor primaryTextColor = {primaryColorR,primaryColorG,primaryColorB};
-    for (NSUInteger y=0; y<(height/2); y++) {
-        for (NSUInteger x=0; x<(width/2)*4; x++) {
-            if ((!((x+1)%4)) && (x>0)) {
-                NSUInteger currentRed = buffer[y * 4 * width + (x-3)];
-                NSUInteger currentGreen = buffer[y * 4 * width + (x-2)];
-                NSUInteger currentBlue = buffer[y * 4 * width + (x-1)];
-                
-                LEColor currentColor = {currentRed,currentGreen,currentBlue};
-                NSUInteger squareDistanceToBackground = squareDistanceInRGBSpaceBetweenColor(currentColor, backgroundColor);
-                NSUInteger squareDistanceToPrimary = squareDistanceInRGBSpaceBetweenColor(currentColor, primaryTextColor);
-                NSUInteger thresholdSquareDistanceToBackground = (255*LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE)*(255*LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE);
-                NSUInteger thresholdSquareDistanceToPrimary = (255*LECOLORPICKER_PRIMARY_TEXT_FILTER_TOLERANCE)*(255*LECOLORPICKER_PRIMARY_TEXT_FILTER_TOLERANCE);
-                if ((squareDistanceToBackground > thresholdSquareDistanceToBackground) && (squareDistanceToPrimary > thresholdSquareDistanceToPrimary)) {
-                    if (buffer[y * 4 * width + x] > secondaryColorAlpha ) {
-                        secondaryColorAlpha = buffer[y * 4 * width + x];
-                        secondaryColorR = buffer[y * 4 * width + (x-3)];
-                        secondaryColorG = buffer[y * 4 * width + (x-2)];
-                        secondaryColorB = buffer[y * 4 * width + (x-1)];
-                    }
-                }
-            }
-        }
-    }
-    
-    tmpColor = [UIColor colorWithRed:secondaryColorR/255.0
-                               green:secondaryColorG/255.0
-                                blue:secondaryColorB/255.0
-                               alpha:1.0];
-    
-    if ([self isSufficienteContrastBetweenBackground:colorScheme.backgroundColor
-                                        andForground:tmpColor]) {
-        colorScheme.secondaryTextColor = tmpColor;
+    if (brightness < 0.2) {
+        UIColor *color = [UIColor colorWithHue:roundedHue saturation:1 brightness:1 alpha:1.0];
+        colorSchemeArray = [color colorSchemeOfType:ColorSchemeAnalagous];
+        primaryControlColor = colorSchemeArray[3];
+        secondaryControlColor = colorSchemeArray[0];
+        [retArray addObject:colorSchemeArray];
+    } else if (brightness > 0.8) {
+        UIColor *color = [UIColor colorWithHue:roundedHue saturation:1 brightness:0.2 alpha:1.0];
+        colorSchemeArray = [color colorSchemeOfType:ColorSchemeAnalagous];
+        primaryControlColor = colorSchemeArray[3];
+        secondaryControlColor = colorSchemeArray[0];
+        [retArray addObject:colorSchemeArray];
     } else {
-        if ([UIColor yComponentFromColor:colorScheme.backgroundColor] < 0.5) {
-            colorScheme.secondaryTextColor = [UIColor whiteColor];
-        } else {
-            colorScheme.secondaryTextColor = [UIColor blackColor];
+        UIColor *color = [UIColor colorWithHue:roundedHue saturation:1 brightness:1 alpha:1.0];
+        colorSchemeArray = [color colorSchemeOfType:ColorSchemeSplitComplements];
+        primaryControlColor = colorSchemeArray[3];
+        secondaryControlColor = colorSchemeArray[0];
+        [retArray addObject:colorSchemeArray];
+    }
+    
+    //Look up for the closest to the controlColor inside the pixelArray
+    //Initial parameters
+    float primaryLastDistance = 1;
+    float secondaryLastDistance = 1;
+    UIColor *primaryColor = primaryControlColor;
+    UIColor *secondaryColor = secondaryControlColor;
+    
+    if ([pixelArray count]) {
+        for (NSUInteger i = 0; i < [pixelArray count]; i++) {
+            
+            UIColor *pixelColor = [pixelArray objectAtIndex:i];
+            
+            float primaryDistance = [UIColor YUVSpaceSquareDistanceToColor:pixelColor fromColor:primaryControlColor];
+            if (primaryDistance < primaryLastDistance) {
+                primaryLastDistance = primaryDistance;
+                primaryColor = pixelColor;
+            }
+            
+            float secondaryDistance = [UIColor YUVSpaceSquareDistanceToColor:pixelColor fromColor:secondaryControlColor];
+            if (secondaryDistance < secondaryLastDistance) {
+                secondaryLastDistance = secondaryDistance;
+                secondaryColor = pixelColor;
+            }
         }
     }
-
-#endif
     
-    free(buffer);
+    [retArray addObject:primaryColor];
+    [retArray addObject:secondaryColor];
+    
+    return retArray;
 }
 
+- (UIColor*)primaryTextColorFromImage:(UIImage*)inputImage backgroundColor:inputBackground
+{
+    //Get Pixel Array from the inputImage.
+    CGFloat count = inputImage.size.width * inputImage.size.height;
+    NSArray *pixelArray = [self getRGBAsFromImage:inputImage atX:0 andY:0 count:count];
+    
+    //Prapare control color
+    UIColor *controlColor;
+    NSArray *hsbColor = [inputBackground hsbaArray];
+    float hue = [hsbColor[0] floatValue] * 360;
+    float brightness = [hsbColor[2] floatValue];
+    float roundedHue = (roundf(hue/30.0)*30)/360;
+    
+    
+    
+    if (brightness < 0.2) {
+        UIColor *color = [UIColor colorWithHue:roundedHue saturation:1 brightness:1 alpha:1.0];
+        NSArray *colorSchemeArray = [color colorSchemeOfType:ColorSchemeAnalagous];
+        controlColor= [colorSchemeArray objectAtIndex:3];
+    } else if (brightness > 0.75) {
+        UIColor *color = [UIColor colorWithHue:roundedHue saturation:1 brightness:.25 alpha:1.0];
+        NSArray *colorSchemeArray = [color colorSchemeOfType:ColorSchemeAnalagous];
+        controlColor= [colorSchemeArray objectAtIndex:3];
+    } else {
+        UIColor *color = [UIColor colorWithHue:roundedHue saturation:1 brightness:1 alpha:1.0];
+        NSArray *colorSchemeArray = [color colorSchemeOfType:ColorSchemeSplitComplements];
+        controlColor= [colorSchemeArray objectAtIndex:3];
+    }
+    
+    
+    //Look up for the closest to the controlColor inside the pixelArray
+    //Initial parameters
+    float lastDistance = 1;
+    UIColor *retColor = controlColor;
+    
+    if ([pixelArray count]) {
+        for (NSUInteger i = 0; i < [pixelArray count]; i++) {
+            UIColor *pixelColor = [pixelArray objectAtIndex:i];
+            float distance = [UIColor YUVSpaceSquareDistanceToColor:pixelColor fromColor:controlColor];
+            //float distance = [UIColor chromaSquareDistanceToColor:pixelColor fromColor:controlColor];
+            if (distance < lastDistance) {
+                lastDistance = distance;
+                retColor = pixelColor;
+            }
+        }
+    }
+    
+    return retColor;
+}
+
+- (UIColor*)secondaryTextColorFromImage:(UIImage*)inputImage backgroundColor:inputBackground
+{
+    //Get Pixel Array from the inputImage.
+    CGFloat count = inputImage.size.width * inputImage.size.height;
+    NSArray *pixelArray = [self getRGBAsFromImage:inputImage atX:0 andY:0 count:count];
+    
+    //Prapare control color
+    UIColor *controlColor;
+    NSArray *hsbColor = [inputBackground hsbaArray];
+    float hue = [hsbColor[0] floatValue] * 360;
+    float brightness = [hsbColor[2] floatValue];
+    float roundedHue = (roundf(hue/30.0)*30)/360;
+    
+    if (brightness < 0.2) {
+        UIColor *color = [UIColor colorWithHue:roundedHue saturation:1 brightness:1 alpha:1.0];
+        NSArray *colorSchemeArray = [color colorSchemeOfType:ColorSchemeAnalagous];
+        controlColor= [colorSchemeArray objectAtIndex:0];
+    } else if (brightness > 0.75) {
+        UIColor *color = [UIColor colorWithHue:roundedHue saturation:1 brightness:.25 alpha:1.0];
+        NSArray *colorSchemeArray = [color colorSchemeOfType:ColorSchemeAnalagous];
+        controlColor= [colorSchemeArray objectAtIndex:0];
+    } else {
+        UIColor *color = [UIColor colorWithHue:roundedHue saturation:1 brightness:1 alpha:1.0];
+        NSArray *colorSchemeArray = [color colorSchemeOfType:ColorSchemeSplitComplements];
+        controlColor= [colorSchemeArray objectAtIndex:0];
+    }
+    
+    
+    //Look up for the closest to the controlColor inside the pixelArray
+    //Initial parameters
+    float lastDistance = 1;
+    UIColor *retColor = controlColor;
+    
+    if ([pixelArray count]) {
+        for (NSUInteger i = 0; i < [pixelArray count]; i++) {
+            UIColor *pixelColor = [pixelArray objectAtIndex:i];
+            float distance = [UIColor YUVSpaceSquareDistanceToColor:pixelColor fromColor:controlColor];
+            //float distance = [UIColor chromaSquareDistanceToColor:pixelColor fromColor:controlColor];
+            if (distance < lastDistance) {
+                lastDistance = distance;
+                retColor = pixelColor;
+            }
+        }
+    }
+    
+    return retColor;
+}
+
+- (void)fixColorSchemeReadability:(LEColorScheme*)colorScheme
+{
+    NSArray *backgroundHSBArray = [colorScheme.backgroundColor hsbaArray];
+    float backgroundBrightness = [backgroundHSBArray[2] floatValue];
+    float backgoundHue = [backgroundHSBArray[0] floatValue];
+    
+    NSArray *primaryHSBArray = [colorScheme.primaryTextColor hsbaArray];
+    float primaryHue = [primaryHSBArray[0] floatValue];
+    float primarySat = [primaryHSBArray[1] floatValue];
+    float primaryBrightness = [primaryHSBArray[2] floatValue];
+    
+    NSArray *secondaryHSBArray = [colorScheme.secondaryTextColor hsbaArray];
+    float secondaryHue = [secondaryHSBArray[0] floatValue];
+    float secondarySat = [secondaryHSBArray[1] floatValue];
+    float secondaryBrightness = [secondaryHSBArray[2] floatValue];
+    
+    float difference = 0;
+    float compensation = 0;
+    
+    if (backgroundBrightness < LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE) {
+        difference = fabs(primaryBrightness-backgroundBrightness);
+        if (difference < LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE) {
+            if (fabs(backgoundHue-primaryHue) < LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE) {
+                compensation = 1;
+                primarySat = 0.25;
+            } else {
+                compensation = (backgroundBrightness+LECOLORPICKER_DEFAULT_COLOR_COMPENSATION);
+            }
+            colorScheme.primaryTextColor = [UIColor colorWithHue:primaryHue saturation:primarySat brightness:fminf(compensation, 1.) alpha:1.0];
+        }
+        difference = fabs(secondaryBrightness-backgroundBrightness);
+        if (difference < LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE) {float compensation = 0;
+            if (fabs(backgoundHue-secondaryHue) < LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE) {
+                compensation = 1;
+                secondarySat = 0.25;
+            } else {
+                compensation = (backgroundBrightness+LECOLORPICKER_DEFAULT_COLOR_COMPENSATION);
+            }
+            colorScheme.secondaryTextColor = [UIColor colorWithHue:secondaryHue saturation:secondarySat brightness:fminf(compensation, 1.) alpha:1.0];
+        }
+    } else {
+        difference = fabs(primaryBrightness-backgroundBrightness);
+        if (difference < LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE) {
+            if (fabs(backgoundHue-primaryHue) < LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE) {
+                compensation = 0;
+                primarySat = 0.25;
+            } else {
+                compensation = (backgroundBrightness-LECOLORPICKER_DEFAULT_COLOR_COMPENSATION);
+            }
+            colorScheme.primaryTextColor = [UIColor colorWithHue:primaryHue saturation:primarySat brightness:fmaxf(compensation, 0.) alpha:1.0];
+        }
+        difference = fabs(secondaryBrightness-backgroundBrightness);
+        if (difference < LECOLORPICKER_BACKGROUND_FILTER_TOLERANCE) {
+            if (fabs(backgoundHue-secondaryHue) < LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE) {
+                compensation = 0;
+                secondarySat = 0.25;
+            } else {
+                compensation = (backgroundBrightness-LECOLORPICKER_DEFAULT_COLOR_COMPENSATION);
+            }
+            colorScheme.secondaryTextColor = [UIColor colorWithHue:secondaryHue saturation:secondarySat brightness:fmaxf(compensation,0.) alpha:1.0];
+        }
+    }
+}
+
+#pragma mark - UIImage utilities
 - (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
 {
     UIImage *scaledImage =  [self imageWithImage:image scaledToSize:CGSizeMake(width,height)];
     return scaledImage;
 }
 
-- (BOOL)isSufficienteContrastBetweenBackground:(UIColor*)backgroundColor andForground:(UIColor*)foregroundColor
-{
-    float backgroundColorBrightness = [UIColor yComponentFromColor:backgroundColor];
-    float foregroundColorBrightness = [UIColor yComponentFromColor:foregroundColor];
-    float brightnessDifference = fabsf(backgroundColorBrightness-foregroundColorBrightness)*255;
-    
-    LELog(@"BrightnessDifference %f ",brightnessDifference);
-    
-    if (brightnessDifference>=LECOLORPICKER_DEFAULT_BRIGHTNESS_DIFFERENCE) {
-        float backgroundRed = 0.0;
-        float backgroundGreen = 0.0;
-        float backgroundBlue = 0.0;
-        float foregroundRed = 0.0;
-        float foregroundGreen = 0.0;
-        float foregroundBlue = 0.0;
-        
-        int numComponents = CGColorGetNumberOfComponents(backgroundColor.CGColor);
-        
-        if (numComponents == 4) {
-            const CGFloat *components = CGColorGetComponents(backgroundColor.CGColor);
-            backgroundRed = components[0];
-            backgroundGreen = components[1];
-            backgroundBlue = components[2];
-        }
-        
-        numComponents = CGColorGetNumberOfComponents(foregroundColor.CGColor);
-        
-        if (numComponents == 4) {
-            const CGFloat *components = CGColorGetComponents(foregroundColor.CGColor);
-            foregroundRed = components[0];
-            foregroundGreen = components[1];
-            foregroundBlue = components[2];
-        }
-        
-        //Compute "Color Diference"
-        float colorDifference = (MAX(backgroundRed,foregroundRed)-MIN(backgroundRed, foregroundRed)) +
-        (MAX(backgroundGreen,foregroundGreen)-MIN(backgroundGreen, foregroundGreen)) +
-        (MAX(backgroundBlue,foregroundBlue)-MIN(backgroundBlue, foregroundBlue));
-        LELog(@"ColorDifference = %f",colorDifference*255);
-        if ((colorDifference*255)>LECOLORPICKER_DEFAULT_COLOR_DIFFERENCE) {
-            return YES;
-        }
-    }
-    
-    return NO;
-}
-
-#pragma mark - UIImage utilities
 - (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize {
     UIGraphicsBeginImageContextWithOptions(newSize, NO, 1.0);
     [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return newImage;
+}
+
+-  (NSArray*)getRGBAsFromImage:(UIImage*)image atX:(int)xx andY:(int)yy count:(int)count
+{
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:count];
+    
+    // First get the image into your data buffer
+    CGImageRef imageRef = [image CGImage];
+    NSUInteger width = CGImageGetWidth(imageRef);
+    NSUInteger height = CGImageGetHeight(imageRef);
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    unsigned char *rawData = (unsigned char*) calloc(height * width * 4, sizeof(unsigned char));
+    NSUInteger bytesPerPixel = 4;
+    NSUInteger bytesPerRow = bytesPerPixel * width;
+    NSUInteger bitsPerComponent = 8;
+    CGContextRef context = CGBitmapContextCreate(rawData, width, height,
+                                                 bitsPerComponent, bytesPerRow, colorSpace,
+                                                 kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+    CGColorSpaceRelease(colorSpace);
+    
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
+    CGContextRelease(context);
+    
+    // Now your rawData contains the image data in the RGBA8888 pixel format.
+    int byteIndex = (bytesPerRow * yy) + xx * bytesPerPixel;
+    for (int ii = 0 ; ii < count ; ++ii)
+    {
+        @autoreleasepool {
+            CGFloat red   = (rawData[byteIndex]     * 1.0) / 255.0;
+            CGFloat green = (rawData[byteIndex + 1] * 1.0) / 255.0;
+            CGFloat blue  = (rawData[byteIndex + 2] * 1.0) / 255.0;
+            CGFloat alpha = (rawData[byteIndex + 3] * 1.0) / 255.0;
+            byteIndex += 4;
+            
+            UIColor *acolor = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+            [result addObject:acolor];
+        }
+    }
+    
+    free(rawData);
+    
+    return result;
 }
 
 #pragma mark - Multitasking and Background aware

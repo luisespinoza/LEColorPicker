@@ -17,5 +17,11 @@
     IBOutlet UITextView *_bodyTextField;
     IBOutlet UIView *_outputView;
     NSMutableArray *_imagesNamesArray;
+    
+    //Debug views
+    IBOutlet UIView *view1;
+    IBOutlet UIView *view2;
+    IBOutlet UIView *view3;
+    IBOutlet UIView *view4;
 }
 @end

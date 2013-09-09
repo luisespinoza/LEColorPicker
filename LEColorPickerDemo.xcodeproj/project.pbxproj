@@ -11,6 +11,8 @@
 		A005126717D978400048A2A4 /* dark.png in Resources */ = {isa = PBXBuildFile; fileRef = A005126617D978400048A2A4 /* dark.png */; };
 		A02AB13B17054B1A00D5CE09 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */; };
 		A03AE32F178BA4A8002A4F75 /* UIColor+YUVSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = A0A6B64E173360B3003492A8 /* UIColor+YUVSpace.m */; };
+		A048768A17DCE10700758CF8 /* DeepPurple.png in Resources */ = {isa = PBXBuildFile; fileRef = A048768817DCE10700758CF8 /* DeepPurple.png */; };
+		A048768B17DCE10700758CF8 /* FooFighters.png in Resources */ = {isa = PBXBuildFile; fileRef = A048768917DCE10700758CF8 /* FooFighters.png */; };
 		A062A1FB17ACB1F90064AA89 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A062A1FA17ACB1F90064AA89 /* OpenGLES.framework */; };
 		A0883520167814CC006D6F0F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A088351F167814CC006D6F0F /* UIKit.framework */; };
 		A0883522167814CC006D6F0F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0883521167814CC006D6F0F /* Foundation.framework */; };
@@ -34,6 +36,11 @@
 		A0A389611716609500C0F53D /* (null) in Resources */ = {isa = PBXBuildFile; };
 		A0A38963171660A000C0F53D /* (null) in Resources */ = {isa = PBXBuildFile; };
 		A0A38965171660A600C0F53D /* (null) in Resources */ = {isa = PBXBuildFile; };
+		A0E9661E17DBBEBA0006EC32 /* UIColor+ColorScheme.m in Sources */ = {isa = PBXBuildFile; fileRef = A0E9661D17DBBEBA0006EC32 /* UIColor+ColorScheme.m */; };
+		A0E9662317DC25E60006EC32 /* BlackIce.png in Resources */ = {isa = PBXBuildFile; fileRef = A0E9661F17DC25E60006EC32 /* BlackIce.png */; };
+		A0E9662417DC25E60006EC32 /* diabloii.png in Resources */ = {isa = PBXBuildFile; fileRef = A0E9662017DC25E60006EC32 /* diabloii.png */; };
+		A0E9662517DC25E60006EC32 /* green.png in Resources */ = {isa = PBXBuildFile; fileRef = A0E9662117DC25E60006EC32 /* green.png */; };
+		A0E9662617DC25E60006EC32 /* red.png in Resources */ = {isa = PBXBuildFile; fileRef = A0E9662217DC25E60006EC32 /* red.png */; };
 		A0F8F05716797898007DBA2B /* AirplaneVortex.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F05616797898007DBA2B /* AirplaneVortex.png */; };
 		A0F8F059167978C5007DBA2B /* VitruvianMan.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F058167978C5007DBA2B /* VitruvianMan.png */; };
 /* End PBXBuildFile section */
@@ -42,6 +49,8 @@
 		A005126417D9783A0048A2A4 /* cerrone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cerrone.png; sourceTree = "<group>"; };
 		A005126617D978400048A2A4 /* dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dark.png; sourceTree = "<group>"; };
 		A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		A048768817DCE10700758CF8 /* DeepPurple.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DeepPurple.png; sourceTree = "<group>"; };
+		A048768917DCE10700758CF8 /* FooFighters.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FooFighters.png; sourceTree = "<group>"; };
 		A062A1FA17ACB1F90064AA89 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		A088351B167814CC006D6F0F /* LEColorPickerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LEColorPickerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A088351F167814CC006D6F0F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -70,6 +79,12 @@
 		A088355F167815CC006D6F0F /* ATPagingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ATPagingView.m; sourceTree = "<group>"; };
 		A0A6B64D173360B3003492A8 /* UIColor+YUVSpace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+YUVSpace.h"; sourceTree = "<group>"; };
 		A0A6B64E173360B3003492A8 /* UIColor+YUVSpace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+YUVSpace.m"; sourceTree = "<group>"; };
+		A0E9661C17DBBEBA0006EC32 /* UIColor+ColorScheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+ColorScheme.h"; sourceTree = "<group>"; };
+		A0E9661D17DBBEBA0006EC32 /* UIColor+ColorScheme.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+ColorScheme.m"; sourceTree = "<group>"; };
+		A0E9661F17DC25E60006EC32 /* BlackIce.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BlackIce.png; sourceTree = "<group>"; };
+		A0E9662017DC25E60006EC32 /* diabloii.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = diabloii.png; sourceTree = "<group>"; };
+		A0E9662117DC25E60006EC32 /* green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = green.png; sourceTree = "<group>"; };
+		A0E9662217DC25E60006EC32 /* red.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = red.png; sourceTree = "<group>"; };
 		A0F8F05616797898007DBA2B /* AirplaneVortex.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AirplaneVortex.png; sourceTree = "<group>"; };
 		A0F8F058167978C5007DBA2B /* VitruvianMan.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = VitruvianMan.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -157,6 +172,8 @@
 				A08835471678158B006D6F0F /* LEColorPicker.m */,
 				A0A6B64D173360B3003492A8 /* UIColor+YUVSpace.h */,
 				A0A6B64E173360B3003492A8 /* UIColor+YUVSpace.m */,
+				A0E9661C17DBBEBA0006EC32 /* UIColor+ColorScheme.h */,
+				A0E9661D17DBBEBA0006EC32 /* UIColor+ColorScheme.m */,
 			);
 			path = LEColorPicker;
 			sourceTree = "<group>";
@@ -172,6 +189,12 @@
 				A088355216781592006D6F0F /* earth.png */,
 				A088355416781592006D6F0F /* MonaLisa.png */,
 				A088355516781592006D6F0F /* TheScream.png */,
+				A0E9661F17DC25E60006EC32 /* BlackIce.png */,
+				A0E9662017DC25E60006EC32 /* diabloii.png */,
+				A0E9662117DC25E60006EC32 /* green.png */,
+				A0E9662217DC25E60006EC32 /* red.png */,
+				A048768817DCE10700758CF8 /* DeepPurple.png */,
+				A048768917DCE10700758CF8 /* FooFighters.png */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -262,6 +285,12 @@
 				A0A38965171660A600C0F53D /* (null) in Resources */,
 				A005126517D9783A0048A2A4 /* cerrone.png in Resources */,
 				A005126717D978400048A2A4 /* dark.png in Resources */,
+				A0E9662317DC25E60006EC32 /* BlackIce.png in Resources */,
+				A0E9662417DC25E60006EC32 /* diabloii.png in Resources */,
+				A0E9662517DC25E60006EC32 /* green.png in Resources */,
+				A0E9662617DC25E60006EC32 /* red.png in Resources */,
+				A048768A17DCE10700758CF8 /* DeepPurple.png in Resources */,
+				A048768B17DCE10700758CF8 /* FooFighters.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,6 +307,7 @@
 				A088354C1678158B006D6F0F /* LEColorPicker.m in Sources */,
 				A0883560167815CC006D6F0F /* ATPagingView.m in Sources */,
 				A03AE32F178BA4A8002A4F75 /* UIColor+YUVSpace.m in Sources */,
+				A0E9661E17DBBEBA0006EC32 /* UIColor+ColorScheme.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

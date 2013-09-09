@@ -119,6 +119,20 @@
     return distance;
 }
 
-
++ (float)chromaSquareDistanceToColor:(UIColor*)toColor fromColor:(UIColor *)fromColor
+{
+    float UToColor = [UIColor uComponentFromColor:toColor];
+    float VToColor = [UIColor vComponentFromColor:toColor];
+    
+    float UFromColor = [UIColor uComponentFromColor:fromColor];
+    float VFromColor = [UIColor vComponentFromColor:fromColor];
+    
+    float deltaU = UToColor - UFromColor;
+    float deltaV = VToColor - VFromColor;
+    
+    float distance = deltaU*deltaU + deltaV*deltaV;
+    
+    return distance;
+}
 
 @end

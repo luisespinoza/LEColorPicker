@@ -8,6 +8,8 @@
 
 #import "ViewController.h"
 #import "LEColorPicker.h"
+#import "UIColor+ColorScheme.h"
+
 
 @interface ViewController ()
 
@@ -90,6 +92,13 @@
     _outputView.backgroundColor = colorScheme.backgroundColor;
     _titleTextField.textColor = colorScheme.primaryTextColor;
     _bodyTextField.textColor = colorScheme.secondaryTextColor;
+    
+    NSArray *colorSchemeArray = colorScheme.colorScheme;
+    
+    view1.backgroundColor = [colorSchemeArray objectAtIndex:0];
+    view2.backgroundColor = [colorSchemeArray objectAtIndex:1];
+    view3.backgroundColor = [colorSchemeArray objectAtIndex:2];
+    view4.backgroundColor = [colorSchemeArray objectAtIndex:3];
 }
 @end
 

@@ -15,6 +15,7 @@
 + (float) vComponentFromColor:(UIColor*)color;
 + (float) YUVSpaceDistanceToColor:(UIColor*)toColor fromColor:(UIColor*)fromColor;
 + (float) YUVSpaceSquareDistanceToColor:(UIColor *)toColor fromColor:(UIColor *)fromColor;
++ (float) chromaSquareDistanceToColor:(UIColor*)toColor fromColor:(UIColor *)fromColor;
 
 @end
 
