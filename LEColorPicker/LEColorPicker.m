@@ -606,6 +606,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     float hue = [hsbColor[0] floatValue] * 360;
     float brightness = [hsbColor[2] floatValue];
     float roundedHue = (roundf(hue/30.0)*30)/360;
+    //float roundedHue = hue;
     
     NSArray *colorSchemeArray = [NSArray array]; //Just in case... 
     
