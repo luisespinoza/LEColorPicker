@@ -8,7 +8,7 @@
 
 #import "UIColor+ColorScheme.h"
 
-@implementation UIColor (ColorHarmony)
+@implementation UIColor (ColorScheme)
 
 #pragma mark - HSBA from UIColor
 

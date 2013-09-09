@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-// Color Scheme Creation Enum
 typedef enum
 {
     ColorSchemeAnalagous = 0,
@@ -18,7 +17,7 @@ typedef enum
     ColorSchemeSplitComplements,
 } ColorScheme;
 
-@interface UIColor (ColorScheme)
+@interface UIColor (ColorHarmony)
 
 - (NSArray *)colorSchemeOfType:(ColorScheme)type;
 

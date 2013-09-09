@@ -8,8 +8,6 @@
 
 #import "ViewController.h"
 #import "LEColorPicker.h"
-#import "UIColor+ColorScheme.h"
-
 
 @interface ViewController ()
 
