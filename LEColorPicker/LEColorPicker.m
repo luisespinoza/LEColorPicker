@@ -197,7 +197,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
                                           width:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE
                                          height:LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE];
         
-        // Now, We set the initial OpenGL ES 2.0 state. LUCHIN: Aquí estamos trabajando
+        // Now, We set the initial OpenGL ES 2.0 state.
         [self setupOpenGL];
         
         // Then we set the scaled image as the texture to render.
