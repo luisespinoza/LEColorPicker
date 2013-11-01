@@ -46,7 +46,6 @@
     CAEAGLLayer* _eaglLayer;
     EAGLContext *_context;
     dispatch_queue_t taskQueue;
-    BOOL _isWorking;
 }
 /**
  This instance method allows the client object to generate three colors from a specific UIImage. This method generate synchronously colors for background, primary and secondary colors, encapsulated in a LEColorScheme object.
