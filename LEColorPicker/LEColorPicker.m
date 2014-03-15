@@ -42,9 +42,9 @@ typedef struct {
 
 // LEColor structure
 typedef struct {
-    unsigned int red;
-    unsigned int green;
-    unsigned int blue;
+    NSUInteger red;
+    NSUInteger green;
+    NSUInteger blue;
 } LEColor;
 
 // Add texture coordinates to Vertices as follows
@@ -137,7 +137,7 @@ void freeImageData(void *info, const void *data, size_t size);
  @param colorB Another RGB color.
  @return The square of euclidian distance in RGB space.
  */
-unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB);
+NSUInteger squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB);
 
 #pragma mark - C internal functions implementation
 void freeImageData(void *info, const void *data, size_t size)
@@ -146,7 +146,7 @@ void freeImageData(void *info, const void *data, size_t size)
     free((void*)data);
 }
 
-unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB)
+NSUInteger squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB)
 {
     NSUInteger squareDistance = ((colorA.red - colorB.red)*(colorA.red - colorB.red))+
     ((colorA.green - colorB.green) * (colorA.green - colorB.green))+
@@ -293,8 +293,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
         LELog(@"Failed to load image for texture");
     }
     
-    size_t width = CGImageGetWidth(inputTextureImage);
-    size_t height = CGImageGetHeight(inputTextureImage);
+    NSUInteger width = CGImageGetWidth(inputTextureImage);
+    NSUInteger height = CGImageGetHeight(inputTextureImage);
     
     GLubyte *inputTextureData = (GLubyte*)calloc(width*height*4, sizeof(GLubyte));
     CGColorSpaceRef inputTextureColorSpace = CGImageGetColorSpace(inputTextureImage);
@@ -314,7 +314,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     glBindTexture(GL_TEXTURE_2D, inputTexName);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA , width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA , (int)width, (int)height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
     free(inputTextureData);
     return inputTexName;
 }
@@ -519,7 +519,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 -(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height biggestAlphaColorReturn:(UIColor**)returnColor
 {
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
-    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
+    glReadPixels(0, 0, (int)width, (int)height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
     /* Find bigger Alpha color*/
     NSUInteger biggerR = 0;
@@ -551,7 +551,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     // set up for CGImage creation
     int bitsPerComponent = 8;
     int bitsPerPixel = 32;
-    int bytesPerRow = 4 * width;
+    int bytesPerRow = 4 * (int)width;
     CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
     CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
     // Use this to retain alpha
@@ -569,7 +569,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 -(UIColor *)colorWithBiggerCountFromImageWidth:(NSUInteger)width height:(NSUInteger)height
 {
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
-    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
+    glReadPixels(0, 0, (int)width, (int)height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
     /* Find bigger Alpha color*/
     NSUInteger biggerR = 0;
@@ -605,7 +605,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 {
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
     
-    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
+    glReadPixels(0, 0, (int)width, (int)height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
     /* Find bigger Alpha color*/
     NSUInteger biggerR = 0;
@@ -662,8 +662,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 -(void)findTextColorsTaskForColorScheme:(LEColorScheme*)colorScheme
 {
     //Set sizes for buffer index calculations
-    NSUInteger width = LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE;
-    NSUInteger height = LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE;
+    int width = LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE;
+    int height = LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE;
     
     //Read Render buffer
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
@@ -790,7 +790,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
         float foregroundGreen = 0.0;
         float foregroundBlue = 0.0;
         
-        int numComponents = CGColorGetNumberOfComponents(backgroundColor.CGColor);
+        size_t numComponents = CGColorGetNumberOfComponents(backgroundColor.CGColor);
         
         if (numComponents == 4) {
             const CGFloat *components = CGColorGetComponents(backgroundColor.CGColor);
