@@ -42,9 +42,9 @@ typedef struct {
 
 // LEColor structure
 typedef struct {
-    unsigned int red;
-    unsigned int green;
-    unsigned int blue;
+    NSUInteger red;
+    NSUInteger green;
+    NSUInteger blue;
 } LEColor;
 
 // Add texture coordinates to Vertices as follows
@@ -137,7 +137,7 @@ void freeImageData(void *info, const void *data, size_t size);
  @param colorB Another RGB color.
  @return The square of euclidian distance in RGB space.
  */
-unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB);
+NSUInteger squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB);
 
 #pragma mark - C internal functions implementation
 void freeImageData(void *info, const void *data, size_t size)
@@ -146,7 +146,7 @@ void freeImageData(void *info, const void *data, size_t size)
     free((void*)data);
 }
 
-unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB)
+NSUInteger squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB)
 {
     NSUInteger squareDistance = ((colorA.red - colorB.red)*(colorA.red - colorB.red))+
     ((colorA.green - colorB.green) * (colorA.green - colorB.green))+
@@ -162,7 +162,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     if (self) {
         // Create queue and set working flag initial state
         taskQueue = dispatch_queue_create("LEColorPickerQueue", DISPATCH_QUEUE_SERIAL);
-        _isWorking = NO;
+        dispatch_set_target_queue(taskQueue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0));
         
         // Add notifications for multitasking and background aware
         [self addNotificationObservers];
@@ -174,17 +174,15 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 - (void)pickColorsFromImage:(UIImage *)image
                  onComplete:(void (^)(LEColorScheme *colorsPickedDictionary))completeBlock
 {
-    if (!_isWorking && [self isAppActive]) {
+    if ([self isAppActive]) {
         dispatch_async(taskQueue, ^{
             // Color calculation process
-            _isWorking = YES;
             LEColorScheme *colorScheme = [self colorSchemeFromImage:image];
             
             // Call complete block and pass colors result
             dispatch_async(dispatch_get_main_queue(), ^{
                 completeBlock(colorScheme);
             });
-            _isWorking = NO;
         });
     }
 }
@@ -235,13 +233,25 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 #pragma mark - Old interface implementation
 + (void)pickColorFromImage:(UIImage *)image onComplete:(void (^)(NSDictionary *))completeBlock
 {
-    LEColorPicker *colorPicker = [[LEColorPicker alloc] init];
+    static LEColorPicker *colorPicker;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        colorPicker = [[LEColorPicker alloc] init];
+    });
+    
     [colorPicker pickColorsFromImage:image onComplete:^(LEColorScheme *colorScheme) {
         NSDictionary *colorsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
                                           colorScheme.backgroundColor,@"BackgroundColor",
                                           colorScheme.primaryTextColor,@"PrimaryTextColor",
                                           colorScheme.secondaryTextColor,@"SecondaryTextColor", nil];
-        completeBlock(colorsDictionary);
+        if ([NSThread isMainThread]) {
+            completeBlock(colorsDictionary);
+        }
+        else{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completeBlock(colorsDictionary);
+            });
+        }
     }];
 }
 
@@ -251,17 +261,17 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 {
     // Start openGLES
     
-    [self setupContext];
-    
-    [self setupFrameBuffer];
-    
-    [self setupRenderBuffer];
-    
-    [self setupDepthBuffer];
-    
-    [self setupOpenGLForDominantColor];
-    
-    [self setupVBOs];
+    if([self setupContext]){
+        [self setupFrameBuffer];
+        
+        [self setupRenderBuffer];
+        
+        [self setupDepthBuffer];
+        
+        [self setupOpenGLForDominantColor];
+        
+        [self setupVBOs];
+    }
 }
 
 - (void)renderDominant
@@ -295,15 +305,18 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     
     if (!inputTextureImage) {
         LELog(@"Failed to load image for texture");
-        exit(1);
     }
     
-    size_t width = CGImageGetWidth(inputTextureImage);
-    size_t height = CGImageGetHeight(inputTextureImage);
+    NSUInteger width = CGImageGetWidth(inputTextureImage);
+    NSUInteger height = CGImageGetHeight(inputTextureImage);
     
     GLubyte *inputTextureData = (GLubyte*)calloc(width*height*4, sizeof(GLubyte));
     CGColorSpaceRef inputTextureColorSpace = CGImageGetColorSpace(inputTextureImage);
-    CGContextRef inputTextureContext = CGBitmapContextCreate(inputTextureData, width, height, 8, width*4, inputTextureColorSpace , kCGImageAlphaPremultipliedLast);
+    CGContextRef inputTextureContext = CGBitmapContextCreate(inputTextureData,
+                                                             width, height,
+                                                             8, width*4,
+                                                             inputTextureColorSpace,
+                                                             (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
     //3 Draw image into the context
     CGContextDrawImage(inputTextureContext, CGRectMake(0, 0, width, height),inputTextureImage);
     CGContextRelease(inputTextureContext);
@@ -315,23 +328,27 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     glBindTexture(GL_TEXTURE_2D, inputTexName);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA , width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA , (int)width, (int)height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputTextureData);
     free(inputTextureData);
     return inputTexName;
 }
 
-- (void)setupContext {
+- (BOOL)setupContext {
     EAGLRenderingAPI api = kEAGLRenderingAPIOpenGLES2;
-    _context = [[EAGLContext alloc] initWithAPI:api];
-    if (!_context) {
-        //NSLog(@"Failed to initialize OpenGLES 2.0 context");
-        exit(1);
+    if (_context == NULL) {
+        _context = [[EAGLContext alloc] initWithAPI:api];
+        if (!_context) {
+            NSLog(@"Failed to initialize OpenGLES 2.0 context");
+            return NO;
+        }
     }
     
     if (![EAGLContext setCurrentContext:_context]) {
-        //NSLog(@"Failed to set current OpenGL context");
-        exit(1);
+        NSLog(@"Failed to set current OpenGL context");
+        return NO;
     }
+    
+    return YES;
 }
 
 - (void)setupFrameBuffer {
@@ -516,7 +533,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 -(UIImage *)dumpImageWithWidth:(NSUInteger)width height:(NSUInteger)height
 {
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
-    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
+    glReadPixels(0, 0, (int)width, (int)height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
     NSUInteger biggerR = 0;
     NSUInteger biggerG = 0;
@@ -546,7 +563,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
     // set up for CGImage creation
     int bitsPerComponent = 8;
     int bitsPerPixel = 32;
-    int bytesPerRow = 4 * width;
+    int bytesPerRow = 4 * (int)width;
     CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
     CGBitmapInfo bitmapInfo = kCGImageAlphaPremultipliedLast | kCGBitmapByteOrderDefault;
     // Use this to retain alpha
@@ -564,7 +581,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 -(UIColor *)colorWithBiggerCountFromImageWidth:(NSUInteger)width height:(NSUInteger)height
 {
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
-    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
+    glReadPixels(0, 0, (int)width, (int)height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
     /* Find bigger Alpha color*/
     NSUInteger biggerR = 0;
@@ -600,7 +617,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 {
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
     
-    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
+    glReadPixels(0, 0, (int)width, (int)height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)buffer);
     
     /* Find bigger Alpha color*/
     NSUInteger biggerR = 0;
@@ -657,8 +674,8 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 -(void)findTextColorsTaskForColorScheme:(LEColorScheme*)colorScheme
 {
     //Set sizes for buffer index calculations
-    NSUInteger width = LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE;
-    NSUInteger height = LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE;
+    int width = LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE;
+    int height = LECOLORPICKER_GPU_DEFAULT_SCALED_SIZE;
     
     //Read Render buffer
     GLubyte *buffer = (GLubyte *) malloc(width * height * 4);
@@ -785,7 +802,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
         float foregroundGreen = 0.0;
         float foregroundBlue = 0.0;
         
-        int numComponents = CGColorGetNumberOfComponents(backgroundColor.CGColor);
+        size_t numComponents = CGColorGetNumberOfComponents(backgroundColor.CGColor);
         
         if (numComponents == 4) {
             const CGFloat *components = CGColorGetComponents(backgroundColor.CGColor);
@@ -830,11 +847,6 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 {
     // Add observers for notification to respond at app state changes.
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appWillResignActive)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(appDidEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
@@ -846,22 +858,14 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 
 - (void)dealloc {
     //Remove all observers
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
-}
-
-- (void)appWillResignActive
-{
-    dispatch_suspend(taskQueue);
-    glFinish();
 }
 
 - (void)appDidEnterBackground
 {
     dispatch_suspend(taskQueue);
     glFinish();
-    
 }
 
 - (void)appDidEnterForeground
@@ -872,7 +876,7 @@ unsigned int squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB
 - (BOOL)isAppActive
 {
     UIApplicationState state = [[UIApplication sharedApplication] applicationState];
-    if (state == UIApplicationStateBackground || state == UIApplicationStateInactive)
+    if (state == UIApplicationStateBackground)
     {
         return NO;
     }

@@ -19,7 +19,7 @@
     float y = 0.0;
     
     if (color) {
-        int numComponents = CGColorGetNumberOfComponents(color.CGColor);
+        size_t numComponents = CGColorGetNumberOfComponents(color.CGColor);
         
         if (numComponents == 4) {
             const CGFloat *components = CGColorGetComponents(color.CGColor);
@@ -43,7 +43,7 @@
     float u = 0.0;
     
     if (color) {
-        int numComponents = CGColorGetNumberOfComponents(color.CGColor);
+        size_t numComponents = CGColorGetNumberOfComponents(color.CGColor);
         
         if (numComponents == 4) {
             const CGFloat *components = CGColorGetComponents(color.CGColor);
@@ -66,7 +66,7 @@
     float v = 0.0;
     
     if (color) {
-        int numComponents = CGColorGetNumberOfComponents(color.CGColor);
+        size_t numComponents = CGColorGetNumberOfComponents(color.CGColor);
         
         if (numComponents == 4) {
             const CGFloat *components = CGColorGetComponents(color.CGColor);
