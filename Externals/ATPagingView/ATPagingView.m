@@ -198,10 +198,10 @@
     newPageIndex = MAX(0, MIN(_pageCount, newPageIndex));
 
     // calculate which pages are visible
-    int firstVisiblePage = self.firstVisiblePageIndex;
-    int lastVisiblePage  = self.lastVisiblePageIndex;
-    int firstPage = MAX(0,            MIN(firstVisiblePage, newPageIndex - _pagesToPreload));
-    int lastPage  = MIN(_pageCount-1, MAX(lastVisiblePage,  newPageIndex + _pagesToPreload));
+    NSInteger firstVisiblePage = self.firstVisiblePageIndex;
+    NSInteger lastVisiblePage  = self.lastVisiblePageIndex;
+    NSInteger firstPage = MAX(0,            MIN(firstVisiblePage, newPageIndex - _pagesToPreload));
+    NSInteger lastPage  = MIN(_pageCount-1, MAX(lastVisiblePage,  newPageIndex + _pagesToPreload));
 
     // recycle no longer visible pages
     NSMutableSet *pagesToRemove = [NSMutableSet set];
@@ -214,7 +214,7 @@
     [_visiblePages minusSet:pagesToRemove];
 
     // add missing pages
-    for (int index = firstPage; index <= lastPage; index++) {
+    for (NSInteger index = firstPage; index <= lastPage; index++) {
         if ([self viewForPageAtIndex:index] == nil) {
             // only preload visible pages in quick mode
             if (quickMode && (index < firstVisiblePage || index > lastVisiblePage))
