@@ -1,0 +1,6 @@
+framework module LEColorPicker {
+    header "LEColorPicker.h"
+    
+    export *
+    module * { export * }
+}

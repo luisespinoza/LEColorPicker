@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		A02AB13B17054B1A00D5CE09 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */; };
-		A03AE32F178BA4A8002A4F75 /* UIColor+YUVSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = A0A6B64E173360B3003492A8 /* UIColor+YUVSpace.m */; };
 		A062A1FB17ACB1F90064AA89 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A062A1FA17ACB1F90064AA89 /* OpenGLES.framework */; };
 		A0883520167814CC006D6F0F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A088351F167814CC006D6F0F /* UIKit.framework */; };
 		A0883522167814CC006D6F0F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0883521167814CC006D6F0F /* Foundation.framework */; };
@@ -22,7 +21,6 @@
 		A0883539167814CC006D6F0F /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A0883538167814CC006D6F0F /* ViewController.m */; };
 		A088353C167814CC006D6F0F /* ViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = A088353A167814CC006D6F0F /* ViewController_iPhone.xib */; };
 		A088353F167814CC006D6F0F /* ViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = A088353D167814CC006D6F0F /* ViewController_iPad.xib */; };
-		A088354C1678158B006D6F0F /* LEColorPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = A08835471678158B006D6F0F /* LEColorPicker.m */; };
 		A088355716781592006D6F0F /* ChileEarthquake2010.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355116781592006D6F0F /* ChileEarthquake2010.png */; };
 		A088355816781592006D6F0F /* earth.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355216781592006D6F0F /* earth.png */; };
 		A088355A16781592006D6F0F /* MonaLisa.png in Resources */ = {isa = PBXBuildFile; fileRef = A088355416781592006D6F0F /* MonaLisa.png */; };
@@ -30,7 +28,36 @@
 		A0883560167815CC006D6F0F /* ATPagingView.m in Sources */ = {isa = PBXBuildFile; fileRef = A088355F167815CC006D6F0F /* ATPagingView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		A0F8F05716797898007DBA2B /* AirplaneVortex.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F05616797898007DBA2B /* AirplaneVortex.png */; };
 		A0F8F059167978C5007DBA2B /* VitruvianMan.png in Resources */ = {isa = PBXBuildFile; fileRef = A0F8F058167978C5007DBA2B /* VitruvianMan.png */; };
+		F971E4EF1F68F102000891EA /* LEColorPicker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F971E4E81F68F102000891EA /* LEColorPicker.framework */; };
+		F971E4F01F68F102000891EA /* LEColorPicker.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F971E4E81F68F102000891EA /* LEColorPicker.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F971E4F51F68F120000891EA /* UIColor+YUVSpace.h in Headers */ = {isa = PBXBuildFile; fileRef = A0A6B64D173360B3003492A8 /* UIColor+YUVSpace.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F971E4F61F68F125000891EA /* UIColor+YUVSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = A0A6B64E173360B3003492A8 /* UIColor+YUVSpace.m */; };
+		F971E4F71F68F12A000891EA /* LEColorPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = A08835471678158B006D6F0F /* LEColorPicker.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F971E4ED1F68F102000891EA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A0883512167814CC006D6F0F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F971E4E71F68F102000891EA;
+			remoteInfo = LEColorPicker;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F971E4F41F68F102000891EA /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				F971E4F01F68F102000891EA /* LEColorPicker.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		A02AB13A17054B1A00D5CE09 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -64,6 +91,9 @@
 		A0A6B64E173360B3003492A8 /* UIColor+YUVSpace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+YUVSpace.m"; sourceTree = "<group>"; };
 		A0F8F05616797898007DBA2B /* AirplaneVortex.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AirplaneVortex.png; sourceTree = "<group>"; };
 		A0F8F058167978C5007DBA2B /* VitruvianMan.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = VitruvianMan.png; sourceTree = "<group>"; };
+		F971E4E81F68F102000891EA /* LEColorPicker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LEColorPicker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F971E4EB1F68F102000891EA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F971E4F81F68F3E7000891EA /* LEColorPicker.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = LEColorPicker.modulemap; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,11 +101,19 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F971E4EF1F68F102000891EA /* LEColorPicker.framework in Frameworks */,
 				A062A1FB17ACB1F90064AA89 /* OpenGLES.framework in Frameworks */,
 				A02AB13B17054B1A00D5CE09 /* QuartzCore.framework in Frameworks */,
 				A0883520167814CC006D6F0F /* UIKit.framework in Frameworks */,
 				A0883522167814CC006D6F0F /* Foundation.framework in Frameworks */,
 				A0883524167814CC006D6F0F /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F971E4E41F68F102000891EA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				A088351B167814CC006D6F0F /* LEColorPickerDemo.app */,
+				F971E4E81F68F102000891EA /* LEColorPicker.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -145,6 +184,8 @@
 		A08835451678158B006D6F0F /* LEColorPicker */ = {
 			isa = PBXGroup;
 			children = (
+				F971E4EB1F68F102000891EA /* Info.plist */,
+				F971E4F81F68F3E7000891EA /* LEColorPicker.modulemap */,
 				A08835461678158B006D6F0F /* LEColorPicker.h */,
 				A08835471678158B006D6F0F /* LEColorPicker.m */,
 				A0A6B64D173360B3003492A8 /* UIColor+YUVSpace.h */,
@@ -185,6 +226,17 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		F971E4E51F68F102000891EA /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F971E4F51F68F120000891EA /* UIColor+YUVSpace.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
 		A088351A167814CC006D6F0F /* LEColorPickerDemo */ = {
 			isa = PBXNativeTarget;
@@ -193,15 +245,35 @@
 				A0883517167814CC006D6F0F /* Sources */,
 				A0883518167814CC006D6F0F /* Frameworks */,
 				A0883519167814CC006D6F0F /* Resources */,
+				F971E4F41F68F102000891EA /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				F971E4EE1F68F102000891EA /* PBXTargetDependency */,
 			);
 			name = LEColorPickerDemo;
 			productName = LEColorPickerDemo;
 			productReference = A088351B167814CC006D6F0F /* LEColorPickerDemo.app */;
 			productType = "com.apple.product-type.application";
+		};
+		F971E4E71F68F102000891EA /* LEColorPicker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F971E4F31F68F102000891EA /* Build configuration list for PBXNativeTarget "LEColorPicker" */;
+			buildPhases = (
+				F971E4E31F68F102000891EA /* Sources */,
+				F971E4E41F68F102000891EA /* Frameworks */,
+				F971E4E51F68F102000891EA /* Headers */,
+				F971E4E61F68F102000891EA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LEColorPicker;
+			productName = LEColorPicker;
+			productReference = F971E4E81F68F102000891EA /* LEColorPicker.framework */;
+			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
 
@@ -209,8 +281,14 @@
 		A0883512167814CC006D6F0F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = LuisEspinoza;
+				TargetAttributes = {
+					F971E4E71F68F102000891EA = {
+						CreatedOnToolsVersion = 9.0;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = A0883515167814CC006D6F0F /* Build configuration list for PBXProject "LEColorPickerDemo" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -225,6 +303,7 @@
 			projectRoot = "";
 			targets = (
 				A088351A167814CC006D6F0F /* LEColorPickerDemo */,
+				F971E4E71F68F102000891EA /* LEColorPicker */,
 			);
 		};
 /* End PBXProject section */
@@ -249,6 +328,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F971E4E61F68F102000891EA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -259,13 +345,28 @@
 				A088352C167814CC006D6F0F /* main.m in Sources */,
 				A0883530167814CC006D6F0F /* AppDelegate.m in Sources */,
 				A0883539167814CC006D6F0F /* ViewController.m in Sources */,
-				A088354C1678158B006D6F0F /* LEColorPicker.m in Sources */,
 				A0883560167815CC006D6F0F /* ATPagingView.m in Sources */,
-				A03AE32F178BA4A8002A4F75 /* UIColor+YUVSpace.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F971E4E31F68F102000891EA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F971E4F61F68F125000891EA /* UIColor+YUVSpace.m in Sources */,
+				F971E4F71F68F12A000891EA /* LEColorPicker.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F971E4EE1F68F102000891EA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F971E4E71F68F102000891EA /* LEColorPicker */;
+			targetProxy = F971E4ED1F68F102000891EA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		A0883528167814CC006D6F0F /* InfoPlist.strings */ = {
@@ -302,19 +403,38 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -328,15 +448,33 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -352,11 +490,14 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LEColorPickerDemo/LEColorPickerDemo-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = "LEColorPickerDemo/LEColorPickerDemo-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "net.LuisEspinoza.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -370,12 +511,134 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LEColorPickerDemo/LEColorPickerDemo-Prefix.pch";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = "LEColorPickerDemo/LEColorPickerDemo-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "net.LuisEspinoza.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		F971E4F11F68F102000891EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = LEColorPicker/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = LEColorPicker/LEColorPicker.modulemap;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = net.LuisEspinoza.LEColorPickerDemo.LEColorPicker;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		F971E4F21F68F102000891EA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = LEColorPicker/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = LEColorPicker/LEColorPicker.modulemap;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = net.LuisEspinoza.LEColorPickerDemo.LEColorPicker;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
 		};
@@ -396,6 +659,15 @@
 			buildConfigurations = (
 				A0883543167814CC006D6F0F /* Debug */,
 				A0883544167814CC006D6F0F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F971E4F31F68F102000891EA /* Build configuration list for PBXNativeTarget "LEColorPicker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F971E4F11F68F102000891EA /* Debug */,
+				F971E4F21F68F102000891EA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

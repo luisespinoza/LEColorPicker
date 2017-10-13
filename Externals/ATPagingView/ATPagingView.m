@@ -86,10 +86,13 @@
 }
 
 - (void)dealloc {
-    [_scrollView release], _scrollView = nil;
+    [_scrollView release];
+    _scrollView = nil;
     _delegate = nil;
-    [_recycledPages release], _recycledPages = nil;
-    [_visiblePages release], _visiblePages = nil;
+    [_recycledPages release];
+    _recycledPages = nil;
+    [_visiblePages release];
+    _visiblePages = nil;
     [super dealloc];
 }
 
@@ -198,10 +201,10 @@
     newPageIndex = MAX(0, MIN(_pageCount, newPageIndex));
 
     // calculate which pages are visible
-    int firstVisiblePage = self.firstVisiblePageIndex;
-    int lastVisiblePage  = self.lastVisiblePageIndex;
-    int firstPage = MAX(0,            MIN(firstVisiblePage, newPageIndex - _pagesToPreload));
-    int lastPage  = MIN(_pageCount-1, MAX(lastVisiblePage,  newPageIndex + _pagesToPreload));
+    NSInteger firstVisiblePage = self.firstVisiblePageIndex;
+    NSInteger lastVisiblePage  = self.lastVisiblePageIndex;
+    NSInteger firstPage = MAX(0,            MIN(firstVisiblePage, newPageIndex - _pagesToPreload));
+    NSInteger lastPage  = MIN(_pageCount-1, MAX(lastVisiblePage,  newPageIndex + _pagesToPreload));
 
     // recycle no longer visible pages
     NSMutableSet *pagesToRemove = [NSMutableSet set];
@@ -214,7 +217,7 @@
     [_visiblePages minusSet:pagesToRemove];
 
     // add missing pages
-    for (int index = firstPage; index <= lastPage; index++) {
+    for (NSInteger index = firstPage; index <= lastPage; index++) {
         if ([self viewForPageAtIndex:index] == nil) {
             // only preload visible pages in quick mode
             if (quickMode && (index < firstVisiblePage || index > lastVisiblePage))
@@ -342,9 +345,9 @@
 #ifdef AT_PAGING_VIEW_TRACE_LAYOUT
     NSLog(@"setCurrentPageIndex(%d): _scrollView.frame == %@", newPageIndex, NSStringFromCGRect(_scrollView.frame));
 #endif
-    if (_horizontal && (_scrollView.frame.size.width > 0 && fabsf(_scrollView.frame.origin.x - (-_gapBetweenPages/2)) < 1e-6) ) {
+    if (_horizontal && (_scrollView.frame.size.width > 0 && fabs(_scrollView.frame.origin.x - (-_gapBetweenPages/2)) < 1e-6) ) {
         _scrollView.contentOffset = CGPointMake(_scrollView.frame.size.width * newPageIndex, 0);
-    } else if (_scrollView.frame.size.height > 0 && fabsf(_scrollView.frame.origin.y - (-_gapBetweenPages/2)) < 1e-6) {
+    } else if (_scrollView.frame.size.height > 0 && fabs(_scrollView.frame.origin.y - (-_gapBetweenPages/2)) < 1e-6) {
         _scrollView.contentOffset = CGPointMake(0, _scrollView.frame.size.height * newPageIndex);
     }
     _currentPageIndex = newPageIndex;
@@ -527,7 +530,8 @@
 #pragma mark init/dealloc
 
 - (void)dealloc {
-    [_pagingView release], _pagingView = nil;
+    [_pagingView release];
+    _pagingView = nil;
     [super dealloc];
 }
 
@@ -556,6 +560,8 @@
 #pragma mark Lifecycle
 
 - (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
     if (self.pagingView.pageCount == 0)
         [self.pagingView reloadData];
 }
