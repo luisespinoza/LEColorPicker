@@ -9,9 +9,11 @@
 #import "UIColor+YUVSpace.h"
 #import <float.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation UIColor (YUVSpace)
 
-+ (float)yComponentFromColor:(UIColor *)color
++ (float)yComponentFromColor:(nullable UIColor *)color
 {
     float red = 0.0;
     float green = 0.0;
@@ -37,7 +39,7 @@
     return y;
 }
 
-+ (float)uComponentFromColor:(UIColor *)color
++ (float)uComponentFromColor:(nullable UIColor *)color
 {
     float red = 0.0;
     float green = 0.0;
@@ -62,7 +64,7 @@
     return u;
 }
 
-+ (float)vComponentFromColor:(UIColor *)color
++ (float)vComponentFromColor:(nullable UIColor *)color
 {
     float red = 0.0;
     float green = 0.0;
@@ -87,7 +89,7 @@
     return v;
 }
 
-+ (float)YUVSpaceDistanceToColor:(UIColor *)toColor fromColor:(UIColor *)fromColor
++ (float)YUVSpaceDistanceToColor:(nullable UIColor *)toColor fromColor:(nullable UIColor *)fromColor
 {
     float YToColor = [UIColor yComponentFromColor:toColor];
     float UToColor = [UIColor uComponentFromColor:toColor];
@@ -106,7 +108,7 @@
     return distance;
 }
 
-+ (float)YUVSpaceSquareDistanceToColor:(UIColor *)toColor fromColor:(UIColor *)fromColor
++ (float)YUVSpaceSquareDistanceToColor:(nullable UIColor *)toColor fromColor:(nullable UIColor *)fromColor
 {
     float YToColor = [UIColor yComponentFromColor:toColor];
     float UToColor = [UIColor uComponentFromColor:toColor];
@@ -125,6 +127,6 @@
     return distance;
 }
 
-
-
 @end
+
+NS_ASSUME_NONNULL_END

@@ -156,7 +156,9 @@ NSUInteger squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB)
 
 #pragma mark - Obj-C interface methods
 
-- (id)init
+NS_ASSUME_NONNULL_BEGIN
+
+- (instancetype)init
 {
     self = [super init];
     if (self) {
@@ -187,7 +189,7 @@ NSUInteger squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB)
     }
 }
 
-- (LEColorScheme*)colorSchemeFromImage:(UIImage*)inputImage
+- (nullable LEColorScheme*)colorSchemeFromImage:(UIImage*)inputImage
 {
     if ([self isAppActive]) {
         // First, we scale the input image, to get a constant image size and square texture.
@@ -768,13 +770,13 @@ NSUInteger squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB)
     free(buffer);
 }
 
-- (UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
+- (nullable UIImage*)scaleImage:(UIImage*)image width:(CGFloat)width height:(CGFloat)height
 {
-    UIImage *scaledImage =  [self imageWithImage:image scaledToSize:CGSizeMake(width,height)];
+    UIImage *scaledImage = [self imageWithImage:image scaledToSize:CGSizeMake(width,height)];
     return scaledImage;
 }
 
-- (BOOL)isSufficienteContrastBetweenBackground:(UIColor*)backgroundColor andForground:(UIColor*)foregroundColor
+- (BOOL)isSufficienteContrastBetweenBackground:(nullable UIColor*)backgroundColor andForground:(nullable UIColor*)foregroundColor
 {
     float backgroundColorBrightness = [UIColor yComponentFromColor:backgroundColor];
     float foregroundColorBrightness = [UIColor yComponentFromColor:foregroundColor];
@@ -822,7 +824,7 @@ NSUInteger squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB)
 }
 
 #pragma mark - UIImage utilities
-- (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize {
+- (nullable UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize {
     UIGraphicsBeginImageContextWithOptions(newSize, NO, 1.0);
     [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -871,4 +873,7 @@ NSUInteger squareDistanceInRGBSpaceBetweenColor(LEColor colorA, LEColor colorB)
     
     return YES;
 }
+
+NS_ASSUME_NONNULL_END
+
 @end

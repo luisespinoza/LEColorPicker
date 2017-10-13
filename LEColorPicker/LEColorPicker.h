@@ -19,10 +19,14 @@
 #	 define LELog(...) /* */
 #endif
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface LEColorScheme : NSObject
-@property(nonatomic,strong)UIColor *backgroundColor;
-@property(nonatomic,strong)UIColor *primaryTextColor;
-@property(nonatomic,strong)UIColor *secondaryTextColor;
+
+@property(nonatomic,strong,nullable)UIColor *backgroundColor;
+@property(nonatomic,strong,nullable)UIColor *primaryTextColor;
+@property(nonatomic,strong,nullable)UIColor *secondaryTextColor;
+
 @end
 
 @interface LEColorPicker : NSObject
@@ -53,7 +57,7 @@
  @param image Input image, wich will be used to generate the three colors.
  @returns LEColorScheme with three output colors.
  */
-- (LEColorScheme*)colorSchemeFromImage:(UIImage*)image;
+- (nullable LEColorScheme*)colorSchemeFromImage:(UIImage*)image;
 
 /**
  This instance method allows the client object to generate three colors from a specific UIImage. The complete
@@ -80,5 +84,6 @@
 
 @end
 
-#endif  /* LECOLORPICKER */
+NS_ASSUME_NONNULL_END
 
+#endif  /* LECOLORPICKER */

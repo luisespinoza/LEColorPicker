@@ -8,13 +8,16 @@
 
 #import <UIKit/UIKit.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface UIColor (YUVSpace)
 
-+ (float) yComponentFromColor:(UIColor*)color;
-+ (float) uComponentFromColor:(UIColor*)color;
-+ (float) vComponentFromColor:(UIColor*)color;
-+ (float) YUVSpaceDistanceToColor:(UIColor*)toColor fromColor:(UIColor*)fromColor;
-+ (float) YUVSpaceSquareDistanceToColor:(UIColor *)toColor fromColor:(UIColor *)fromColor;
++ (float) yComponentFromColor:(nullable UIColor*)color;
++ (float) uComponentFromColor:(nullable UIColor*)color;
++ (float) vComponentFromColor:(nullable UIColor*)color;
++ (float) YUVSpaceDistanceToColor:(nullable UIColor*)toColor fromColor:(nullable UIColor*)fromColor;
++ (float) YUVSpaceSquareDistanceToColor:(nullable UIColor *)toColor fromColor:(nullable UIColor *)fromColor;
 
 @end
 
+NS_ASSUME_NONNULL_END
