@@ -14,9 +14,9 @@
 #define LECOLORPICKER
 
 #ifdef LE_DEBUG
-#     define LELog(s,...) NSLog((@"[%s] " s),__func__,## __VA_ARGS__);
+#	 define LELog(s,...) NSLog((@"[%s] " s),__func__,## __VA_ARGS__);
 #else
-#     define LELog(...) /* */
+#	 define LELog(...) /* */
 #endif
 
 @interface LEColorScheme : NSObject
@@ -81,3 +81,4 @@
 @end
 
 #endif  /* LECOLORPICKER */
+
