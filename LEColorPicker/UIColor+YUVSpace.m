@@ -18,7 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
     float red = 0.0;
     float green = 0.0;
     float blue = 0.0;
-    float alpha = 0.0;
     float y = 0.0;
     
     if (color) {
@@ -29,7 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
             red = components[0];
             green = components[1];
             blue = components[2];
-            alpha = components[3];
         }
         
         y = 0.299*red + 0.587*green+ 0.114*blue;
@@ -44,7 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
     float red = 0.0;
     float green = 0.0;
     float blue = 0.0;
-    float alpha = 0.0;
     float u = 0.0;
     
     if (color) {
@@ -55,7 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
             red = components[0];
             green = components[1];
             blue = components[2];
-            alpha = components[3];
         }
         
         u = (-0.14713)*red + (-0.28886)*green + (0.436)*blue;
@@ -69,7 +65,6 @@ NS_ASSUME_NONNULL_BEGIN
     float red = 0.0;
     float green = 0.0;
     float blue = 0.0;
-    float alpha = 0.0;
     float v = 0.0;
     
     if (color) {
@@ -80,7 +75,6 @@ NS_ASSUME_NONNULL_BEGIN
             red = components[0];
             green = components[1];
             blue = components[2];
-            alpha = components[3];
         }
         
         v = 0.615*red + (-0.51499)*green + (-0.10001)*blue;
