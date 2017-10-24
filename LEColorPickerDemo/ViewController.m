@@ -7,7 +7,8 @@
 //
 
 #import "ViewController.h"
-#import "LEColorPicker.h"
+
+@import LEColorPicker;
 
 @interface ViewController ()
 

@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import "ATPagingView.h"
-#import "LEColorPicker.h"
 
 @interface ViewController : UIViewController<ATPagingViewDelegate>
 {
